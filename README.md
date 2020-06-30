@@ -3,6 +3,8 @@
 
 Warning: this project is in an initial stage of development so anything is up for change.
 
+Associated ramblings and technical decisions for this project can be read at my site here: https://www.clarityncode.com/p/1-first-steps.html
+
 Purpose: create a comment thread system with ReactJS where components update themselves using a local database synced with remote database.
 
 It is created in the spirit of a 'CouchApp'* where the website files are attached to the CouchDB database and served from there.
