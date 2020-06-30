@@ -30,76 +30,7 @@ class TextArea extends React.Component {
 class CommentBlock extends React.Component{
   constructor(props){
     super(props);
-
-    this.state = {
-      value: ''
-    }
-
-    this.handleChangeEvt = this.handleChangeEvt.bind(this);
-    this.handleOnClick = this.handleOnClick.bind(this);
-    this.clearText = this.clearText.bind(this);
-  }
-
-  clearText(){
-    this.setState( {value: ''} );
-  }
-
-  handleChangeEvt(event){
-    this.setState( {value: event.target.value} );
-  }
-
-  handleOnClick(){
-
-    let text = this.state.value;
-    let clear = this.clearText;
-
-    local_db.get('CommentBlock')
-
-    .then(function(commentDoc){
-
-      commentDoc.comments.push( {text: text} );
-
-      return local_db.put(commentDoc);
-    })
     
-    .catch(function (err) {
-
-      if(err.name === 'not_found') {
-
-        return local_db.put({
-          _id: 'CommentBlock',
-          comments: [
-            {text: text}
-          ]
-        });
-        
-      }
-      
-      throw err;
-    })
-
-    .then( 
-      () => {
-        console.log('new comment saved.')
-        clear();
-      },
-      (err) => console.log('new comment could not be saved: ', err)
-    );
-
-  }
-
-  displayDB(){
-
-    local_db.get('CommentBlock')
-
-    .then(function(commentDoc){
-      console.log('doc: ', commentDoc);
-    })
-    
-    .catch(function (err) {
-      console.log('Error .get()ing document: ', err);
-    })
-
   }
 
   render(){
@@ -107,11 +38,11 @@ class CommentBlock extends React.Component{
     return(
       e('div', null,
 
-        e(TextArea, {id: 'textblock', value: this.state.value, onChange: this.handleChangeEvt}, null),
+        e(TextArea, {id: 'textblock', value: this.props.commentText, onChange: this.props.handleChangeEvt}, null),
 
-        e(PostButton, {onClick: this.handleOnClick}, 'Post Comment'),
+        e(PostButton, {onClick: this.props.handlePostCommentBtnClick}, 'Post Comment'),
 
-        e('button', {onClick: this.displayDB}, 'Check DB')
+        e('button', {onClick: this.props.displayDB}, 'Check DB')
       )
     );
 

@@ -18,12 +18,16 @@ class CommentDisplay extends React.Component{
     }
     
     render(){
-        
-        return(
-            e('p', null, this.props.author),
-            e('p', null, this.props.content),
-            e(ReplyButton, null, 'Reply')
-        );
+
+        return e('div', null,
+
+                    e('p', null, 'noneAuthor'),
+
+                    e('p', null, this.props.commentText),
+
+                    e(ReplyButton, null, "Reply")
+
+                );
     }
 }
 
