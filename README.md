@@ -10,3 +10,14 @@ It is created in the spirit of a 'CouchApp'* where the website files are attache
 The updateScriptNodeJS.js file can be run with NPM to upload any changed files to a local CouchDB instance.
 
 *the concept of a 'CouchApp' has been officially abandoned by the CouchDB development team, see here: https://docs.couchdb.org/en/stable/ddocs/
+
+
+Roadmap
+
+* Explore and implement technical skeleton of application (software to use, API's to call, authentication scheme, etc.)
+.
+.
+* Architect the overall structure of the program (object organization, begin unit tests, etc.)
+.
+.
+* Analyze the user experience both from a front-end styling perspective and back-end technical maintenance
