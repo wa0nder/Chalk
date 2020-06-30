@@ -17,7 +17,7 @@ function getLastRev(){
             // The whole response has been received. Print out the result.
             resp.on('end', () => {
                 let json = JSON.parse(data);
-                console.log("returned json: " + data);
+                //console.log("returned json: " + data);
 
                 resolve(json._rev);
             });
@@ -36,22 +36,29 @@ function getLastRev(){
     
 }
 
-function uploadFile(filename, rev){
+function uploadFile(filename, rev, verbose){
 
     return new Promise( function(resolve, reject){
-
-        //create request object
-        var options = {
+        
+        let type = path.extname(filename).substr(1);
+        
+        let options = {
             host: 'localhost',
             port: 5984,
             path: `/sidewalks/front-end/${filename}?rev=${rev}`,
             method: 'PUT',
-            auth: 'admin:yaz'
+            auth: 'admin:yaz',
+            headers: {
+                'Content-Type': `text/${type}`
+            }
         };
         
         var req = http.request(options, function(res){
-            console.log('STATUS: ' + res.statusCode);
-            console.log('HEADERS: ' + JSON.stringify(res.headers));
+            if(verbose){
+                console.log('STATUS: ' + res.statusCode);
+                console.log('HEADERS: ' + JSON.stringify(res.headers));
+            }
+            
             res.setEncoding('utf8');
 
             let data = '';
@@ -133,7 +140,8 @@ function stepThroughFiles(){
 
     //getFilesToUpdate()
 
-    Promise.resolve( Array.from(process.argv).slice(2) )
+    let verbose = (process.argv[2] === 'true') ? true : false;
+    Promise.resolve( Array.from(process.argv).slice(3) )
     
     .then( (file_list) => {
         
@@ -146,7 +154,7 @@ function stepThroughFiles(){
 
             .then( (rev_id) => {
                 console.log('file updated: ', file);
-                return uploadFile(file, rev_id);
+                return uploadFile(file, rev_id, verbose);
 
             })
 

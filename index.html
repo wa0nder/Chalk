@@ -5,13 +5,26 @@
   <meta charset="utf-8">
 
   <title>Sidewalks</title>
+  
   <script src="http://127.0.0.1:5984/sidewalks/front-end/pouchdb-7.1.1.js"></script>
   <script src="http://127.0.0.1:5984/sidewalks/front-end/index.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="index.css">
 
 </head>
 
 <body>
     <p>Sidewalks</p>
+
+    <div id="CommentThread"></div>
+
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+
+    <!-- Load our React component. -->
+    <script src="CommentBlock.js"></script>
+    <script src="CommentDisplay.js"></script>
+    <script src="CommentThread.js"></script>
   
 </body>
 </html>
