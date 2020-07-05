@@ -1,11 +1,11 @@
-// let local_db = new PouchDB("sidewalks");
+ let local_db = new PouchDB("sidewalks");
 // let remote_db = new PouchDB('http://admin:yaz@localhost:5984/sidewalks');
 
 
 
-// local_db.info().then(function(info){
-//     console.log('local db: ', info);
-// });
+local_db.info().then(function(info){
+    console.log('local db: ', info);
+});
 
 // remote_db.info().then(function(info){
 //     console.log('remote db: ', info);
@@ -17,27 +17,27 @@ var db = new PouchDB('http://localhost:5984/dummy', {skip_setup: true});
 //     console.log('remote pouchdb: ', info);
 // });
 
-db.signUp('robin', 'dickgrayson', function (err, response) {
-    if(err){
+// db.signUp('robin', 'dickgrayson', function (err, response) {
+//     if(err){
 
-      if(err.name === 'conflict'){
+//       if(err.name === 'conflict'){
 
-          console.log('conflicting username');
-      } 
-      else if(err.name === 'forbidden'){
+//           console.log('conflicting username');
+//       } 
+//       else if(err.name === 'forbidden'){
 
-        console.log('forbidden');
-      } 
-      else{
+//         console.log('forbidden');
+//       } 
+//       else{
 
-        console.log('other error: ', err);
-        // HTTP error, cosmic rays, etc.
-      }
-    }
-    else{
-        console.log('response: ', response);
-    }
-  });
+//         console.log('other error: ', err);
+//         // HTTP error, cosmic rays, etc.
+//       }
+//     }
+//     else{
+//         console.log('response: ', response);
+//     }
+//   });
 
 
 // let doc = {

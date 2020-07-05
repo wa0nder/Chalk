@@ -2,11 +2,15 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+let filename = process.argv[2] || 'credentials.txt';
+let pair = fs.readFileSync(filename, 'utf8').split('|');
+const [admin, pass] = [pair[0], pair[1].trim()];
+
 function getLastRev(){
 
     return new Promise( function(resolve, reject){
 
-        http.get('http://admin:yaz@127.0.0.1:5984/sidewalks/front-end/', (resp) => {
+        http.get(`http://${admin}:${pass}@127.0.0.1:5984/sidewalks/front-end/`, (resp) => {
             let data = '';
           
             // A chunk of data has been received.
@@ -47,7 +51,7 @@ function uploadFile(filename, rev, verbose){
             port: 5984,
             path: `/sidewalks/front-end/${filename}?rev=${rev}`,
             method: 'PUT',
-            auth: 'admin:yaz',
+            auth: `${admin}:${pass}`,
             headers: {
                 'Content-Type': `text/${type}`
             }

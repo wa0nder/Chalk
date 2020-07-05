@@ -1,0 +1,107 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Sidewalks</title>
+
+  <script>
+
+    function handleSubmit(event){
+        console.log('evt: ', event);
+
+        postData(event.target);
+
+        return false;
+    }
+
+function hexEncode(str){
+    var hex, i;
+
+    var result = "";
+    for (i=0; i<str.length; i++) {
+        hex = str.charCodeAt(i).toString(16);
+        result += (hex).slice(-4);
+    }
+
+    return result
+}
+
+    function postData(formElement){
+
+        let formData = new FormData(formElement);
+
+        //build param string
+        let body = '';
+        let hex = '';
+        for (var pair of formData.entries()) {
+
+            body += pair[0] + '=' + pair[1] + '&';
+
+            if(pair[0] === 'name') hex = hexEncode(pair[1]);
+        }
+        body = body.substr(0, body.length-1);
+
+        console.log('param string: ', body);
+
+        console.log('hex: ', hex);
+
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function(){
+
+            if(this.readyState == 4){
+
+                if(this.status == 200){
+
+                    // Get the raw header string
+                    var headers = xhttp.getAllResponseHeaders();
+
+                    // Convert the header string into an array
+                    // of individual headers
+                    var arr = headers.trim().split(/[\r\n]+/);
+
+                    console.log('response: ', arr, ' : ', xhttp.responseText);
+
+                    Array.from(document.getElementsByTagName('form')).forEach( item => item.remove() );
+
+                    let link = document.createElement('a');
+                    link.href = `https://127.0.0.1:6984/userdb-${hex}`;
+                    link.innerText = 'Go use Sidewalks!';
+                    document.body.appendChild(link)
+                }
+                else{
+                    console.log('Error: ', this.status, ' : ', xhttp.responseText);
+                }
+            } 
+
+        };
+
+        xhttp.open('POST', 'http://127.0.0.1:5984/_session', true);
+
+        xhttp.setRequestHeader('Accept', 'application/json');
+        xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        //xhttp.withCredentials = true;
+
+        xhttp.send(body);
+    }
+
+  </script>
+
+</head>
+
+<body>
+    <a href="/">Sign Up</a>
+    <h1>Chalk Log In</h1>
+    
+    <form onsubmit="return handleSubmit(event)" method="post">
+        <label for="name">Username:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="password">Password:</label><br>
+        <input type="text" id="password" name="password"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+  
+</body>
+</html>
