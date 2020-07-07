@@ -9,24 +9,24 @@
   <script>
 
     function handleSubmit(event){
-        console.log('evt: ', event);
+        //console.log('evt: ', event);
 
         postData(event.target);
 
         return false;
     }
 
-function hexEncode(str){
-    var hex, i;
+    function hexEncode(str){
+        var hex, i;
 
-    var result = "";
-    for (i=0; i<str.length; i++) {
-        hex = str.charCodeAt(i).toString(16);
-        result += (hex).slice(-4);
+        var result = "";
+        for (i=0; i<str.length; i++) {
+            hex = str.charCodeAt(i).toString(16);
+            result += (hex).slice(-4);
+        }
+
+        return result
     }
-
-    return result
-}
 
     function postData(formElement){
 
@@ -67,7 +67,7 @@ function hexEncode(str){
                     Array.from(document.getElementsByTagName('form')).forEach( item => item.remove() );
 
                     let link = document.createElement('a');
-                    link.href = `https://127.0.0.1:6984/userdb-${hex}`;
+                    link.href = `https://127.0.0.1:6984/userdb-${hex}/home/chalkBlock.html`;
                     link.innerText = 'Go use Sidewalks!';
                     document.body.appendChild(link)
                 }

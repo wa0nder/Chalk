@@ -6,11 +6,11 @@ let filename = process.argv[2] || 'credentials.txt';
 let pair = fs.readFileSync(filename, 'utf8').split('|');
 const [admin, pass] = [pair[0], pair[1].trim()];
 
-function getLastRev(){
+function getLastRev(path){
 
     return new Promise( function(resolve, reject){
 
-        http.get(`http://${admin}:${pass}@127.0.0.1:5984/sidewalks/front-end/`, (resp) => {
+        http.get(`http://${admin}:${pass}@127.0.0.1:5984${path}`, (resp) => {
             let data = '';
           
             // A chunk of data has been received.
@@ -40,7 +40,7 @@ function getLastRev(){
     
 }
 
-function uploadFile(filename, rev, verbose){
+function uploadFile(filename, rev, verbose, db_path){
 
     return new Promise( function(resolve, reject){
         
@@ -49,7 +49,7 @@ function uploadFile(filename, rev, verbose){
         let options = {
             host: 'localhost',
             port: 5984,
-            path: `/sidewalks/front-end/${filename}?rev=${rev}`,
+            path: `${db_path}${filename}?rev=${rev}`,
             method: 'PUT',
             auth: `${admin}:${pass}`,
             headers: {
@@ -140,36 +140,40 @@ function getFilesToUpdate(){
 }
 
 /**Reads in a list of files from command line and uploads them to couchDB */
-function stepThroughFiles(){
-
+function uploadFiles(verbose, path, file_list){
     //getFilesToUpdate()
-
-    let verbose = (process.argv[2] === 'true') ? true : false;
-    Promise.resolve( Array.from(process.argv).slice(3) )
+    return Promise.resolve( file_list )
     
-    .then( (file_list) => {
+    .then( file_list => {
         
-        file_list.reduce( (chain, file) => {
+        return file_list.reduce( (chain, file) => {
 
             return chain.then( () => {
 
-                return getLastRev();
+                return getLastRev(path);
             })
 
             .then( (rev_id) => {
                 console.log('file updated: ', file);
-                return uploadFile(file, rev_id, verbose);
+                return uploadFile(file, rev_id, verbose, path);
 
             })
 
         }, Promise.resolve(''))
 
-        .catch( (err) => console.log("Error: ", err) );
+    });
+}
 
-    })
+function stepThroughFiles(){
 
-    .catch( (err) => console.log("Error: ", err) );;
-    
+    let verbose = (process.argv[3] === 'true') ? true : false;
+    let file_list = Array.from(process.argv).slice(4);
+
+    uploadFiles(verbose, '/sidewalks/front-end/', file_list)
+
+    .catch( (err) => console.log("Error: ", err) );
 }
 
 stepThroughFiles();
+
+module.exports.uploadFiles = uploadFiles;

@@ -17,7 +17,9 @@ function CommentThread(props){
 
         updateDBComments( dbComments.concat(commentDoc.comments) );
       })
+      
       .catch(err => console.log('Error: ', err.status, '-', err.message, ' : ', err));
+
     }, []);
 
     function clearText(){
