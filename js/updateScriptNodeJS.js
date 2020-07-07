@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-let filename = process.argv[2] || 'credentials.txt';
+let filename = process.argv[2] || '../credentials.txt';
 let pair = fs.readFileSync(filename, 'utf8').split('|');
 const [admin, pass] = [pair[0], pair[1].trim()];
 

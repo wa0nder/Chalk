@@ -15,13 +15,13 @@ function hexEncode(str){
   return result
 }
 
-let filename = process.argv[2] || 'credentials.txt';
+let filename = process.argv[2] || '../credentials.txt';
 let pair = fs.readFileSync(filename, 'utf8').split('|');
 const [admin, pass] = [pair[0], pair[1].trim()];
 
 const options = {
-  key: fs.readFileSync('cert/privkey.pem'),
-  cert: fs.readFileSync('cert/signupServer.pem')
+  key: fs.readFileSync('../cert/privkey.pem'),
+  cert: fs.readFileSync('../cert/signupServer.pem')
 };
 
 const serverDBHostName = '127.0.0.1'
