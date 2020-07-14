@@ -45,11 +45,12 @@ function uploadFile(filename, rev, verbose, db_path){
     return new Promise( function(resolve, reject){
         
         let type = path.extname(filename).substr(1);
+        let fname_only = filename.split('/').pop();
         
         let options = {
             host: 'localhost',
             port: 5984,
-            path: `${db_path}${filename}?rev=${rev}`,
+            path: `${db_path}${fname_only}?rev=${rev}`,
             method: 'PUT',
             auth: `${admin}:${pass}`,
             headers: {
@@ -154,7 +155,7 @@ function uploadFiles(verbose, path, file_list){
             })
 
             .then( (rev_id) => {
-                console.log('file updated: ', file);
+                console.log('filepath to update: ', file);
                 return uploadFile(file, rev_id, verbose, path);
 
             })
@@ -167,9 +168,10 @@ function uploadFiles(verbose, path, file_list){
 function stepThroughFiles(){
 
     let verbose = (process.argv[3] === 'true') ? true : false;
-    let file_list = Array.from(process.argv).slice(4);
+    let db_path = (process.argv[4] === '') ? '/sidewalks/front-end/' : process.argv[4];
+    let file_list = Array.from(process.argv).slice(5);
 
-    uploadFiles(verbose, '/sidewalks/front-end/', file_list)
+    uploadFiles(verbose, db_path, file_list)
 
     .catch( (err) => console.log("Error: ", err) );
 }

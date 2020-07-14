@@ -108,11 +108,11 @@ function handleSignUp(req, res){
 
     .catch( err => {
 
-      console.log('handleSignUp() Error: ', err)
+      console.log('handleSignUp() Error: ', err.message)
 
       res.statusCode = 401;
       res.setHeader('Content-Type', 'text/html');
-      res.end('<p>Sorry, something went wrong during the sign up process :(</p>');
+      res.end(`<p>Sorry, something went wrong during the sign up process :( <br/>${err.toString()}</p>`);
 
     });
 
@@ -134,7 +134,7 @@ function createUser(data){
 
     .then( () => putJSFileInDB(dbHex) )
 
-    .then( () => uploadFiles(false, `/userdb-${dbHex}/home/`, ['chalkBlock.html']) );
+    .then( () => uploadFiles(false, `/userdb-${dbHex}/home/`, ['../html/home.html','../html/chalkBlock.html']) );
 }
 
 function confirmUserDBCreation(dbHex){
@@ -157,7 +157,9 @@ function confirmUserDBCreation(dbHex){
 
           else{
 
-            setTimeout( () => checkDB(resolve, reject), 1);
+            console.log('Retrying confirm userdb creation.')
+
+            setTimeout( () => checkDB(resolve, reject), 10);
 
             retries++;
           }
@@ -290,7 +292,7 @@ function createUserInDB(userPassArray){
         }
         else{
 
-          reject( new Error(res.statusCode + ':' + res) );
+          reject( new Error(res.statusCode + ':' + body) );
         }
       });
   
@@ -317,7 +319,7 @@ function createUserInDB(userPassArray){
 
 function handleLogin(req, res){
 
-  let path = 'login.html';
+  let path = '../html/login.html';
 
   // Check if file exists
   fs.stat(path, function(err,stats) {

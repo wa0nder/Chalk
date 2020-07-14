@@ -11,8 +11,9 @@
     },
   "scripts": {
     "test": "jasmine",
-    "update": "node updateScriptNodeJS credentials.txt false",
-    "updateAll": "node updateScriptNodeJS credentials.txt false index.html index.js index.css CommentBlock.js CommentDisplay.js CommentThread.js"
+    "update": "node js/updateScriptNodeJS credentials.txt false ''",
+    "update_wp": "node js/updateScriptNodeJS credentials.txt false ",
+    "updateAll": "node js/updateScriptNodeJS credentials.txt false '' index.html index.js index.css CommentBlock.js CommentDisplay.js CommentThread.js"
   },
   "author": "yaz",
   "license": "ISC"

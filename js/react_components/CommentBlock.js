@@ -1,6 +1,6 @@
 'use strict';
 
-const e = React.createElement;
+//const e = React.createElement;
 
 class PostButton extends React.Component{
 
@@ -40,9 +40,7 @@ class CommentBlock extends React.Component{
 
         e(TextArea, {id: 'textblock', value: this.props.commentText, onChange: this.props.handleChangeEvt}, null),
 
-        e(PostButton, {onClick: this.props.handlePostCommentBtnClick}, 'Post Comment'),
-
-        e('button', {onClick: this.props.displayDB}, 'Check DB')
+        e(PostButton, {onClick: this.props.handlePostCommentBtnClick}, 'Post Comment')
       )
     );
 
