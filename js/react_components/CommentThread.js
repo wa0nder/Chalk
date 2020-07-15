@@ -8,20 +8,21 @@ class CommentThread extends React.Component{
     super(props);
 
     this.state = {
-      dbComments: [],
+      threadTitle: this.props.commentThreadDoc._id,
+      dbComments: this.props.commentThreadDoc.comments || [],
       commentText: ''
     }
 
     this.clearText = this.clearText.bind(this);
     this.handleChangeEvt = this.handleChangeEvt.bind(this);
     this.handlePostCommentBtnClick = this.handlePostCommentBtnClick.bind(this);
-
+    this.syncStateWithDB = this.syncStateWithDB.bind(this);
   }
 
-  componentDidMount(){
-    let update = this.state.dbComments.concat(this.props.commentThreadDoc.value);
-    this.setState({dbComments: update})
-  }
+  // componentDidMount(){
+  //   let update = this.state.dbComments.concat(this.props.commentThreadDoc.comments);
+  //   this.setState({dbComments: update})
+  // }
 
   clearText(){
     updateCommentText('');
@@ -45,13 +46,30 @@ class CommentThread extends React.Component{
     .catch( err => console.log('handlePostCommentBtnClick() This is not supposed to happen: ', err) );
   }
 
+  syncStateWithDB(){
+
+    this.setState({
+      threadTitle: this.props.commentThreadDoc._id, 
+      dbComments: this.props.commentThreadDoc.comments.slice()
+    });
+
+  }
+
   render(){
+
+    console.log('rerendering: ', this.state.dbComments);
+
+    if(this.props.commentThreadDoc._id != this.state.threadTitle){
+      this.syncStateWithDB();
+    }
 
     let cnt = 0;
 
     return(
 
       e(React.Fragment, null, 
+
+        e('h3', null, this.props.commentThreadDoc._id),
 
         e(CommentBlock, {commentText:this.state.commentText, handlePostCommentBtnClick:this.handlePostCommentBtnClick, handleChangeEvt:this.handleChangeEvt}),
 

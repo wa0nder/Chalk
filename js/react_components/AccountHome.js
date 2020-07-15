@@ -104,12 +104,11 @@ class NewThreadButton extends React.Component{
 
 function CommentThreadPreview(props){
 
+    let threadId = props.commentThreadDoc.key[1];
+
     return(
 
-        e('div', {onClickCapture: e => props.loadThread(e,props.commentThreadDoc)},
-
-            e(CommentThread, {commentThreadDoc: props.commentThreadDoc, createNewCommentInDB:props.createNewCommentInDB})
-        )
+        e('p', {className:'recentThreadLinks',onClickCapture: e => props.loadThread(e,props.commentThreadDoc)}, threadId)
     );
 }
 
@@ -135,7 +134,7 @@ class RecentThreads extends React.Component{
 
                 e('h2', null, 'Recent Threads'),
                 
-                e('div', null, elements )
+                e('div', null, elements)
             )
         );
     }
@@ -149,13 +148,18 @@ class AccountHome extends React.Component{
 
         this.state = {
             queryResults: [],
-            currentThreadTitle: undefined
+            currentThreadTitle: undefined,
+            currentThread: undefined
         };
 
         this.local_db = this.props.local_db;
 
         this.updateRecentThreadsList = this.updateRecentThreadsList.bind(this);
         this.loadThread = this.loadThread.bind(this);
+    }
+
+    componentDidMount(){
+        this.updateRecentThreadsList(undefined);
     }
 
     updateRecentThreadsList(threadTitle){
@@ -190,10 +194,31 @@ class AccountHome extends React.Component{
     }
 
     loadThread(event, commentThreadDoc){
-        console.log("I'm supposed to load a comment here");
+
+        console.log("I'm supposed to load a comment here: ", commentThreadDoc);
+
+        let title = commentThreadDoc.key[1];
+
+        if(title != undefined){
+
+            this.local_db.get(title)
+
+            .then( res => {
+                console.log('res: ', res);
+                this.setState({currentThreadTitle: title, currentThread: res});
+            })
+
+            .catch( err => flashMessage(event.target, 'red', 'Comment thread could not be loaded: ', err) );
+        }
+
     }
 
     render(){
+
+        let commentThreadElement = ( (this.state.currentThread === undefined) ? 
+            e('p', null, 'Nothing to see here...') :
+            e(CommentThread, {commentThreadDoc: this.state.currentThread, createNewCommentInDB:this.createNewCommentInDB})
+        )
 
         return(
 
@@ -207,9 +232,14 @@ class AccountHome extends React.Component{
 
             ),
 
-            e(RecentThreads, {queryResults: this.state.queryResults, createNewCommentInDB:this.createNewCommentInDB, loadThread:this.loadThread})
+            e(RecentThreads, {queryResults: this.state.queryResults, createNewCommentInDB:this.createNewCommentInDB, loadThread:this.loadThread}),
 
-            //e(TextArea, {id: 'textblock', value: this.props.commentText, onChange: this.props.handleChangeEvt}, null),
+            e('div', null, 
+
+                e('h2', null, 'Current Thread'),
+
+                commentThreadElement
+            ),
 
             
             )

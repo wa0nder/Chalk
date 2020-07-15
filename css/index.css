@@ -5,7 +5,18 @@
 
 div {
   padding: 1%;
-  border-radius: 5%;
+  border-radius: 3%;
   border: 3px dotted navy;
-  max-width: 50%;
+  max-width: 80%;
+}
+
+.recentThreadLinks{
+  color: none;
+}
+.recentThreadLinks:hover {
+  color: blue;
+}
+.recentThreadLinks:active {
+  color: white;
+  background-color: blue;
 }
