@@ -38,6 +38,8 @@ class CommentBlock extends React.Component{
     return(
       e('div', null,
 
+        e('h4', null, 'Leave a comment!'),
+
         e(TextArea, {id: 'textblock', value: this.props.commentText, onChange: this.props.handleChangeEvt}, null),
 
         e(PostButton, {onClick: this.props.handlePostCommentBtnClick}, 'Post Comment')

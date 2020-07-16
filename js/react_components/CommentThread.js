@@ -8,15 +8,15 @@ class CommentThread extends React.Component{
     super(props);
 
     this.state = {
-      threadTitle: this.props.commentThreadDoc._id,
-      dbComments: this.props.commentThreadDoc.comments || [],
+      //threadTitle: this.props.commentThreadDoc._id,
+      //dbComments: this.props.commentThreadDoc.comments || [],
       commentText: ''
     }
 
     this.clearText = this.clearText.bind(this);
     this.handleChangeEvt = this.handleChangeEvt.bind(this);
     this.handlePostCommentBtnClick = this.handlePostCommentBtnClick.bind(this);
-    this.syncStateWithDB = this.syncStateWithDB.bind(this);
+    //this.syncStateWithDB = this.syncStateWithDB.bind(this);
   }
 
   // componentDidMount(){
@@ -25,43 +25,43 @@ class CommentThread extends React.Component{
   // }
 
   clearText(){
-    updateCommentText('');
+    this.setState({commentText:''});
   }
 
   handleChangeEvt(event){
-      updateCommentText(event.target.value);
+      this.setState({commentText:event.target.value});
   }
 
   handlePostCommentBtnClick(){
 
     const text = this.state.commentText;
 
-    let update = this.state.dbComments.concat( [{body: text}] );
-    this.setState( {dbComments: update} );
+    // let update = this.state.dbComments.concat( [{body: text}] );
+    // this.setState( {dbComments: update} );
 
     this.props.createNewCommentInDB(text)
 
-    .then( () => clearText() )
+    .then( () => this.clearText() )
 
     .catch( err => console.log('handlePostCommentBtnClick() This is not supposed to happen: ', err) );
   }
 
-  syncStateWithDB(){
+  // syncStateWithDB(){
 
-    this.setState({
-      threadTitle: this.props.commentThreadDoc._id, 
-      dbComments: this.props.commentThreadDoc.comments.slice()
-    });
+  //   this.setState({
+  //     threadTitle: this.props.commentThreadDoc._id, 
+  //     dbComments: this.props.commentThreadDoc.comments.slice()
+  //   });
 
-  }
+  // }
 
   render(){
 
-    console.log('rerendering: ', this.state.dbComments);
+    //console.log('rerendering: ', this.state.dbComments);
 
-    if(this.props.commentThreadDoc._id != this.state.threadTitle){
-      this.syncStateWithDB();
-    }
+    // if(this.props.commentThreadDoc._id != this.state.threadTitle){
+    //   this.syncStateWithDB();
+    // }
 
     let cnt = 0;
 
@@ -73,7 +73,9 @@ class CommentThread extends React.Component{
 
         e(CommentBlock, {commentText:this.state.commentText, handlePostCommentBtnClick:this.handlePostCommentBtnClick, handleChangeEvt:this.handleChangeEvt}),
 
-        e(React.Fragment, null, this.state.dbComments.map( item => e(CommentDisplay, {key: (cnt+=1), commentText:item.body}) ) )
+        e('h4', null, 'Comments:'),
+
+        e(React.Fragment, null, this.props.commentThreadDoc.comments.map( item => e(CommentDisplay, {key: (cnt+=1), commentText:item.body}) ) )
 
       )
     );

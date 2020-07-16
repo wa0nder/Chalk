@@ -155,6 +155,7 @@ class AccountHome extends React.Component{
         this.local_db = this.props.local_db;
 
         this.updateRecentThreadsList = this.updateRecentThreadsList.bind(this);
+        this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
     }
 
@@ -164,7 +165,7 @@ class AccountHome extends React.Component{
 
     updateRecentThreadsList(threadTitle){
 
-        this.local_db.query('sortThreads', {limit: 4})
+        this.local_db.query('sortThreads', {limit: 4, descending: true})
 
         .then( result => {
             this.setState({queryResults: result.rows, currentThreadTitle: threadTitle});
@@ -179,9 +180,11 @@ class AccountHome extends React.Component{
 
         return this.local_db.get(this.state.currentThreadTitle)
 
-        .then(function(commentThread){
+        .then( commentThread => {
 
             commentThread.comments.push( {body: text} );
+
+            this.setState({currentThread: commentThread});
 
             return this.local_db.put(commentThread);
         })
@@ -195,7 +198,7 @@ class AccountHome extends React.Component{
 
     loadThread(event, commentThreadDoc){
 
-        console.log("I'm supposed to load a comment here: ", commentThreadDoc);
+        //console.log("I'm supposed to load a comment here: ", commentThreadDoc);
 
         let title = commentThreadDoc.key[1];
 
@@ -204,7 +207,7 @@ class AccountHome extends React.Component{
             this.local_db.get(title)
 
             .then( res => {
-                console.log('res: ', res);
+                //console.log('res: ', res);
                 this.setState({currentThreadTitle: title, currentThread: res});
             })
 
@@ -224,23 +227,22 @@ class AccountHome extends React.Component{
 
             e(React.Fragment, null,
 
-            e(NewThreadButton, {local_db: this.props.local_db, updateRecentThreadsList: this.updateRecentThreadsList}),
+                e(NewThreadButton, {local_db: this.props.local_db, updateRecentThreadsList: this.updateRecentThreadsList}),
 
-            e('div', null, 
+                e('div', null, 
 
-                e('h2', null, 'Past Comments')
+                    e('h2', null, 'Past Comments')
 
-            ),
+                ),
 
-            e(RecentThreads, {queryResults: this.state.queryResults, createNewCommentInDB:this.createNewCommentInDB, loadThread:this.loadThread}),
+                e(RecentThreads, {queryResults: this.state.queryResults, createNewCommentInDB:this.createNewCommentInDB, loadThread:this.loadThread}),
 
-            e('div', null, 
+                e('div', null, 
 
-                e('h2', null, 'Current Thread'),
+                    e('h2', null, 'Current Thread'),
 
-                commentThreadElement
-            ),
-
+                    commentThreadElement
+                ),
             
             )
         );
