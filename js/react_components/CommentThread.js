@@ -69,14 +69,49 @@ class CommentThread extends React.Component{
 class CommentGrid extends React.Component{
   constructor(props){
     super(props);
+
+    this.scrolling = false;
+    this.timerId = undefined;
+
+    this.handleScrollEvents = this.handleScrollEvents.bind(this);
+  }
+
+  handleScrollEvents(event){
+
+    let elem = event.target;
+
+    if(!this.scrolling){
+
+      this.scrolling = true;
+
+      elem.dispatchEvent( new Event('scrollStart') );
+    }
+    else{
+      clearTimeout(this.timerId);
+
+      this.handleScroll();
+    }
+
+    this.timerId = setTimeout( () => {
+
+        elem.dispatchEvent( new Event('scrollEnd') );
+        this.scrolling = false;
+      }, 
+      300);
+
+  }
+
+  handleScroll(){
+
   }
 
   render(){
 
+    let highlight = e('div', {key: 'highlightBox', className: 'highlight'});
+
     let i=1;
     
     let comments = this.props.commentThreadDoc.comments.map( item => {
-      console.log('item: ', item);
       return e('div', {
                         key: i, 
                         className: 'commentBox', 
@@ -92,9 +127,11 @@ class CommentGrid extends React.Component{
 
             )
     });
+
+    comments.unshift(highlight);
     
     return(
-      e('div', {className: 'gridContainer'}, comments)
+      e('div', {className: 'gridContainer', onScroll: this.handleScrollEvents}, comments)
     );
   }
 }
