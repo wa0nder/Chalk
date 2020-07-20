@@ -18,6 +18,16 @@ function flashMessage(element, color, msg){
     })()
 }
 
+function hexDecode(hexstr){
+    let out = "";
+    let hexes = hexstr.match(/.{1,2}/g) || [];
+    for(let j = 0; j<hexes.length; j++) {
+        out += String.fromCharCode(parseInt(hexes[j], 16));
+    }
+
+    return out;
+}
+
 class NewThreadButton extends React.Component{
 
     constructor(props){
@@ -154,6 +164,13 @@ class AccountHome extends React.Component{
 
         this.local_db = this.props.local_db;
 
+        //set author for comments
+        this.local_db.info()
+            .then(res => {
+                let hex = res.db_name.split('-')[1];
+                this.state.author = hexDecode(hex);
+            })
+
         this.updateRecentThreadsList = this.updateRecentThreadsList.bind(this);
         this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
@@ -182,7 +199,7 @@ class AccountHome extends React.Component{
 
         .then( commentThread => {
 
-            commentThread.comments.push( {body: text} );
+            commentThread.comments.push( {author: this.state.author, body: text} );
 
             this.setState({currentThread: commentThread});
 

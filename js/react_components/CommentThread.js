@@ -46,24 +46,7 @@ class CommentThread extends React.Component{
     .catch( err => console.log('handlePostCommentBtnClick() This is not supposed to happen: ', err) );
   }
 
-  // syncStateWithDB(){
-
-  //   this.setState({
-  //     threadTitle: this.props.commentThreadDoc._id, 
-  //     dbComments: this.props.commentThreadDoc.comments.slice()
-  //   });
-
-  // }
-
   render(){
-
-    //console.log('rerendering: ', this.state.dbComments);
-
-    // if(this.props.commentThreadDoc._id != this.state.threadTitle){
-    //   this.syncStateWithDB();
-    // }
-
-    let cnt = 0;
 
     return(
 
@@ -75,9 +58,43 @@ class CommentThread extends React.Component{
 
         e('h4', null, 'Comments:'),
 
-        e(React.Fragment, null, this.props.commentThreadDoc.comments.map( item => e(CommentDisplay, {key: (cnt+=1), commentText:item.body}) ) )
+        e(CommentGrid, {commentThreadDoc:this.props.commentThreadDoc})
+        //e(React.Fragment, null, this.props.commentThreadDoc.comments.map( item => e(CommentDisplay, {key: (cnt+=1), commentText:item.body}) ) )
 
       )
+    );
+  }
+}
+
+class CommentGrid extends React.Component{
+  constructor(props){
+    super(props);
+  }
+
+  render(){
+
+    let i=1;
+    
+    let comments = this.props.commentThreadDoc.comments.map( item => {
+      console.log('item: ', item);
+      return e('div', {
+                        key: i, 
+                        className: 'commentBox', 
+                        style:{
+                          gridColumn: i++,
+                          gridRow: 1
+                        }
+                      }, 
+
+              e('h4', null, `Author: ${item.author}`),
+
+              e('p', null, item.body)
+
+            )
+    });
+    
+    return(
+      e('div', {className: 'gridContainer'}, comments)
     );
   }
 }

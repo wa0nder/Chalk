@@ -134,7 +134,7 @@ function createUser(data){
 
     .then( () => putJSFileInDB(dbHex) )
 
-    .then( () => uploadFiles(false, `/userdb-${dbHex}/home/`, ['../html/home.html','../html/chalkBlock.html']) );
+    .then( () => uploadFiles(false, `/userdb-${dbHex}/home/`, ['../html/home.html']) );
 }
 
 function confirmUserDBCreation(dbHex){
