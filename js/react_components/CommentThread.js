@@ -16,12 +16,16 @@ class CommentThread extends React.Component{
     this.clearText = this.clearText.bind(this);
     this.handleChangeEvt = this.handleChangeEvt.bind(this);
     this.handlePostCommentBtnClick = this.handlePostCommentBtnClick.bind(this);
-    //this.syncStateWithDB = this.syncStateWithDB.bind(this);
+    
+    //this.hilightBoxRef = React.createRef();
   }
 
   // componentDidMount(){
-  //   let update = this.state.dbComments.concat(this.props.commentThreadDoc.comments);
-  //   this.setState({dbComments: update})
+  //   this.hilightBoxRef.current.addEventListener('scrollEnd', this.props.loadChildComments, false);
+  // }
+
+  // componentWillUnmount(){
+  //     this.hilightBoxRef.current.removeEventListener('scrollEnd', this.props.loadChildComments, false);
   // }
 
   clearText(){
@@ -58,8 +62,13 @@ class CommentThread extends React.Component{
 
         e('h4', null, 'Comments:'),
 
-        e(CommentGrid, {commentThreadDoc:this.props.commentThreadDoc})
-        //e(React.Fragment, null, this.props.commentThreadDoc.comments.map( item => e(CommentDisplay, {key: (cnt+=1), commentText:item.body}) ) )
+        //e('div', {style:{position: 'relative', border:'2px solid green'}},
+
+          //e('div', {key: 'highlightBox', className: 'highlight', ref:this.hilightBoxRef}),
+
+          e(CommentGrid, {commentThreadDoc:this.props.commentThreadDoc, loadChildComments:this.props.loadChildComments})
+        //)
+
 
       )
     );
@@ -74,6 +83,52 @@ class CommentGrid extends React.Component{
     this.timerId = undefined;
 
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
+    this.loadChildComments = this.loadChildComments.bind(this);
+
+    this.gridRef = React.createRef();
+  }
+
+  componentDidMount(){
+    this.gridRef.current.addEventListener('scrollEnd', this.loadChildComments, false);
+  }
+
+  componentWillUnmount(){
+    this.gridRef.current.removeEventListener('scrollEnd', this.loadChildComments, false);
+  }
+  
+
+  loadChildComments (event){
+    let elem = event.target;
+
+    let div = this.findHighlightedComment(elem);
+    
+    if(div != undefined && div.id != this.state.currentCommentId){
+      console.log('div found: ', div);
+
+      //use div id to get comment from commentThreadDoc
+      //check if it has children
+      //if so, clear grid, then update state
+    }
+  }
+
+  findHighlightedComment(elem){
+    let scrollbarWidth = scrollCalc.calcScrollBarWidth(elem);
+    let scrollbarHeight = scrollCalc.calcScrollBarHeight(elem);
+    let scrollX = scrollCalc.calcScrollBarX(elem);
+    let scrollY = scrollCalc.calcScrollBarY(elem);
+
+    let rect = elem.getBoundingClientRect();
+
+    //console.log('scroll vals: ', scrollX, ' : ', scrollY, ' - ', scrollbarWidth, ' : ', scrollbarHeight, ' - ', rect.x, ' : ', rect.y);
+
+    let xt = rect.x+scrollX+(scrollbarWidth/2);
+    let yt = rect.y+scrollY+(scrollbarHeight/2);
+
+    //console.log('offsets: ', xt, ' : ', yt);
+
+    let elements = document.elementsFromPoint(xt,yt);
+
+    return elements.find(e => e.className === 'commentBox');
   }
 
   handleScrollEvents(event){
@@ -89,7 +144,7 @@ class CommentGrid extends React.Component{
     else{
       clearTimeout(this.timerId);
 
-      this.handleScroll();
+      this.handleScroll(event);
     }
 
     this.timerId = setTimeout( () => {
@@ -101,24 +156,34 @@ class CommentGrid extends React.Component{
 
   }
 
-  handleScroll(){
+  handleScroll(event){
 
+    this.moveHighlightBox(event);
+  }
+
+  moveHighlightBox(event){
+
+    let highlight = event.target.children[0];
+    highlight.style.top = event.target.scrollTop + 'px';
+    highlight.style.left = event.target.scrollLeft + 'px';
   }
 
   render(){
 
-    let highlight = e('div', {key: 'highlightBox', className: 'highlight'});
+    //let highlight = e('div', {key: 'highlightBox', className: 'highlight', ref:this.hilightBoxRef});
 
     let i=1;
     
     let comments = this.props.commentThreadDoc.comments.map( item => {
       return e('div', {
-                        key: i, 
+                        key: i,
+                        id: i,
                         className: 'commentBox', 
                         style:{
                           gridColumn: i++,
                           gridRow: 1
-                        }
+                        },
+                        onClick: this.loadChildComments,
                       }, 
 
               e('h4', null, `Author: ${item.author}`),
@@ -128,13 +193,43 @@ class CommentGrid extends React.Component{
             )
     });
 
-    comments.unshift(highlight);
+    if(this.state.currentCommentId != undefined){
+
+    }
+
+    //comments.unshift(highlight);
     
     return(
-      e('div', {className: 'gridContainer', onScroll: this.handleScrollEvents}, comments)
+      e('div', {className: 'gridContainer', onScroll: this.handleScrollEvents, ref:this.gridRef}, comments)
     );
   }
 }
+
+// class CommentDiv extends React.Component{
+//   constructor(props){
+//     super(props);
+//   }
+
+//   render(){
+
+//     return e('div', {
+//                       key: this.props.key,
+//                       id: this.props.id,
+//                       className: this.props.className, 
+//                       style:{
+//                         gridColumn: this.props.style.gridColumn,
+//                         gridRow: 1
+//                       },
+//                       onClick: this.props.onClick
+//                     }, 
+
+//                 e('h4', null, `Author: ${this.props.item.author}`),
+
+//                 e('p', null, this.props.item.body)
+
+//                 )
+//   }
+// }
 
 // function CommentThread(props){
 

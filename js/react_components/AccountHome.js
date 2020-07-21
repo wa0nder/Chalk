@@ -28,6 +28,52 @@ function hexDecode(hexstr){
     return out;
 }
 
+let scrollCalc = {
+    calcScrollBarWidth(elem){
+
+        //if there is no scrollbar, get element width
+        if(elem.clientWidth >= elem.scrollWidth){
+            return elem.clientWidth;
+        }
+
+        let frac = elem.clientWidth / elem.scrollWidth;
+        let width = elem.clientWidth * frac;
+        //console.log('horizontal scrollbar length: ', width);
+        
+        return width;
+    },
+
+    calcScrollBarHeight(elem){
+
+        //if no vertical scrollbar, get element height
+        if(elem.clientHeight >= elem.scrollHeight){
+            return elem.clientHeight;
+        }
+
+        let frac = elem.clientHeight / elem.scrollHeight;
+        let height = elem.clientHeight * frac;
+        //console.log('vertical scrollbar length: ', height);
+        
+        return height;
+    },
+
+    calcScrollBarX(elem){
+        let frac = elem.scrollLeft / elem.scrollWidth;
+        let scrollX = frac * elem.clientWidth;
+        //console.log('scrollX: ', scrollX);
+
+        return scrollX;
+    },
+
+    calcScrollBarY(elem){
+        let frac = elem.scrollTop / elem.scrollHeight;
+        let scrollY = frac * elem.clientHeight;
+        //console.log('scrollY: ', scrollY);
+
+        return scrollY;
+    }
+}
+
 class NewThreadButton extends React.Component{
 
     constructor(props){
@@ -169,11 +215,13 @@ class AccountHome extends React.Component{
             .then(res => {
                 let hex = res.db_name.split('-')[1];
                 this.state.author = hexDecode(hex);
-            })
+            });
+        
 
         this.updateRecentThreadsList = this.updateRecentThreadsList.bind(this);
         this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
+        //this.loadChildComments = this.loadChildComments.bind(this);
     }
 
     componentDidMount(){
@@ -233,11 +281,44 @@ class AccountHome extends React.Component{
 
     }
 
+    // loadChildComments(event){
+
+    //     let elem = event.target;
+
+    //     let scrollbarWidth = scrollCalc.calcScrollBarWidth(elem);
+    //     let scrollbarHeight = scrollCalc.calcScrollBarHeight(elem);
+    //     let scrollX = scrollCalc.calcScrollBarX(elem);
+    //     let scrollY = scrollCalc.calcScrollBarY(elem);
+
+    //     let rect = elem.getBoundingClientRect();
+
+    //     //console.log('scroll vals: ', scrollX, ' : ', scrollY, ' - ', scrollbarWidth, ' : ', scrollbarHeight, ' - ', rect.x, ' : ', rect.y);
+
+    //     let xt = rect.x+scrollX+(scrollbarWidth/2);
+    //     let yt = rect.y+scrollY+(scrollbarHeight/2);
+
+    //     //console.log('offsets: ', xt, ' : ', yt);
+
+    //     let elements = document.elementsFromPoint(xt,yt);
+
+    //     let div = elements.find(e => e.className === 'commentBox');
+    //     if(div != undefined){
+    //         console.log('div found: ', div);
+    //     }
+    // }
+
+    
+
     render(){
 
         let commentThreadElement = ( (this.state.currentThread === undefined) ? 
             e('p', null, 'Nothing to see here...') :
-            e(CommentThread, {commentThreadDoc: this.state.currentThread, createNewCommentInDB:this.createNewCommentInDB})
+            e(CommentThread, {
+                                commentThreadDoc: this.state.currentThread, 
+                                createNewCommentInDB: this.createNewCommentInDB
+                                //loadChildComments: this.loadChildComments
+                            }
+                )
         )
 
         return(

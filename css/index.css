@@ -25,6 +25,7 @@ div {
   width: 150px;
   height: 250px;
   border-radius: 5px;
+  border: 2px solid black;
   color: black;
   background-color: white;
   padding: 1em;
@@ -34,18 +35,17 @@ div {
     position: relative;
     display: grid;
     grid-gap: 20px;
-    background-color: rgb(10,18,227);
+    background-color: rgb(119, 119, 119);
     color: #fff;
     overflow: auto;
 }
 .highlight {
-  position: absolute;
-  grid-column: 1;
-  grid-row: 1;
+  position: relative;
+  pointer-events:none;
   z-index: 1;
   min-width: 200px;
   width: 200px;
-  min-height: 300px;
-  height: 300px;
-  border: 2px dotted red;
+  min-height: 280px;
+  height: 280px;
+  border: 2px dotted blue;
 }
