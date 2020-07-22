@@ -34,6 +34,7 @@ div {
 .gridContainer {
     position: relative;
     display: grid;
+    max-height: 320px;
     grid-gap: 20px;
     background-color: rgb(119, 119, 119);
     color: #fff;

@@ -86,6 +86,8 @@ class CommentGrid extends React.Component{
     this.loadChildComments = this.loadChildComments.bind(this);
 
     this.gridRef = React.createRef();
+
+    this.state = {currentCommentId: undefined};
   }
 
   componentDidMount(){
@@ -103,12 +105,46 @@ class CommentGrid extends React.Component{
     let div = this.findHighlightedComment(elem);
     
     if(div != undefined && div.id != this.state.currentCommentId){
-      console.log('div found: ', div);
+      let currId = this.state.currentCommentId
 
       //use div id to get comment from commentThreadDoc
+      let found = this.getMatchingComment(div.id, this.props.commentThreadDoc);
+
       //check if it has children
-      //if so, clear grid, then update state
+      if(found.comments && found.comments.length > 0){
+
+        //if so, and moving backwards (up or left)
+
+        
+        //clear previously rendered comments
+
+
+        
+        //update state to trigger redraw
+        this.setState({currentCommentId: div.id});
+      }
+      
     }
+  }
+
+  getMatchingComment(idpath, commentsDoc){
+    let path = idpath.split('-');
+
+    let xyPairs = path.map( item => item.split(':').map(num => parseInt(num)) );
+    
+    let found = xyPairs.reduce((a,pair) => {
+
+      a = a.comments[ pair[0] ];
+
+      if(pair[1] > 0) a = a.comments[ pair[1]-1 ]; //-1 because arrays start from 0, css grid starts at 1
+
+      return a;
+
+    }, commentsDoc);
+
+    console.log('found: ', found);
+
+    return found;
   }
 
   findHighlightedComment(elem){
@@ -119,14 +155,20 @@ class CommentGrid extends React.Component{
 
     let rect = elem.getBoundingClientRect();
 
-    //console.log('scroll vals: ', scrollX, ' : ', scrollY, ' - ', scrollbarWidth, ' : ', scrollbarHeight, ' - ', rect.x, ' : ', rect.y);
+    console.log('scroll vals: ', scrollX, ' : ', scrollY, ' - ', scrollbarWidth, ' : ', scrollbarHeight, ' - ', rect.x, ' : ', rect.y);
 
     let xt = rect.x+scrollX+(scrollbarWidth/2);
     let yt = rect.y+scrollY+(scrollbarHeight/2);
 
-    //console.log('offsets: ', xt, ' : ', yt);
+    console.log('offsets: ', xt, ' : ', yt);
+
+    let e = document.getElementById('pointer');
+    e.style.left = xt + 'px';
+    e.style.top = yt + 'px';
 
     let elements = document.elementsFromPoint(xt,yt);
+
+    console.log('elements: ', elements);
 
     return elements.find(e => e.className === 'commentBox');
   }
@@ -168,20 +210,54 @@ class CommentGrid extends React.Component{
     highlight.style.left = event.target.scrollLeft + 'px';
   }
 
-  render(){
-
-    //let highlight = e('div', {key: 'highlightBox', className: 'highlight', ref:this.hilightBoxRef});
-
-    let i=1;
+  renderCommentPath(path, comments){
     
-    let comments = this.props.commentThreadDoc.comments.map( item => {
-      return e('div', {
-                        key: i,
-                        id: i,
+    let idpath = path.split('-');
+
+    let xyPairs = idpath.map( item => item.split(':').map(num => parseInt(num)) );
+
+    let allComments = [];
+
+    let rootPath = ''
+    let first = true; //prevent re-rendering root
+    console.log('xyPairs: ', xyPairs);
+    for(let pair of xyPairs){
+
+      //generate horizontal top-level comments
+      let row = this.renderComments(rootPath, true, pair[0]+(first)?0:1, pair[1], (first)?comments:comments.slice(1));
+      allComments = allComments.concat(row);
+
+      //get root comment for vertical rendering
+      let root = comments[ pair[1] ];
+
+      //nothing else to render
+      if(!root.comments || root.comments.length === 0) break;
+
+      //get responses to comment for vertical rendering
+      comments = root.comments;
+
+      let col = this.renderDirectResponses(rootPath, false, pair[0], pair[1]+1, comments); //+1 to avoid re-rendering current comment
+      allComments = allComments.concat(col);
+
+      //chain rootPath
+      rootPath += `${pair[0]}:${pair[1]}-`;
+
+      first = false;
+    }
+
+    return allComments;
+  }
+
+  renderComments(rootPath, xDir, x, y, comments){
+    console.log('params: ', rootPath, ' : ', xDir, " : ", x, "-", y, " : ", comments);
+    return comments.map( item => {
+      let out = e('div', {
+                        key: `${x}:${y}`,
+                        id: `${rootPath}${x}:${y}`,
                         className: 'commentBox', 
                         style:{
-                          gridColumn: i++,
-                          gridRow: 1
+                          gridRow: y+1,
+                          gridColumn: x+1
                         },
                         onClick: this.loadChildComments,
                       }, 
@@ -190,12 +266,81 @@ class CommentGrid extends React.Component{
 
               e('p', null, item.body)
 
-            )
+            );
+
+      (xDir) ? x++ : y++;
+
+      return out;
     });
+  }
 
-    if(this.state.currentCommentId != undefined){
+  renderDirectResponses(rootPath, xDir, x, y, comments){
+    console.log('params2: ', rootPath, ' : ', xDir, " : ", x, "-", y, " : ", comments);
 
+    let comment = comments[0];
+    let out = [];
+    while(true){
+
+      out.push(
+                e('div', {
+                  key: `${x}:${y}`,
+                  id: `${rootPath}${x}:${y}`,
+                  className: 'commentBox', 
+                  style:{
+                    gridRow: y+1,
+                    gridColumn: x+1
+                  },
+                  onClick: this.loadChildComments,
+                }, 
+
+                e('h4', null, `Author: ${comment.author || 'none'}`),
+
+                e('p', null, comment.body)
+
+              )
+            );
+      
+      if(!comment.comments || comment.comments.length === 0) break;
+
+      comment = comment.comments[0];
+
+      (xDir) ? x++ : y++;
     }
+
+    return out;
+  }
+
+  render(){
+
+    //let highlight = e('div', {key: 'highlightBox', className: 'highlight', ref:this.hilightBoxRef});
+
+    //let i=1;
+    
+    let path = (this.state.currentCommentId != undefined) ? this.state.currentCommentId : "0:0";//0:0-0:1";
+
+    let comments = this.renderCommentPath(path, this.props.commentThreadDoc.comments);
+    // let comments = this.props.commentThreadDoc.comments.map( item => {
+    //   return e('div', {
+    //                     key: i,
+    //                     id: `${i}:1`,
+    //                     className: 'commentBox', 
+    //                     style:{
+    //                       gridColumn: i++,
+    //                       gridRow: 1
+    //                     },
+    //                     onClick: this.loadChildComments,
+    //                   }, 
+
+    //           e('h4', null, `Author: ${item.author}`),
+
+    //           e('p', null, item.body)
+
+    //         )
+    // });
+
+    // if(this.state.currentCommentId != undefined){
+    //   comments.concat( this.renderChildComments(this.state.currentCommentId, this.props.commentThreadDoc.comments) );
+    // }
 
     //comments.unshift(highlight);
     
