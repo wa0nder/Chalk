@@ -127,16 +127,32 @@ class CommentGrid extends React.Component{
     }
   }
 
+  /**
+   * Convert a '#:#-#:#...' string into index into nested object comments.
+   * e.g. '0:0-0:1-1:1' shows sequence of steps to reach grid position
+   * x-values as 'dx' can be converted directly into array indices
+   * y-values indicate recursions, 'dy' = 1 means stay at current recurse level, 'dy' > 1 means recurse 'dy-1' levels
+   * @param {*} idpath 
+   * @param {*} commentsDoc 
+   */
   getMatchingComment(idpath, commentsDoc){
+
     let path = idpath.split('-');
 
     let xyPairs = path.map( item => item.split(':').map(num => parseInt(num)) );
+
+    for(let i=0; i<xyPairs.length-1; i++){
+      let dy = xyPairs[i+1][1] - xyPairs[i][1];
+      xyPairs[i][1] = dy;
+    }
     
     let found = xyPairs.reduce((a,pair) => {
 
+      console.log('pair: ', pair, ' - a: ', a);
+
       a = a.comments[ pair[0] ];
 
-      if(pair[1] > 0) a = a.comments[ pair[1]-1 ]; //-1 because arrays start from 0, css grid starts at 1
+      if(pair[1] > 0){ a = a.comments[0]; }
 
       return a;
 
@@ -218,38 +234,53 @@ class CommentGrid extends React.Component{
 
     let allComments = [];
 
-    let rootPath = ''
-    let first = true; //prevent re-rendering root
+    let rootPath = '';
+
     console.log('xyPairs: ', xyPairs);
+
+    //render top-level comments
+    let top = this.renderDirectResponses(rootPath, 0, 0, comments);
+    allComments = allComments.concat(top);
+    
+    let baseY = 0;
     for(let pair of xyPairs){
 
-      //generate horizontal top-level comments
-      let row = this.renderComments(rootPath, true, pair[0]+(first)?0:1, pair[1], (first)?comments:comments.slice(1));
-      allComments = allComments.concat(row);
-
       //get root comment for vertical rendering
-      let root = comments[ pair[1] ];
+      let root = comments[ pair[0] ];
 
       //nothing else to render
       if(!root.comments || root.comments.length === 0) break;
 
-      //get responses to comment for vertical rendering
-      comments = root.comments;
+      let [results, parentMarker] = this.renderResponseThread(rootPath, baseY+1, pair[0], pair[1], root); //+1 to avoid re-rendering current comment
+      allComments = allComments.concat(results);
 
-      let col = this.renderDirectResponses(rootPath, false, pair[0], pair[1]+1, comments); //+1 to avoid re-rendering current comment
-      allComments = allComments.concat(col);
+      if(!parentMarker.comments || parentMarker.comments.length === 0 || pair[1] === 0) break;
 
       //chain rootPath
       rootPath += `${pair[0]}:${pair[1]}-`;
 
-      first = false;
+      //generate horizontal top-level comments
+      console.log('out: ', parentMarker);
+      results = this.renderDirectResponses(rootPath, pair[0]+1, pair[1], parentMarker.comments.slice(1));
+      allComments = allComments.concat(results);
+
+      //chain rootPath
+      rootPath += `${pair[0]+1}:${pair[1]}-`;
+
+      //update offset
+      baseY = pair[1];
+
+      if(!parentMarker.comments || parentMarker.comments.length === 0) break;
+
+      //update comments reference
+      comments = parentMarker.comments;
     }
 
     return allComments;
   }
 
-  renderComments(rootPath, xDir, x, y, comments){
-    console.log('params: ', rootPath, ' : ', xDir, " : ", x, "-", y, " : ", comments);
+  renderDirectResponses(rootPath, x, y, comments){
+    console.log('params: ', rootPath, ' - ', x, ':', y, ' - ', comments);
     return comments.map( item => {
       let out = e('div', {
                         key: `${x}:${y}`,
@@ -267,27 +298,27 @@ class CommentGrid extends React.Component{
               e('p', null, item.body)
 
             );
-
-      (xDir) ? x++ : y++;
+      x++;
 
       return out;
     });
   }
 
-  renderDirectResponses(rootPath, xDir, x, y, comments){
-    console.log('params2: ', rootPath, ' : ', xDir, " : ", x, "-", y, " : ", comments);
+  renderResponseThread(rootPath, baseY, x, y, comment){
+    console.log('params2: ', rootPath, " - ", x, ":", y, " - ", comment);
 
-    let comment = comments[0];
+    let marker = comment;
+    comment = comment.comments[0];
     let out = [];
     while(true){
 
       out.push(
                 e('div', {
-                  key: `${x}:${y}`,
-                  id: `${rootPath}${x}:${y}`,
+                  key: `${x}:${baseY}`,
+                  id: `${rootPath}${x}:${baseY}`,
                   className: 'commentBox', 
                   style:{
-                    gridRow: y+1,
+                    gridRow: baseY+1,
                     gridColumn: x+1
                   },
                   onClick: this.loadChildComments,
@@ -300,14 +331,16 @@ class CommentGrid extends React.Component{
               )
             );
       
-      if(!comment.comments || comment.comments.length === 0) break;
+      if(baseY+1 === y){ marker = comment; }
+      
+      if(!comment.comments || comment.comments.length === 0){ break; }
 
       comment = comment.comments[0];
-
-      (xDir) ? x++ : y++;
+      
+      baseY++;
     }
 
-    return out;
+    return [out, marker];
   }
 
   render(){
@@ -316,7 +349,7 @@ class CommentGrid extends React.Component{
 
     //let i=1;
     
-    let path = (this.state.currentCommentId != undefined) ? this.state.currentCommentId : "0:0";//0:0-0:1";
+    let path = (this.state.currentCommentId != undefined) ? this.state.currentCommentId : "0:1";//0:0-0:1";
 
     let comments = this.renderCommentPath(path, this.props.commentThreadDoc.comments);
     // let comments = this.props.commentThreadDoc.comments.map( item => {
