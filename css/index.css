@@ -7,7 +7,7 @@ div {
   padding: 1%;
   border-radius: 3%;
   border: 3px dotted navy;
-  max-width: 80%;
+  max-width: 90%;
 }
 
 .recentThreadLinks{
@@ -22,31 +22,31 @@ div {
 }
 
 .commentBox {
-  width: 150px;
-  height: 250px;
+  width: 350px;
+  height: 350px;
+  max-width: initial;
   border-radius: 5px;
   border: 2px solid black;
   color: black;
   background-color: white;
-  padding: 1em;
-  margin: 15px;
+  margin: 2%;
 }
 .gridContainer {
-    position: relative;
     display: grid;
-    max-height: 320px;
-    grid-gap: 20px;
+    max-height: 420px;
     background-color: rgb(119, 119, 119);
     color: #fff;
     overflow: auto;
 }
 .highlight {
-  position: relative;
+  position: absolute;
   pointer-events:none;
   z-index: 1;
+  left: 0px;
+  top: 0px;
   min-width: 200px;
   width: 200px;
   min-height: 280px;
   height: 280px;
-  border: 2px dotted blue;
+  border: 2px dashed blue;
 }
