@@ -38,7 +38,7 @@ class CommentThread extends React.Component{
 
         e('h4', null, 'Comments:'),
 
-        e(CommentGrid, {
+        e(CommentGrid2, {
                         commentThreadDoc:this.props.commentThreadDoc, 
                         loadChildComments:this.props.loadChildComments,
                         handlePostCommentBtnClick:this.handlePostCommentBtnClick

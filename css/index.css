@@ -4,9 +4,9 @@
   }
 
 div {
-  padding: 1%;
   border: 3px solid navy;
   max-width: 90%;
+  margin: 1%;
 }
 
 .recentThreadLinks{
@@ -20,7 +20,7 @@ div {
   background-color: blue;
 }
 
-.commentBox, .responseBox{
+.commentBox, .responseBox, .commentBoxBlank{
   width: 350px;
   height: 350px;
   max-width: initial;
@@ -30,6 +30,10 @@ div {
   background-color: white;
   padding: 2%;
   margin: 2%;
+}
+
+.commentBoxBlank {
+  opacity: 0;
 }
 
 .responseBox {
@@ -64,3 +68,38 @@ div {
   height: 70%;
   margin-bottom: 2%;
 }
+
+/*
+.box, .blankBox {
+  width: 150px;
+  height: 250px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  background-color: rgb(207,232,220);
+  padding: 1em;
+  margin: 2%;
+}
+
+.blankBox {
+  opacity: 0;
+}
+
+.grid {
+    display: grid;
+    justify-content: start;
+    margin: initial;
+    max-width: initial;
+    background-color: rgb(10,18,227);
+    color: #fff;
+    overflow-y: hidden;
+    overflow-x: auto;
+}
+.container {
+  display: block;
+  box-sizing: border-box;
+  margin: initial;
+  max-width: initial;
+  max-height: 50vh;
+  background-color: green;
+  overflow-y: auto;
+}*/

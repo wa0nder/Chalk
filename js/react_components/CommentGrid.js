@@ -94,6 +94,207 @@ function getDeltaPairs(xyPairs, leaveFirst){
     return deltaPairs;
 }
 
+function findMatchingComment(path, commentArray){
+
+  path = path.split('-').map( num => parseInt(num) );
+
+  let comment = commentArray.comments[ path[0] ];
+
+  path = path.slice(1);
+  for(let idx of path){
+
+    if(!comment.comments || comment.comments.length === 0) return undefined;
+
+    comment = comment.comments[idx];
+  }
+
+  return comment;
+}
+
+class CommentGrid2 extends React.Component{
+  constructor(props){
+    super(props);
+
+    this.state = {currentCommentId: undefined};
+    
+    this.loadChildComments = this.loadChildComments.bind(this);
+    this.handleScrollEvents = this.handleScrollEvents.bind(this);
+  }
+
+  handleScrollEvents(event){
+
+    this.loadChildComments(event);
+  }
+
+  loadChildComments (event){
+
+    let elem = event.target;
+
+    let div = this.findHighlightedComment(elem);
+    
+    if(div !== undefined && div.id !== this.state.currentCommentId){
+
+      let found = findMatchingComment(div.id, this.props.commentThreadDoc);
+
+      //console.log('found: ', div.id, ' : ', found);
+      
+      if(found !== undefined){
+
+        //de-highlight old comment
+        if(this.state.currentCommentId !== undefined){
+          document.getElementById(this.state.currentCommentId).style.borderColor = undefined;
+        }
+
+        this.setState({currentCommentId: div.id}, this.setScrollToEndMargin);
+      }
+      
+    }
+  }
+
+  /**
+   * Find leftmost (first) element in current row where row is calculated by vertical scrollbar position.
+   * @param {*} elem 
+   */
+  findHighlightedComment(elem){
+
+    let gridElem = (elem.className === 'container') ? elem.firstElementChild : elem;
+    let gridRect = gridElem.getBoundingClientRect();
+    let childRect = gridElem.firstElementChild.getBoundingClientRect();
+    let height;
+
+    //the vertical scrollbar is being used
+    if(elem.className === 'container'){
+      let scrollbarHeight = scrollCalc.calcScrollBarHeight(elem);
+      let scrollY = scrollCalc.calcScrollBarY(elem);
+      let containerRect = elem.getBoundingClientRect();
+
+      height = containerRect.y + scrollY + (scrollbarHeight / 2);
+    }
+    else{ height = gridRect.y + childRect.height / 2; }
+
+    //console.log('elem: ', elem, '\nfirst child- ', gridElem.firstElementChild, '\ngridRect- ', gridRect, '\nchildRect- ', childRect);
+
+    let xt = gridRect.x + (childRect.width/2);
+    let yt = height;
+
+    //console.log('offsets: ', xt, ' : ', yt);
+
+    let elements = document.elementsFromPoint(xt,yt);
+
+    //console.log('elements: ', elements);
+
+    return elements.find(e => e.className === 'commentBox');
+  }
+
+  setScrollToEndMargin(){
+    
+    if(this.state.currentCommentId === undefined){ return; }
+
+    let elem = document.getElementById(this.state.currentCommentId);
+    let childRect = elem.getBoundingClientRect();
+    let gridElem = elem.parentElement;
+
+    //paddind has already occurred
+    //console.log('gridElem: ', gridElem, ' - ', gridElem.lastElementChild);
+    if(gridElem.lastElementChild.className === 'commentBoxBlank') return;
+
+    let multiplier = Math.floor(gridElem.clientWidth / childRect.width);
+    let offset = gridElem.children.length;
+
+    for(let i=0; i<multiplier; i++){
+
+      let e = document.createElement(elem.tagName.toLowerCase());
+      e.className = 'commentBoxBlank';
+      e.style.opacity = 0;
+      e.style.gridRow = elem.style.gridRow;
+      e.style.gridColumn = offset + i + 1;
+
+      gridElem.appendChild(e);
+    }
+
+    //console.log('margin calc: ', multiplier, ' : ', elem);
+  }
+
+  renderComments(path, commentArray){
+
+    let elements = [],
+      reactRowNum = 0;
+
+    //render top-level comments
+    elements.push( this.renderRow(reactRowNum++, '', commentArray) );
+
+    path = path.split('-').map(item => parseInt(item));
+    let holdPath = '';
+
+    for(let idx of path){
+
+      holdPath += idx + '-';
+
+      if(!commentArray[idx].comments || commentArray[idx].comments.length === 0) break;
+
+      commentArray = commentArray[idx].comments;
+
+      elements.push( this.renderRow(reactRowNum++, holdPath, commentArray) );
+    }
+
+    //render vertical responses
+    while(commentArray[0].comments && commentArray[0].comments.length > 0){
+
+      holdPath += '0-';
+
+      commentArray = commentArray[0].comments;
+
+      elements.push( this.renderRow(reactRowNum++, holdPath, commentArray, true) );
+    }
+    
+    return elements;
+  }
+
+  renderRow(reactRowNum, path, commentArray){
+    return this.renderRow(reactRowNum, path, commentArray, false);
+  }
+
+  renderRow(reactRowNum, path, commentArray, renderFirstOnly){
+    
+    if(renderFirstOnly) commentArray = commentArray.slice(0,1);
+
+    let rowPos = 0;
+    let items = commentArray.map( comment => {
+  
+      let id = `${path}${rowPos++}`;
+      let borderColor = (id === this.state.currentCommentId) ? 'red' : undefined;
+
+      return e(CommentDisplay, {
+                        key: 'k_'+id,
+                        id: id,
+                        className: 'commentBox', 
+                        style:{
+                          gridRow: 1,
+                          gridColumn: rowPos,
+                          borderColor: borderColor
+                        },
+                        comment: comment,
+                        onClick: this.loadChildComments,
+                        handlePostCommentBtnClick: this.props.handlePostCommentBtnClick
+                      }
+                );
+    });
+
+    return e('div', {key:reactRowNum, className: 'grid'}, items);
+  }
+
+  render(){
+
+    let path = (this.state.currentCommentId != undefined) ? this.state.currentCommentId : '0';
+  
+    let comments = this.renderComments(path, this.props.commentThreadDoc.comments);
+
+    return (
+      e('div', {className:'container',onScroll: this.handleScrollEvents}, comments)
+    );
+  }
+}
+
 class CommentGrid extends React.Component{
     constructor(props){
       super(props);
@@ -128,7 +329,7 @@ class CommentGrid extends React.Component{
         //use div id to get comment from commentThreadDoc
         let found = getMatchingComment(div.id, this.props.commentThreadDoc);
   
-        //console.log('found: ', div.id, ' : ', found);
+        console.log('found: ', div.id, ' : ', found);
   
         //check if it has children
         if(found){
