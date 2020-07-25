@@ -1,25 +1,12 @@
 'use strict';
 
-//const e = React.createElement;
-
-class PostButton extends React.Component{
-
-  render(){
-
-    return(
-      e('button', {onClick:this.props.onClick}, this.props.children)
-    );
-
-  }
-}
-
 class TextArea extends React.Component {
 
   render() {
 
     return e(
       'textarea',
-      {id: this.props.id, value: this.props.value, onChange: this.props.onChange},
+      {className: 'commentBlockTextArea', value: this.props.value, onChange: this.props.onChange},
       this.props.text
     );
 
@@ -31,23 +18,54 @@ class CommentBlock extends React.Component{
   constructor(props){
     super(props);
     
+    this.handlePostComment = this.handlePostComment.bind(this);
+    this.state = {
+      commentText: ''
+    }
+
+    this.clearText = this.clearText.bind(this);
+    this.handleChangeEvt = this.handleChangeEvt.bind(this);
+    this.handleHidePostReplyBox = this.handleHidePostReplyBox.bind(this);
+  }
+
+  clearText(element){
+    this.setState({commentText:''});
+
+    if(this.props.hidePostReplyBox){
+      this.props.hidePostReplyBox(element);
+    }
+  }
+
+  handleChangeEvt(event){
+      this.setState({commentText:event.target.value});
+  }
+
+  handlePostComment(event){
+
+    let element = event.target;
+
+    this.props.handlePostCommentBtnClick(element, this.props.parentId, this.state.commentText, this.clearText);
+  }
+
+  handleHidePostReplyBox(event){
+    this.props.hidePostReplyBox(event.target);
   }
 
   render(){
 
     return(
-      e('div', null,
+      e('div', {id: this.props.id, className:this.props.className, style:this.props.style},
 
         e('h4', null, 'Leave a comment!'),
 
-        e(TextArea, {id: 'textblock', value: this.props.commentText, onChange: this.props.handleChangeEvt}, null),
+        e(TextArea, {value: this.state.commentText, onChange: this.handleChangeEvt}, null),
 
-        e(PostButton, {onClick: this.props.handlePostCommentBtnClick}, 'Post Comment')
+        e('button', {style:{display:'inline'}, onClick:this.handlePostComment}, 'Post Comment'),
+
+        e('button', {style:{display:'inline'}, onClick:this.handleHidePostReplyBox}, 'Cancel')
+        
       )
     );
 
   }
 }
-
-// const domContainer = document.getElementById('CommentBox');
-// ReactDOM.render(e(CommentBlock), domContainer);

@@ -13,7 +13,7 @@
     "test": "jasmine",
     "update": "node js/updateScriptNodeJS credentials.txt false ''",
     "update_wp": "node js/updateScriptNodeJS credentials.txt false ",
-    "updateAll": "node js/updateScriptNodeJS credentials.txt false '' index.html index.js index.css CommentBlock.js CommentDisplay.js CommentThread.js"
+    "updateAll": "node js/updateScriptNodeJS credentials.txt false '' js/react_components/*.js css/index.css"
   },
   "author": "yaz",
   "license": "ISC"

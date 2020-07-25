@@ -241,13 +241,17 @@ class AccountHome extends React.Component{
         });
     }
 
-    createNewCommentInDB(text){
+    createNewCommentInDB(id, text){
 
         return this.local_db.get(this.state.currentThreadTitle)
 
         .then( commentThread => {
 
-            commentThread.comments.push( {author: this.state.author, body: text} );
+            let foundComment = (!id) ? commentThread : getMatchingComment(id, commentThread);
+
+            if(!foundComment.comments){ foundComment.comments = []; }
+
+            foundComment.comments.push( {at: (foundComment.author || undefined), author: this.state.author, body: text} );
 
             this.setState({currentThread: commentThread});
 
