@@ -230,7 +230,7 @@ class CommentGrid2 extends React.Component{
 
       holdPath += idx + '-';
 
-      if(!commentArray[idx].comments || commentArray[idx].comments.length === 0) break;
+      if(!commentArray[idx].comments || commentArray[idx].comments.length === 0) return elements;
 
       commentArray = commentArray[idx].comments;
 
@@ -246,7 +246,7 @@ class CommentGrid2 extends React.Component{
 
       elements.push( this.renderRow(reactRowNum++, holdPath, commentArray, true) );
     }
-    
+
     return elements;
   }
 

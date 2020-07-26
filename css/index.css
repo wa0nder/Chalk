@@ -7,6 +7,7 @@ div {
   border: 3px solid navy;
   max-width: 90%;
   margin: 1%;
+  padding: 1%;
 }
 
 .recentThreadLinks{
@@ -82,24 +83,38 @@ div {
 
 .blankBox {
   opacity: 0;
+}*/
+
+.grid, .container{
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+.container::-webkit-scrollbar, .grid::-webkit-scrollbar { /* WebKit */
+  width: 0;
+  height: 0;
 }
 
 .grid {
     display: grid;
+    background-color: lightgray;
     justify-content: start;
+    border: initial;
     margin: initial;
     max-width: initial;
-    background-color: rgb(10,18,227);
     color: #fff;
     overflow-y: hidden;
     overflow-x: auto;
+    border-left: 2px solid navy;
+    border-right: 2px solid navy;
 }
 .container {
   display: block;
+  border: initial;
+  
   box-sizing: border-box;
   margin: initial;
   max-width: initial;
   max-height: 50vh;
-  background-color: green;
   overflow-y: auto;
-}*/
+  
+}

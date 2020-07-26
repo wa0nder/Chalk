@@ -247,7 +247,7 @@ class AccountHome extends React.Component{
 
         .then( commentThread => {
 
-            let foundComment = (!id) ? commentThread : getMatchingComment(id, commentThread);
+            let foundComment = (!id) ? commentThread : findMatchingComment(id, commentThread);
 
             if(!foundComment.comments){ foundComment.comments = []; }
 
