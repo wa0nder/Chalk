@@ -44,6 +44,11 @@ class CommentBlock extends React.Component{
 
     let element = event.target;
 
+    if(this.state.commentText.length === 0){
+      flashMessage(element, 'red', 'Nothing to post!');
+      return;
+    }
+
     this.props.handlePostCommentBtnClick(element, this.props.parentId, this.state.commentText, this.clearText);
   }
 

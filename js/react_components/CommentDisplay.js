@@ -46,7 +46,7 @@ class CommentDisplay extends React.Component{
 
                     e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
 
-                        e('h4', null, `@${(this.props.comment.at ? this.props.comment.at : 'none')}`),
+                        (!this.props.comment.at) ? null : e('h4', null, `@${this.props.comment.at}`),
 
                         e('h4', null, `Author: ${(this.props.comment.author || 'none')}`),
 

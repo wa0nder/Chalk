@@ -9,7 +9,9 @@ function flashMessage(element, color, msg){
     label.style.color = 'white';
     label.style.opacity = 2.0;
     label.style.position = 'absolute';
-    label.style.top = element.getBoundingClientRect().top-5 + 'px';
+    label.style.borderRadius = '5px';
+    label.style.padding = '1em';
+    label.style.top = window.pageYOffset + element.getBoundingClientRect().y-5 + 'px';
     label.innerText = msg;
     document.body.appendChild(label);
     
@@ -284,34 +286,6 @@ class AccountHome extends React.Component{
         }
 
     }
-
-    // loadChildComments(event){
-
-    //     let elem = event.target;
-
-    //     let scrollbarWidth = scrollCalc.calcScrollBarWidth(elem);
-    //     let scrollbarHeight = scrollCalc.calcScrollBarHeight(elem);
-    //     let scrollX = scrollCalc.calcScrollBarX(elem);
-    //     let scrollY = scrollCalc.calcScrollBarY(elem);
-
-    //     let rect = elem.getBoundingClientRect();
-
-    //     //console.log('scroll vals: ', scrollX, ' : ', scrollY, ' - ', scrollbarWidth, ' : ', scrollbarHeight, ' - ', rect.x, ' : ', rect.y);
-
-    //     let xt = rect.x+scrollX+(scrollbarWidth/2);
-    //     let yt = rect.y+scrollY+(scrollbarHeight/2);
-
-    //     //console.log('offsets: ', xt, ' : ', yt);
-
-    //     let elements = document.elementsFromPoint(xt,yt);
-
-    //     let div = elements.find(e => e.className === 'commentBox');
-    //     if(div != undefined){
-    //         console.log('div found: ', div);
-    //     }
-    // }
-
-    
 
     render(){
 
