@@ -134,6 +134,8 @@ function createUser(data){
 
     .then( () => putJSFileInDB(dbHex) )
 
+    .then( () => putDesignDocInDB(dbHex) )
+
     .then( () => uploadFiles(false, `/userdb-${dbHex}/home/`, ['../html/home.html']) );
 }
 
@@ -180,7 +182,52 @@ function confirmUserDBCreation(dbHex){
   
 }
 
+function putDesignDocInDB(dbHex){
+
+  let doc = {
+    '_id' : '_design/sortThreads',
+    "views": {
+      "sortThreads": {
+        "map": `function (doc){
+          if(doc.type && doc.type === 'thread' && doc.date){
+            var key = [doc.date, doc._id]
+            emit(key, doc.comments.slice(0,10));
+          }
+        }`
+      }
+    },
+    "language": "javascript"
+  }
+
+  return putDocInDB(`/userdb-${dbHex}/_design/sortThreads`, doc);
+}
+
 function putJSFileInDB(dbHex){
+  let jsFileContents = `let DataService = (function(){
+    let local_db = new PouchDB('https://${serverDBHostName}:6984/userdb-${dbHex}', {skip_setup: true});
+
+    return {
+      getDB : function(){
+        return local_db;
+      }
+    }
+  }());
+  `
+  //let base64e = Buffer.from(jsFileContents).toString('base64');
+  //console.log('out: ', base64e);
+  let doc = {
+    "_attachments": {
+      "init.js": {
+        "data": Buffer.from(jsFileContents).toString('base64'), 
+        "content_type": "text/javascript"
+      }
+    }
+  }
+
+  return putDocInDB(`/userdb-${dbHex}/home`, doc);
+}
+
+function putDocInDB(path, doc){
 
   return new Promise( (resolve, reject) => {
 
@@ -188,7 +235,7 @@ function putJSFileInDB(dbHex){
     let options = {
       host: serverDBHostName,
       port: serverDBPort,
-      path: `/userdb-${dbHex}/home`,
+      path: path,
       method: 'PUT',
       auth: `${admin}:${pass}`,
       headers: {
@@ -213,7 +260,7 @@ function putJSFileInDB(dbHex){
   
         if(res.statusCode === 201 && json.ok === true){
 
-          resolve("init JS file successfully added.");
+          resolve(`document successfully added to DB @ ${path}.`);
         }
         else{
 
@@ -227,20 +274,8 @@ function putJSFileInDB(dbHex){
   
       reject('putJSInDB(): request did not resolve', e);
     });
-    
-    let jsFileContents = `let local_db = new PouchDB('https://${serverDBHostName}:6984/userdb-${dbHex}', {skip_setup: true});`
-    //let base64e = Buffer.from(jsFileContents).toString('base64');
-    //console.log('out: ', base64e);
-    let userData = {
-      "_attachments": {
-        "init.js": {
-          "data": Buffer.from(jsFileContents).toString('base64'), 
-          "content_type": "text/javascript"
-        }
-      }
-    }
   
-    req.end( JSON.stringify(userData) );
+    req.end( JSON.stringify(doc) );
 
   });
 

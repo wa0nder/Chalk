@@ -1,99 +1,5 @@
 'use strict'
 
-/**
- * Convert a '#:#-#:#...' string into index into nested object comments.
- * e.g. '0:0-0:1-1:1' shows sequence of steps to reach grid position
- * x-values as 'dx' can be converted directly into array indices
- * y-values indicate recursions, 'dy' <= 1 means stay at current recurse level, 'dy' > 1 means recurse 'dy-1' levels
- * @param {*} idpath 
- * @param {*} commentsDoc 
- */
-function getMatchingComment(idpath, commentsDoc){
-
-    let path = idpath.split('-');
-
-    let xyPairs = path.map( item => item.split(':').map(num => parseInt(num)) );
-
-    //get starting top-level comment
-    let comment = commentsDoc.comments[xyPairs[0][0]];
-
-    xyPairs = getDeltaPairs(xyPairs, false);
-
-    //console.log('delta pairs: ', xyPairs, " - ", comment);
-
-    //let comment = commentsDoc;
-    for(let i=0; i<xyPairs.length; i++){
-        let pair = xyPairs[i];
-
-        //console.log('dpair: ', pair[0], ' : ', pair[1]);
-
-        if(pair[0] != 0){
-
-            if(!comment.comments || pair[0] >= comment.comments.length) return undefined;
-
-                comment = comment.comments[ pair[0] ];
-        }
-
-        else{ 
-
-            while(pair[1] > 1){ 
-
-                if(!comment.comments || comment.comments.length === 0) return undefined;
-
-                comment = comment.comments[0]; 
-
-                pair[1]--;
-            }
-
-            //if final pair, recurse to grab comment
-            if(i === xyPairs.length-1 && pair[1] === 1){
-                comment = comment.comments[0];
-            }
-        }
-    }
-
-    return comment;
-}
-
-/**
- * Convert a set of discrete points into delta values.
- * @param {*} xyPairs 
- * @param {*True for a non-delta starting point} leaveFirst 
- */
-function getDeltaPairs(xyPairs, leaveFirst){
-
-    //deep copy
-    let deltaPairs = xyPairs.map(item => item.slice());
-
-    if(leaveFirst){
-        
-        for(let i=deltaPairs.length-1; i>0; i--){
-
-            let dx = deltaPairs[i][0] - deltaPairs[i-1][0];
-            let dy = deltaPairs[i][1] - deltaPairs[i-1][1];
-            
-            deltaPairs[i][0] = dx;
-            deltaPairs[i][1] = dy;
-        }
-    }
-    else{
-        
-        for(let i=0; i<deltaPairs.length-1; i++){
-
-            let dx = deltaPairs[i+1][0] - deltaPairs[i][0];
-            let dy = deltaPairs[i+1][1] - deltaPairs[i][1];
-            
-            deltaPairs[i][0] = dx;
-            deltaPairs[i][1] = dy;
-        }
-
-        //delta requires a pair so output set size is -1 the original set
-        deltaPairs = deltaPairs.slice(0,-1);
-    }
-    
-    return deltaPairs;
-}
-
 function findMatchingComment(path, commentArray){
 
   path = path.split('-').map( num => parseInt(num) );
@@ -111,7 +17,7 @@ function findMatchingComment(path, commentArray){
   return comment;
 }
 
-class CommentGrid2 extends React.Component{
+class CommentGrid extends React.Component{
   constructor(props){
     super(props);
 
@@ -119,6 +25,10 @@ class CommentGrid2 extends React.Component{
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
+  }
+
+  componentDidMount(){
+    this.handlePostRender();
   }
 
   handleScrollEvents(event){
@@ -164,8 +74,8 @@ class CommentGrid2 extends React.Component{
 
     //the vertical scrollbar is being used
     if(elem.className === 'container'){
-      let scrollbarHeight = scrollCalc.calcScrollBarHeight(elem);
-      let scrollY = scrollCalc.calcScrollBarY(elem);
+      let scrollbarHeight = SW_Utils.scrollCalc.calcScrollBarHeight(elem);
+      let scrollY = SW_Utils.scrollCalc.calcScrollBarY(elem);
       let containerRect = elem.getBoundingClientRect();
 
       height = containerRect.y + scrollY + (scrollbarHeight / 2);
@@ -219,10 +129,12 @@ class CommentGrid2 extends React.Component{
       return e;
     }
 
-    //for each grid row
-    for(let j=-1, i=0; i<end; i++){
+    console.log('entered');
 
-      let currId = currComment.id.slice(0,j+((i+1)*2));
+    //for each grid row
+    for(let j=1, i=0; i<end; i++){
+
+      let currId = currComment.id.slice(0,j+(2*i));
       
       let gridRow = gridsConChildren[i];
 
@@ -231,6 +143,7 @@ class CommentGrid2 extends React.Component{
         if(item.className === 'commentBoxTint' || item.className === 'commentBoxBlank') return;
 
         if(item.id === currComment.id){ 
+          console.log("don't see it: ", item);
           item.style.borderColor = 'red'; 
         }
         
@@ -285,6 +198,10 @@ class CommentGrid2 extends React.Component{
   }
 
   renderComments(path, commentArray){
+
+    path = (path === undefined) ? '0' : path;
+
+    if(!commentArray || commentArray.length === 0) return null;
 
     let elements = [],
       reactRowNum = 0;
@@ -352,9 +269,7 @@ class CommentGrid2 extends React.Component{
 
   render(){
 
-    let path = (this.state.currentCommentId != undefined) ? this.state.currentCommentId : '0';
-  
-    let comments = this.renderComments(path, this.props.commentThreadDoc.comments);
+    let comments = this.renderComments(this.state.currentCommentId, this.props.commentThreadDoc.comments);
 
     return (
       e('div', {className:'container',onScroll: this.handleScrollEvents}, comments)

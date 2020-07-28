@@ -2,79 +2,81 @@
 
 const e = React.createElement;
 
-function flashMessage(element, color, msg){
-    //put warning styling in css
-    let label = document.createElement('label');
-    label.style.backgroundColor = color;
-    label.style.color = 'white';
-    label.style.opacity = 2.0;
-    label.style.position = 'absolute';
-    label.style.borderRadius = '5px';
-    label.style.padding = '1em';
-    label.style.top = window.pageYOffset + element.getBoundingClientRect().y-5 + 'px';
-    label.innerText = msg;
-    document.body.appendChild(label);
+let SW_Utils = {
+    flashMessage(element, color, msg){
+        //put warning styling in css
+        let label = document.createElement('label');
+        label.style.backgroundColor = color;
+        label.style.color = 'white';
+        label.style.opacity = 2.0;
+        label.style.position = 'absolute';
+        label.style.borderRadius = '5px';
+        label.style.padding = '1em';
+        label.style.top = window.pageYOffset + element.getBoundingClientRect().y-5 + 'px';
+        label.innerText = msg;
+        document.body.appendChild(label);
+        
+        (function fade(){
+            ((label.style.opacity -= 0.05) <= 0) ? label.remove() : setTimeout(fade, 50);
+        })()
+    },
+
+    hexDecode(hexstr){
+        let out = "";
+        let hexes = hexstr.match(/.{1,2}/g) || [];
+        for(let j = 0; j<hexes.length; j++) {
+            out += String.fromCharCode(parseInt(hexes[j], 16));
+        }
     
-    (function fade(){
-        ((label.style.opacity -= 0.05) <= 0) ? label.remove() : setTimeout(fade, 50);
-    })()
-}
+        return out;
+    },
 
-function hexDecode(hexstr){
-    let out = "";
-    let hexes = hexstr.match(/.{1,2}/g) || [];
-    for(let j = 0; j<hexes.length; j++) {
-        out += String.fromCharCode(parseInt(hexes[j], 16));
-    }
-
-    return out;
-}
-
-let scrollCalc = {
-    calcScrollBarWidth(elem){
-
-        //if there is no scrollbar, get element width
-        if(elem.clientWidth >= elem.scrollWidth){
-            return elem.clientWidth;
+    scrollCalc : {
+        calcScrollBarWidth(elem){
+    
+            //if there is no scrollbar, get element width
+            if(elem.clientWidth >= elem.scrollWidth){
+                return elem.clientWidth;
+            }
+    
+            let frac = elem.clientWidth / elem.scrollWidth;
+            let width = elem.clientWidth * frac;
+            //console.log('horizontal scrollbar length: ', width);
+            
+            return width;
+        },
+    
+        calcScrollBarHeight(elem){
+    
+            //if no vertical scrollbar, get element height
+            if(elem.clientHeight >= elem.scrollHeight){
+                return elem.clientHeight;
+            }
+    
+            let frac = elem.clientHeight / elem.scrollHeight;
+            let height = elem.clientHeight * frac;
+            //console.log('vertical scrollbar length: ', height);
+            
+            return height;
+        },
+    
+        calcScrollBarX(elem){
+            let frac = elem.scrollLeft / elem.scrollWidth;
+            let scrollX = frac * elem.clientWidth;
+            //console.log('scrollX: ', scrollX);
+    
+            return scrollX;
+        },
+    
+        calcScrollBarY(elem){
+            let frac = elem.scrollTop / elem.scrollHeight;
+            let scrollY = frac * elem.clientHeight;
+            //console.log('scrollY: ', scrollY);
+    
+            return scrollY;
         }
-
-        let frac = elem.clientWidth / elem.scrollWidth;
-        let width = elem.clientWidth * frac;
-        //console.log('horizontal scrollbar length: ', width);
-        
-        return width;
-    },
-
-    calcScrollBarHeight(elem){
-
-        //if no vertical scrollbar, get element height
-        if(elem.clientHeight >= elem.scrollHeight){
-            return elem.clientHeight;
-        }
-
-        let frac = elem.clientHeight / elem.scrollHeight;
-        let height = elem.clientHeight * frac;
-        //console.log('vertical scrollbar length: ', height);
-        
-        return height;
-    },
-
-    calcScrollBarX(elem){
-        let frac = elem.scrollLeft / elem.scrollWidth;
-        let scrollX = frac * elem.clientWidth;
-        //console.log('scrollX: ', scrollX);
-
-        return scrollX;
-    },
-
-    calcScrollBarY(elem){
-        let frac = elem.scrollTop / elem.scrollHeight;
-        let scrollY = frac * elem.clientHeight;
-        //console.log('scrollY: ', scrollY);
-
-        return scrollY;
     }
-}
+};
 
 class NewThreadButton extends React.Component{
 
@@ -121,7 +123,7 @@ class NewThreadButton extends React.Component{
 
             if(response.ok === true){
 
-                flashMessage(targetElement, 'black', `'${newThread._id}' thread successfully created!`)
+                SW_Utils.flashMessage(targetElement, 'black', `'${newThread._id}' thread successfully created!`)
 
                 this.setState({creating: false, threadTitleField:''});
             }
@@ -131,7 +133,7 @@ class NewThreadButton extends React.Component{
 
             if(err.status === 409){
                 
-                flashMessage(targetElement, 'red', 'A thread with this name already exists');
+                SW_Utils.flashMessage(targetElement, 'red', 'A thread with this name already exists');
             }
 
             console.log('Error: ', err.status, '-', err.message, ' : ', err)
@@ -216,7 +218,7 @@ class AccountHome extends React.Component{
         this.local_db.info()
             .then(res => {
                 let hex = res.db_name.split('-')[1];
-                this.state.author = hexDecode(hex);
+                this.state.author = SW_Utils.hexDecode(hex);
             });
         
 
@@ -239,7 +241,10 @@ class AccountHome extends React.Component{
         })
 
         .catch( err => {
-            console.log('createNewThreadInDB() Error: ', err.message)
+            if(err.message === 'missing'){
+                console.log('There are no threads to load.');
+            }
+            else{ console.log('createNewThreadInDB() Error: ', err.message); }
         });
     }
 
@@ -282,7 +287,7 @@ class AccountHome extends React.Component{
                 this.setState({currentThreadTitle: title, currentThread: res});
             })
 
-            .catch( err => flashMessage(event.target, 'red', 'Comment thread could not be loaded: ', err) );
+            .catch( err => SW_Utils.flashMessage(event.target, 'red', 'Comment thread could not be loaded: ', err) );
         }
 
     }
@@ -327,4 +332,4 @@ class AccountHome extends React.Component{
 }
 
 const domContainer = document.getElementById('HomeComponent');
-ReactDOM.render(e(AccountHome, {local_db}), domContainer);
+ReactDOM.render(e(AccountHome, {local_db:DataService.getDB()}), domContainer);
