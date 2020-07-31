@@ -1,7 +1,12 @@
 'use strict'
 
+import CommentBlock from './CommentBlock.js';
+import CommentGrid from './CommentGrid.js';
+
 const useState = React.useState, 
       useEffect = React.useEffect;
+
+const e = React.createElement;
 
 class CommentThread extends React.Component{
   constructor(props){
@@ -47,3 +52,5 @@ class CommentThread extends React.Component{
     );
   }
 }
+
+export default CommentThread;

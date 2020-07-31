@@ -1,5 +1,9 @@
 'use strict';
 
+import {SW_Utils} from './AccountHome.js';
+
+const e = React.createElement;
+
 class TextArea extends React.Component {
 
   render() {
@@ -74,3 +78,5 @@ class CommentBlock extends React.Component{
 
   }
 }
+
+export default CommentBlock;

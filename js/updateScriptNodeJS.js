@@ -54,7 +54,7 @@ function uploadFile(filename, rev, verbose, db_path){
             method: 'PUT',
             auth: `${admin}:${pass}`,
             headers: {
-                'Content-Type': `text/${type}`
+                'Content-Type': (type==='js') ? 'application/javascript' : `text/${type}`
             }
         };
         

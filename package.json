@@ -4,13 +4,19 @@
   "description": "cool shit",
   "main": "index.js",
   "dependencies": {
-    "pouchdb": "^7.2.1"
+    "pouchdb": "^7.2.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
   },
   "devDependencies": {
-    "jasmine": "^3.5.0"
-    },
+    "jasmine": "^3.5.0",
+    "webpack": "^4.44.0",
+    "webpack-cli": "^3.3.12"
+  },
   "scripts": {
     "test": "jasmine",
+    "build": "webpack",
+    "build_tests": "webpack --config spec/webpack.config.specs.js",
     "update": "node js/updateScriptNodeJS credentials.txt false ''",
     "update_wp": "node js/updateScriptNodeJS credentials.txt false ",
     "updateAll": "node js/updateScriptNodeJS credentials.txt false '' js/react_components/*.js css/index.css"

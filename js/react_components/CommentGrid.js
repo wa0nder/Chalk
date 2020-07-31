@@ -1,5 +1,9 @@
 'use strict'
 
+import CommentDisplay from './CommentDisplay.js';
+
+const e = React.createElement;
+
 function findMatchingComment(path, commentArray){
 
   path = path.split('-').map( num => parseInt(num) );
@@ -28,7 +32,7 @@ class CommentGrid extends React.Component{
   }
 
   componentDidMount(){
-    this.handlePostRender();
+    this.handlePostRender('0');
   }
 
   handleScrollEvents(event){
@@ -96,9 +100,11 @@ class CommentGrid extends React.Component{
     return elements.find(e => e.className === 'commentBox');
   }
 
-  handlePostRender(){
+  handlePostRender(id){
 
-    let div = document.getElementById(this.state.currentCommentId);
+    id = (id) ? id : this.state.currentCommentId;
+
+    let div = document.getElementById(id);
 
     if(div !== null){
 
@@ -129,8 +135,6 @@ class CommentGrid extends React.Component{
       return e;
     }
 
-    console.log('entered');
-
     //for each grid row
     for(let j=1, i=0; i<end; i++){
 
@@ -143,7 +147,6 @@ class CommentGrid extends React.Component{
         if(item.className === 'commentBoxTint' || item.className === 'commentBoxBlank') return;
 
         if(item.id === currComment.id){ 
-          console.log("don't see it: ", item);
           item.style.borderColor = 'red'; 
         }
         
@@ -276,3 +279,5 @@ class CommentGrid extends React.Component{
     );
   }
 }
+
+export default CommentGrid;

@@ -1,24 +1,28 @@
 'use strict';
 
+import CommentThread from './CommentThread.js';
+
 const e = React.createElement;
 
 let SW_Utils = {
-    flashMessage(element, color, msg){
+    flashMessage(element, bgColor, msg, timeout){
         //put warning styling in css
         let label = document.createElement('label');
-        label.style.backgroundColor = color;
+        label.style.backgroundColor = bgColor;
         label.style.color = 'white';
         label.style.opacity = 2.0;
-        label.style.position = 'absolute';
+        label.style.position = 'relative';
         label.style.borderRadius = '5px';
         label.style.padding = '1em';
-        label.style.top = window.pageYOffset + element.getBoundingClientRect().y-5 + 'px';
+        label.style.top = '-5px';
         label.innerText = msg;
-        document.body.appendChild(label);
+        element.appendChild(label);
+
+        timeout = timeout ? timeout : 50;
         
         (function fade(){
-            ((label.style.opacity -= 0.05) <= 0) ? label.remove() : setTimeout(fade, 50);
-        })()
+            ((label.style.opacity -= 0.05) <= 0) ? label.remove() : setTimeout(fade, timeout);
+        })();
     },
 
     hexDecode(hexstr){
@@ -33,7 +37,8 @@ let SW_Utils = {
 
     scrollCalc : {
         calcScrollBarWidth(elem){
-    
+            if(elem === null || elem === undefined) return 0;
+
             //if there is no scrollbar, get element width
             if(elem.clientWidth >= elem.scrollWidth){
                 return elem.clientWidth;
@@ -47,7 +52,8 @@ let SW_Utils = {
         },
     
         calcScrollBarHeight(elem){
-    
+            if(elem === null || elem === undefined) return 0;
+
             //if no vertical scrollbar, get element height
             if(elem.clientHeight >= elem.scrollHeight){
                 return elem.clientHeight;
@@ -61,6 +67,8 @@ let SW_Utils = {
         },
     
         calcScrollBarX(elem){
+            if(elem === null || elem === undefined) return 0;
+
             let frac = elem.scrollLeft / elem.scrollWidth;
             let scrollX = frac * elem.clientWidth;
             //console.log('scrollX: ', scrollX);
@@ -69,6 +77,8 @@ let SW_Utils = {
         },
     
         calcScrollBarY(elem){
+            if(elem === null || elem === undefined) return 0;
+
             let frac = elem.scrollTop / elem.scrollHeight;
             let scrollY = frac * elem.clientHeight;
             //console.log('scrollY: ', scrollY);
@@ -78,6 +88,11 @@ let SW_Utils = {
     }
 };
 
+/**
+ * Takes two outside properties
+ * @param {PouchDB object} props.local_db - reference for db object
+ * @param {Function} props.updateRecentThreadsList - self-explanatory callback
+ */
 class NewThreadButton extends React.Component{
 
     constructor(props){
@@ -106,6 +121,11 @@ class NewThreadButton extends React.Component{
     }
 
     createNewThreadInDB(event){
+
+        if(this.state.threadTitleField.length === 0){
+            SW_Utils.flashMessage(event.target, 'red', 'Must enter a valid thread title!');
+            return;
+        }
 
         let targetElement = event.target;
 
@@ -151,9 +171,9 @@ class NewThreadButton extends React.Component{
                 
                     e('input', {type:'text', placeholder:'...enter thread name', value:this.state.threadTitleField, onChange:this.updateThreadTitleField}),
 
-                    e('button', {onClick: this.createNewThreadInDB}, 'OK'),
+                    e('button', {style:{display:'inline-block'}, onClick: this.createNewThreadInDB}, 'OK'),
 
-                    e('button', {onClick: this.toggleCreateNewThreadState}, 'CANCEL')
+                    e('button', {style:{display:'inline-block'}, onClick: this.toggleCreateNewThreadState}, 'CANCEL')
                 )
             );
         }
@@ -333,3 +353,5 @@ class AccountHome extends React.Component{
 
 const domContainer = document.getElementById('HomeComponent');
 ReactDOM.render(e(AccountHome, {local_db:DataService.getDB()}), domContainer);
+
+export {AccountHome, NewThreadButton, RecentThreads, CommentThreadPreview, SW_Utils};

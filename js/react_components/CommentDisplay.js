@@ -1,5 +1,7 @@
 'use strict';
 
+const e = React.createElement;
+
 class CommentDisplay extends React.Component{
     constructor(props){
         super(props);
@@ -59,3 +61,5 @@ class CommentDisplay extends React.Component{
                 );
     }
 }
+
+export default CommentDisplay;
