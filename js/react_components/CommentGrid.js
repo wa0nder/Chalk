@@ -4,23 +4,6 @@ import CommentDisplay from './CommentDisplay.js';
 
 const e = React.createElement;
 
-function findMatchingComment(path, commentArray){
-
-  path = path.split('-').map( num => parseInt(num) );
-
-  let comment = commentArray.comments[ path[0] ];
-
-  path = path.slice(1);
-  for(let idx of path){
-
-    if(!comment.comments || comment.comments.length === 0) return undefined;
-
-    comment = comment.comments[idx];
-  }
-
-  return comment;
-}
-
 class CommentGrid extends React.Component{
   constructor(props){
     super(props);
@@ -48,7 +31,7 @@ class CommentGrid extends React.Component{
     
     if(div !== undefined && div.id !== this.state.currentCommentId){
 
-      let found = findMatchingComment(div.id, this.props.commentThreadDoc);
+      let found = SW_Utils.findMatchingComment(div.id, this.props.commentThreadDoc);
 
       //console.log('found: ', div.id, ' : ', found);
       

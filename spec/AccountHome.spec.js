@@ -80,14 +80,104 @@ describe('scrollCalc x/y/height/width calculations', () => {
 
 describe('NewThreadButton', () => {
 
-    it('', () => {
+    it('changes render output on "new thread" button click', () => {
 
         act(() => {
-
-            render(e(NewThreadButton), container);
+          render(e(NewThreadButton, {}), container);
         });
-
         
+        let button = container.querySelector('button');
+        expect(button.tagName.toLowerCase()).toBe('button');
+
+        //click 'create thread'
+        act(() =>{
+          button.dispatchEvent( new MouseEvent("click", { bubbles: true }) );
+        });
+        
+        //expect render output to be input field and buttons
+        let elements = Array.from(container.firstElementChild.children);
+        let tags = elements.map(item => item.tagName.toLowerCase());
+        tags.unshift('div');
+        
+        expect(tags).toEqual(['div','input','button','button']);
+
+        //click cancel button
+        let cancelButton = container.querySelector('div').getElementsByTagName('button')[1];
+        act(() =>{
+          cancelButton.dispatchEvent( new MouseEvent("click", { bubbles: true }) );
+        });
+        
+        
+
+    });
+
+    it('shows error message if "ok" is pressed with empty text field', () => {
+
+      act(() => {
+        render(e(NewThreadButton, {}), container);
+      });
+
+      console.log('container1: ', container);
+
+      let button = container.querySelector('button');
+      expect(button !== null).toBe(true);
+
+      //click 'create thread' then 'ok' button
+      act(() =>{
+        button.dispatchEvent( new MouseEvent("click", { bubbles: true }) );
+      });
+
+      let okButton = container.querySelector('div').querySelector('button');
+      act(() =>{
+        okButton.dispatchEvent( new MouseEvent("click", { bubbles: true }) );
+      });
+
+      //check for error message label
+      expect(okButton.querySelector('label') !== null).toBe(true);
+      
+    });
+
+    it('saves new thread in db when "ok" is pressed with valid thread title', () => {
+      let db = new PouchDB('testdb');
+      let DataService = {
+        getDB: () => db
+      }
+
+      function createNewThreadInDB(id){
+        return new Promise((res, rej) => {
+          resolve('this is just a mock: ', id);
+        });
+      }
+
+      act(() => {
+        render(e(NewThreadButton, {DataService, createNewThreadInDB}), container);
+      });
+
+      console.log('container1: ', container);
+
+      //click 'create thread' then 'ok' button
+      act(() =>{
+        button.dispatchEvent( new MouseEvent("click", { bubbles: true }) );
+      });
+
+      //add a sample title to thread field
+      let threadTitle = 'Wondering about the world';
+      let parentDiv = container.querySelector('div');
+      container.parentDiv.querySelector('input').value = threadTitle;
+
+      let okButton = parentDiv.querySelector('button');
+      act(() =>{
+        okButton.dispatchEvent( new MouseEvent("click", { bubbles: true }) );
+      });
+
+      db.get(threadTitle)
+        .then((doc) => {
+
+          expect(doc._id).toBe(threadTitle);
+        })
+        .catch(err => console.log('Error: ', err.message));
+
+
     });
 
 });

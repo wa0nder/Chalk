@@ -35,6 +35,23 @@ let SW_Utils = {
         return out;
     },
 
+    findMatchingComment(path, commentArray){
+
+        path = path.split('-').map( num => parseInt(num) );
+        
+        let comment = commentArray.comments[ path[0] ];
+        
+        path = path.slice(1);
+        for(let idx of path){
+        
+            if(!comment.comments || comment.comments.length === 0) return undefined;
+        
+            comment = comment.comments[idx];
+        }
+        
+        return comment;
+    },
+
     scrollCalc : {
         calcScrollBarWidth(elem){
             if(elem === null || elem === undefined) return 0;
@@ -90,8 +107,7 @@ let SW_Utils = {
 
 /**
  * Takes two outside properties
- * @param {PouchDB object} props.local_db - reference for db object
- * @param {Function} props.updateRecentThreadsList - self-explanatory callback
+ * @param {Function} props.createNewThreadInDB - reference of db object
  */
 class NewThreadButton extends React.Component{
 
@@ -122,44 +138,16 @@ class NewThreadButton extends React.Component{
 
     createNewThreadInDB(event){
 
-        if(this.state.threadTitleField.length === 0){
-            SW_Utils.flashMessage(event.target, 'red', 'Must enter a valid thread title!');
-            return;
-        }
+        let element = event.target;
+        this.props.createNewThreadInDB(this.state.threadTitleField)
 
-        let targetElement = event.target;
-
-        let newThread = {
-            _id: this.state.threadTitleField,
-            type: 'thread',
-            date: Date(),
-            comments: []
-        }
-
-        let db = this.props.local_db;
-        db.put(newThread)
-
-        .then( response => {
-
-            if(response.ok === true){
-
-                SW_Utils.flashMessage(targetElement, 'black', `'${newThread._id}' thread successfully created!`)
-
-                this.setState({creating: false, threadTitleField:''});
-            }
+        .then((msg) => {
+            
+            SW_Utils.flashMessage(element.parentElement.parentElement, 'black', msg);
+            this.setState({creating: false, threadTitleField:''});
         })
 
-        .catch(err => {
-
-            if(err.status === 409){
-                
-                SW_Utils.flashMessage(targetElement, 'red', 'A thread with this name already exists');
-            }
-
-            console.log('Error: ', err.status, '-', err.message, ' : ', err)
-        });
-
-        this.props.updateRecentThreadsList(newThread._id);
+        .catch((errMsg) => SW_Utils.flashMessage(element, 'red', errMsg));
     }
 
     render(){
@@ -203,8 +191,7 @@ class RecentThreads extends React.Component{
             item => e(CommentThreadPreview, {
                 key:item.key, 
                 commentThreadDoc: item, 
-                loadThread: this.props.loadThread, 
-                createNewCommentInDB:this.props.createNewCommentInDB
+                loadThread: this.props.loadThread
             })
         )
 
@@ -232,82 +219,87 @@ class AccountHome extends React.Component{
             currentThread: undefined
         };
 
-        this.local_db = this.props.local_db;
-
         //set author for comments
-        this.local_db.info()
+        this.props.DataService.getDB().info()
             .then(res => {
                 let hex = res.db_name.split('-')[1];
                 this.state.author = SW_Utils.hexDecode(hex);
             });
         
 
-        this.updateRecentThreadsList = this.updateRecentThreadsList.bind(this);
         this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
+        this.createNewThreadInDB = this.createNewThreadInDB.bind(this);
         //this.loadChildComments = this.loadChildComments.bind(this);
     }
 
     componentDidMount(){
-        this.updateRecentThreadsList(undefined);
+
+        this.props.DataService.updateRecentThreadsList(undefined)
+        .then(queryResults=> this.setState({queryResults: queryResults, currentThreadTitle: undefined}) )
+        .catch(err => console.log('Error: ', err) );
     }
 
-    updateRecentThreadsList(threadTitle){
+    createNewThreadInDB(threadTitle){
 
-        this.local_db.query('sortThreads', {limit: 4, descending: true})
+        let returnMsg;
 
-        .then( result => {
-            this.setState({queryResults: result.rows, currentThreadTitle: threadTitle});
+        return this.props.DataService.createNewThreadInDB(threadTitle)
+
+        .then((successMsg) => {
+
+            returnMsg = successMsg;
+            return this.props.DataService.updateRecentThreadsList(threadTitle)
         })
 
-        .catch( err => {
-            if(err.message === 'missing'){
-                console.log('There are no threads to load.');
-            }
-            else{ console.log('createNewThreadInDB() Error: ', err.message); }
+        .then(queryResult => {
+            this.setState({queryResults: queryResult, currentThreadTitle: threadTitle})
+
+            return returnMsg;
         });
     }
 
     createNewCommentInDB(id, text){
 
-        return this.local_db.get(this.state.currentThreadTitle)
+        let foundComment = (!id) ? this.state.currentThread : SW_Utils.findMatchingComment(id, this.state.currentThread);
 
-        .then( commentThread => {
+        if(!foundComment.comments){ foundComment.comments = []; }
 
-            let foundComment = (!id) ? commentThread : findMatchingComment(id, commentThread);
+        foundComment.comments.push({
+            at: (foundComment.author || undefined), 
+            author: this.state.author, 
+            body: text
+        });
 
-            if(!foundComment.comments){ foundComment.comments = []; }
+        this.props.DataService.updateCommentThreadInDB(this.state.currentThread)
 
-            foundComment.comments.push( {at: (foundComment.author || undefined), author: this.state.author, body: text} );
+        .then(commentThreadDoc => this.setState({currentThread: commentThreadDoc}) )
 
-            this.setState({currentThread: commentThread});
-
-            return this.local_db.put(commentThread);
-        })
-
-        .then( 
-            () => console.log('new comment saved.'),
-
-            (err) => console.log('new comment could not be saved: ', err)
-        );
+        .catch(err => console.log('new comment could not be saved: ', err));
     }
 
+    /**
+     * 
+     * @param {*} event 
+     * @param {*} commentThreadDoc - CouchDB returns query results as two field object: 
+     */
     loadThread(event, commentThreadDoc){
 
         //console.log("I'm supposed to load a comment here: ", commentThreadDoc);
 
         let title = commentThreadDoc.key[1];
+        let element = event.target;
 
         if(title != undefined){
 
-            this.local_db.get(title)
+            this.props.DataService.getDB().get(title)
 
             .then( res => {
                 //console.log('res: ', res);
                 this.setState({currentThreadTitle: title, currentThread: res});
             })
 
-            .catch( err => SW_Utils.flashMessage(event.target, 'red', 'Comment thread could not be loaded: ', err) );
+            .catch( err => SW_Utils.flashMessage(element, 'red', 'Comment thread could not be loaded: ', err) );
         }
 
     }
@@ -328,7 +320,7 @@ class AccountHome extends React.Component{
 
             e(React.Fragment, null,
 
-                e(NewThreadButton, {local_db: this.props.local_db, updateRecentThreadsList: this.updateRecentThreadsList}),
+                e(NewThreadButton, {createNewThreadInDB: this.createNewThreadInDB}),
 
                 e('div', null, 
 
@@ -336,7 +328,7 @@ class AccountHome extends React.Component{
 
                 ),
 
-                e(RecentThreads, {queryResults: this.state.queryResults, createNewCommentInDB:this.createNewCommentInDB, loadThread:this.loadThread}),
+                e(RecentThreads, {queryResults: this.state.queryResults, loadThread:this.loadThread}),
 
                 e('div', null, 
 
@@ -350,8 +342,5 @@ class AccountHome extends React.Component{
 
     }
 }
-
-const domContainer = document.getElementById('HomeComponent');
-ReactDOM.render(e(AccountHome, {local_db:DataService.getDB()}), domContainer);
 
 export {AccountHome, NewThreadButton, RecentThreads, CommentThreadPreview, SW_Utils};

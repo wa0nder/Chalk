@@ -203,28 +203,36 @@ function putDesignDocInDB(dbHex){
 }
 
 function putJSFileInDB(dbHex){
-  let jsFileContents = `let DataService = (function(){
-    let local_db = new PouchDB('https://${serverDBHostName}:6984/userdb-${dbHex}', {skip_setup: true});
 
-    return {
-      getDB : function(){
-        return local_db;
-      }
-    }
-  }());
-  `
-  //let base64e = Buffer.from(jsFileContents).toString('base64');
-  //console.log('out: ', base64e);
-  let doc = {
-    "_attachments": {
-      "init.js": {
-        "data": Buffer.from(jsFileContents).toString('base64'), 
-        "content_type": "text/javascript"
-      }
-    }
-  }
+  return new Promise((resolve, reject) => {
 
-  return putDocInDB(`/userdb-${dbHex}/home`, doc);
+    fs.readFile('./DataService.js', (err,data) => {
+
+      if(err) reject(err);
+      
+      console.log(data);
+
+      data += '\n\n';
+      data += `let DataService = createRemoteDataService('${serverDBHostName}','${dbHex}');`;
+
+      //fs.writeFileSync('testoutput.js', data, 'utf8');
+      //let base64e = Buffer.from(jsFileContents).toString('base64');
+      //console.log('out: ', base64e);
+      let doc = {
+        "_attachments": {
+          "init.js": {
+            "data": Buffer.from(data).toString('base64'), 
+            "content_type": "text/javascript"
+          }
+        }
+      }
+
+      resolve(doc);
+    })
+  })
+
+  .then(doc => putDocInDB(`/userdb-${dbHex}/home`, doc) );
+  
 }
 
 function putDocInDB(path, doc){

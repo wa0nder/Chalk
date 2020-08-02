@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './js/react_components/AccountHome.js',
+  entry: './js/react_components/Root.js',
   
   output: {
     filename: 'Components.js',
