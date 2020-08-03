@@ -106,8 +106,8 @@ let SW_Utils = {
 };
 
 /**
- * Takes two outside properties
- * @param {Function} props.createNewThreadInDB - reference of db object
+ * Takes a single property
+ * @param {Function} props.createNewThreadInDB - calls this self-explanatory function and waits for response
  */
 class NewThreadButton extends React.Component{
 

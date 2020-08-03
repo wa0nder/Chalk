@@ -1,7 +1,17 @@
 'use strict';
 
+import CommentBlock from './CommentBlock.js';
+
 const e = React.createElement;
 
+/** Expects six properties from the props object
+ * @param {String} id - used to connect rendered comment to specific comment in DB document
+ * @param {String} className - for applying CSS class
+ * @param {Number} style.gridRow - to render matching parent gridRow position
+ * @param {Number} style.gridColumn - to render matching parent gridColumn position
+ * @param {Object} comment - object holding comment data schema from database (at, author, date, body, ...)
+ * @param {Function} handlePostCommentBtnClick - self-explanatory function call
+ */
 class CommentDisplay extends React.Component{
     constructor(props){
         super(props);
@@ -34,14 +44,14 @@ class CommentDisplay extends React.Component{
             let parent = document.getElementById(this.props.id);
             let gc = parent.style.gridColumn;
             let gr = parent.style.gridRow;
-            replyBox = e(CommentBlock, 
-                {
-                    className:'responseBox', 
-                    parentId: this.props.id,
-                    style:{gridColumn: gc, gridRow: gr},
-                    handlePostCommentBtnClick: this.props.handlePostCommentBtnClick,
-                    hidePostReplyBox: this.hidePostReplyBox
-                });
+            replyBox = e(CommentBlock, {
+                            className:'responseBox', 
+                            parentId: this.props.id,
+                            style:{gridColumn: gc, gridRow: gr},
+                            handlePostCommentBtnClick: this.props.handlePostCommentBtnClick,
+                            hidePostReplyBox: this.hidePostReplyBox
+                        }
+                    );
         }
 
         return e(React.Fragment, null,

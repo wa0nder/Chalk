@@ -91,4 +91,4 @@ function createDataService(pouchDBInstance){
     return new DataService();
 }
 
-//export {createLocalDataService, createRemoteDataService};
+export {createLocalDataService, createRemoteDataService};

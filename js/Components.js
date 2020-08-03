@@ -144,7 +144,7 @@ class CommentBlock_CommentBlock extends React.Component{
     let element = event.target;
 
     if(this.state.commentText.length === 0){
-      AccountHome_SW_Utils.flashMessage(element, 'red', 'Nothing to post!');
+      SW_Utils.flashMessage(element, 'red', 'Nothing to post!');
       return;
     }
 
@@ -242,6 +242,7 @@ class CommentDisplay extends React.Component{
 
 /* harmony default export */ var react_components_CommentDisplay = (CommentDisplay);
 // CONCATENATED MODULE: ./js/react_components/CommentGrid.js
+
 
 
 
@@ -572,7 +573,7 @@ class CommentThread_CommentThread extends React.Component{
 
 const AccountHome_e = React.createElement;
 
-let AccountHome_SW_Utils = {
+let SW_Utils = {
     flashMessage(element, bgColor, msg, timeout){
         //put warning styling in css
         let label = document.createElement('label');
@@ -674,8 +675,8 @@ let AccountHome_SW_Utils = {
 };
 
 /**
- * Takes two outside properties
- * @param {Function} props.createNewThreadInDB - reference of db object
+ * Takes a single property
+ * @param {Function} props.createNewThreadInDB - calls this self-explanatory function and waits for response
  */
 class NewThreadButton extends React.Component{
 
@@ -711,11 +712,11 @@ class NewThreadButton extends React.Component{
 
         .then((msg) => {
             
-            AccountHome_SW_Utils.flashMessage(element.parentElement.parentElement, 'black', msg);
+            SW_Utils.flashMessage(element.parentElement.parentElement, 'black', msg);
             this.setState({creating: false, threadTitleField:''});
         })
 
-        .catch((errMsg) => AccountHome_SW_Utils.flashMessage(element, 'red', errMsg));
+        .catch((errMsg) => SW_Utils.flashMessage(element, 'red', errMsg));
     }
 
     render(){
@@ -791,7 +792,7 @@ class AccountHome_AccountHome extends React.Component{
         this.props.DataService.getDB().info()
             .then(res => {
                 let hex = res.db_name.split('-')[1];
-                this.state.author = AccountHome_SW_Utils.hexDecode(hex);
+                this.state.author = SW_Utils.hexDecode(hex);
             });
         
 
@@ -829,7 +830,7 @@ class AccountHome_AccountHome extends React.Component{
 
     createNewCommentInDB(id, text){
 
-        let foundComment = (!id) ? this.state.currentThread : AccountHome_SW_Utils.findMatchingComment(id, this.state.currentThread);
+        let foundComment = (!id) ? this.state.currentThread : SW_Utils.findMatchingComment(id, this.state.currentThread);
 
         if(!foundComment.comments){ foundComment.comments = []; }
 
@@ -867,7 +868,7 @@ class AccountHome_AccountHome extends React.Component{
                 this.setState({currentThreadTitle: title, currentThread: res});
             })
 
-            .catch( err => AccountHome_SW_Utils.flashMessage(element, 'red', 'Comment thread could not be loaded: ', err) );
+            .catch( err => SW_Utils.flashMessage(element, 'red', 'Comment thread could not be loaded: ', err) );
         }
 
     }
