@@ -35,9 +35,14 @@ let SW_Utils = {
         return out;
     },
 
+    /**
+     * 
+     * @param {String} path - dash separated list of numbers beginning with 'c_' (e.g. c_1-2-3)
+     * @param {Array} commentArray 
+     */
     findMatchingComment(path, commentArray){
 
-        path = path.split('-').map( num => parseInt(num) );
+        path = path.slice(2).split('-').map( num => parseInt(num) );
         
         let comment = commentArray.comments[ path[0] ];
         
@@ -230,7 +235,6 @@ class AccountHome extends React.Component{
         this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
         this.createNewThreadInDB = this.createNewThreadInDB.bind(this);
-        //this.loadChildComments = this.loadChildComments.bind(this);
     }
 
     componentDidMount(){
@@ -311,7 +315,6 @@ class AccountHome extends React.Component{
             e(CommentThread, {
                                 commentThreadDoc: this.state.currentThread, 
                                 createNewCommentInDB: this.createNewCommentInDB
-                                //loadChildComments: this.loadChildComments
                             }
                 )
         )

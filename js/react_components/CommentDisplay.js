@@ -10,7 +10,7 @@ const e = React.createElement;
  * @param {Number} style.gridRow - to render matching parent gridRow position
  * @param {Number} style.gridColumn - to render matching parent gridColumn position
  * @param {Object} comment - object holding comment data schema from database (at, author, date, body, ...)
- * @param {Function} handlePostCommentBtnClick - self-explanatory function call
+ * @param {Function} createNewCommentInDB - self-explanatory function call needed for passing to CommentBlock
  */
 class CommentDisplay extends React.Component{
     constructor(props){
@@ -26,7 +26,13 @@ class CommentDisplay extends React.Component{
         this.setState({showPostReplyBox: true});
     }
 
-    hidePostReplyBox(elem){
+    /**
+     * Expects event OR element depending on calling function
+     * @param {Event} event - if undefined, use element parameter, otherwise event.target
+     * @param {HTMLElement} element
+     */
+    hidePostReplyBox(event, element){
+        let elem = (event !== undefined) ? event.target : element;
         elem = elem.parentElement;
         elem.style.opacity = window.getComputedStyle(elem).opacity;
 
@@ -48,7 +54,7 @@ class CommentDisplay extends React.Component{
                             className:'responseBox', 
                             parentId: this.props.id,
                             style:{gridColumn: gc, gridRow: gr},
-                            handlePostCommentBtnClick: this.props.handlePostCommentBtnClick,
+                            createNewCommentInDB:this.props.createNewCommentInDB,
                             hidePostReplyBox: this.hidePostReplyBox
                         }
                     );

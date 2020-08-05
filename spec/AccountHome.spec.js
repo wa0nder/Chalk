@@ -4,10 +4,16 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { AccountHome, NewThreadButton, RecentThreads, CommentThreadPreview, SW_Utils } from '../js/react_components/AccountHome.js';
 import { unmountComponentAtNode, render } from "react-dom";
-import {createLocalDataService} from '../js/DataService.js';
 import runCommentDisplaySpecs from './CommentDisplay.spec.js';
+import runCommentBlockSpecs from './CommentBlock.spec.js';
+import runcommentGridSpecs from './CommentGrid.spec.js';
+import runCommentGridSpecs from './CommentGrid.spec.js';
 
 runCommentDisplaySpecs();
+
+runCommentBlockSpecs();
+
+runCommentGridSpecs();
 
 function runAccountHomeSpecs(){
   let container = null;
@@ -131,7 +137,7 @@ function runAccountHomeSpecs(){
         });
   
         let button = container.querySelector('button');
-        expect(button !== null).toBe(true);
+        expect(button).not.toBe(null);
   
         //click 'create thread' then 'ok' button
         act(() =>{
@@ -146,9 +152,9 @@ function runAccountHomeSpecs(){
         //check if error message is displayed
         await new Promise((resolve, reject) => {
           setTimeout(() => {
-            expect(okButton.querySelector('label') !== null).toBe(true);
+            expect(okButton.querySelector('label')).not.toBe(null);
             resolve();
-          }, 250);
+          });
         });
         
       });
@@ -219,7 +225,7 @@ function runAccountHomeSpecs(){
         });
   
         let button = container.querySelector('button');
-        expect(button !== null).toBe(true);
+        expect(button).not.toBe(null);
   
         //click 'create thread' then 'ok' button
         act(() =>{
@@ -232,7 +238,7 @@ function runAccountHomeSpecs(){
         });
   
         button = container.querySelector('button');
-        expect(button !== null).toBe(true);
+        expect(button).not.toBe(null);
         expect(button.innerText).toBe('Create New Thread');
         
       });

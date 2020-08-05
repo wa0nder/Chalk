@@ -5,18 +5,28 @@ import {SW_Utils} from './AccountHome.js';
 
 const e = React.createElement;
 
+/**
+ * Expects two properties passed in props object
+ * @param {Object} commentThreadDoc - CouchDB document
+ * @param {Function} createNewCommentInDB - self-explanatory function to be passed to CommentDisplay
+ */
 class CommentGrid extends React.Component{
   constructor(props){
     super(props);
 
     this.state = {currentCommentId: undefined};
+    this.currentThreadId = this.props.commentThreadDoc._id;
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
   }
 
   componentDidMount(){
-    this.handlePostRender('0');
+    this.handlePostRender('c_0');
+  }
+
+  componentDidUpdate(){
+    this.clearOldTints();
   }
 
   handleScrollEvents(event){
@@ -24,7 +34,7 @@ class CommentGrid extends React.Component{
     this.loadChildComments(event);
   }
 
-  loadChildComments (event){
+  loadChildComments(event){
 
     let elem = event.target;
 
@@ -40,7 +50,10 @@ class CommentGrid extends React.Component{
 
         //de-highlight old comment
         if(this.state.currentCommentId !== undefined){
-          document.getElementById(this.state.currentCommentId).style.borderColor = null;
+
+          let old = document.getElementById(this.state.currentCommentId);
+          
+          if(old !== null){ old.style.borderColor = null; }
         }
 
         this.setState({currentCommentId: div.id}, this.handlePostRender);
@@ -51,7 +64,7 @@ class CommentGrid extends React.Component{
 
   /**
    * Find leftmost (first) element in current row where row is calculated by vertical scrollbar position.
-   * @param {*} elem 
+   * @param {HTMLElement} elem - CSS Grid container parent element
    */
   findHighlightedComment(elem){
 
@@ -92,6 +105,8 @@ class CommentGrid extends React.Component{
 
     if(div !== null){
 
+      this.clearOldTints(div);
+
       this.tintComments(div);
 
       this.setScrollToEndMargin();
@@ -100,8 +115,9 @@ class CommentGrid extends React.Component{
   }
 
   /**
-   * Tint all comments except highlighted comment and its immediate child comments, which is next grid row
-   * @param {*} commentDiv 
+   * Tint all comments except highlighted comment and its immediate child comments, 
+   *  which is next grid row
+   * @param {HTMLElement} currComment - HTML 'div' element
    */
   tintComments(currComment){
     
@@ -110,19 +126,20 @@ class CommentGrid extends React.Component{
     let gridsConChildren = Array.from(gridsContainer.children);
     let end = gridsConChildren.findIndex(item => item === grid) + 1;
 
-    function getDiv(item){
+    function getTintDiv(item){
       let e = document.createElement('div');
-      e.id = 'tint_'+item.id;
+      e.id = 'tint_'+item.id.slice(2);
       e.className = 'commentBoxTint';
       e.style.gridRow = 1;
       e.style.gridColumn = item.style.gridColumn;
       return e;
     }
-
+    
     //for each grid row
-    for(let j=1, i=0; i<end; i++){
-
-      let currId = currComment.id.slice(0,j+(2*i));
+    let baseId = currComment.id.slice(2); //remove 'c_'
+    for(let i=0; i<end; i++){
+      
+      let currPathId = baseId.slice(0,1+(2*i));
       
       let gridRow = gridsConChildren[i];
 
@@ -134,20 +151,28 @@ class CommentGrid extends React.Component{
           item.style.borderColor = 'red'; 
         }
         
-        if(item.id === currId){
-          let getElem = document.getElementById('tint_'+currId);
-          if(getElem !== null) getElem.remove();
+        let id = item.id.slice(2);
+        if(id === currPathId){
+
+          let getElem = document.getElementById('tint_'+currPathId);
+
+          if(getElem !== null){ getElem.remove(); }
         }
-        else if(item.id !== currId && document.getElementById('tint_'+item.id) === null){
-          gridRow.appendChild( getDiv(item) );
+        else if(id !== currPathId && document.getElementById('tint_'+id) === null){
+
+          gridRow.appendChild( getTintDiv(item) );
         }
+        
       });
 
       //clear immediate following row
       if(end < gridsConChildren.length){
+
         Array.from(gridsConChildren[end].children).forEach(item =>{
-          let getElem = document.getElementById('tint_'+item.id);
-          if(getElem !== null) getElem.remove();
+
+          let getElem = document.getElementById('tint_'+item.id.slice(2));
+
+          if(getElem !== null){ getElem.remove(); }
         });
       }
       
@@ -155,6 +180,11 @@ class CommentGrid extends React.Component{
     
   }
 
+  /**
+   * Adds empty comment boxes to extend scrollbar range. 
+   *  This allows ending comments to be scrolled to far left of parent container
+   *  for highlighting.
+   */
   setScrollToEndMargin(){
     
     if(this.state.currentCommentId === undefined){ return; }
@@ -163,7 +193,7 @@ class CommentGrid extends React.Component{
     let childRect = elem.getBoundingClientRect();
     let gridElem = elem.parentElement;
 
-    //paddind has already occurred
+    //padding has already occurred
     //console.log('gridElem: ', gridElem, ' - ', gridElem.lastElementChild);
     if(Array.from(gridElem.children).some(item => item.className === 'commentBoxBlank')){ return; }
 
@@ -184,33 +214,107 @@ class CommentGrid extends React.Component{
     //console.log('margin calc: ', multiplier, ' : ', elem);
   }
 
+  /**
+   * Tinting is manually added on top of react generated components and must be managed
+   * as different comment threads, and thus different number of comments, are loaded. This function
+   * checks for matching underlying comment box using id = 'tint_[id]', if none found the tint is removed.
+   */
+  clearOldTints(){
+
+    if(this.props.commentThreadDoc._id === this.currentThreadId){ return; }
+    
+    this.currentThreadId = this.props.commentThreadDoc._id;
+
+    let gridsContainer = document.querySelector('.container');
+    let gridsConChildren = Array.from(gridsContainer.children);
+
+    gridsConChildren.forEach(row => {
+
+      Array.from(row.children).forEach(commentDiv => {
+
+        let id = 'c_' + commentDiv.id.slice(5); //remove 'tint_' prefix
+        if(commentDiv.className === 'commentBoxTint' && row.querySelector('#'+id) === null){
+          commentDiv.remove();
+        }
+      })
+    });
+
+  }
+
+  checkForThreadChange(path){
+
+    if(this.currentThreadId !== this.props.commentThreadDoc._id){
+
+      document.querySelector('.container').scrollTo(0,0);
+      document.querySelector('.grid').scrollTo(0,0);
+
+      return 'c_0';
+    }
+
+    return path;
+  }
+
   renderComments(path, commentArray){
 
-    path = (path === undefined) ? '0' : path;
+    path = (path === undefined || path === null) ? 'c_0' : path;
+
+    path = this.checkForThreadChange(path);
+
+    path = path.slice(2).split('-').map(item => parseInt(item));
 
     if(!commentArray || commentArray.length === 0) return null;
 
-    let elements = [],
-      reactRowNum = 0;
+    let state = {
+      elements: [],
+      reactRowNum: 0,
+      holdPath: '',
+      path,
+      commentArray,
+    }
 
     //render top-level comments
-    elements.push( this.renderRow(reactRowNum++, '', commentArray) );
+    state.elements.push( this.renderRow(state.reactRowNum++, '', state.commentArray) );
 
-    path = path.split('-').map(item => parseInt(item));
-    let holdPath = '';
+    state = this.renderResponseRowsOfEachCommentOnPath(state);
+
+    if(state.end){ return state.elements; }
+
+    let elements = this.renderVerticalResponses(state);
+
+    return elements;
+  }
+
+  /**
+   * For every comment referenced in 'path', generate row of direct response comments
+   * @param {Object} state - contains five parameters
+   * @param {Number} state.reactRowNum - serves as key id for react lists
+   * @param {String} state.path - dash separate list of numbers indicating where comments are found in DB
+   * @param {String} state.holdPath - holds how far into full render 'path' 
+   * @param {Array} state.commentArray - array holding comment objects (author, comment body, etc.)
+   * @param {Array} state.elements - an array of React Components holding lists of components
+   * @returns {Object} - returns either a two element array containing an 'end' parameter to signal
+   *  that there is nothing left to render or the full state object for further rendering
+   */
+  renderResponseRowsOfEachCommentOnPath({reactRowNum, path, holdPath, commentArray, elements}){
 
     for(let idx of path){
 
       holdPath += idx + '-';
 
-      if(!commentArray[idx].comments || commentArray[idx].comments.length === 0) return elements;
+      if(!commentArray[idx].comments || commentArray[idx].comments.length === 0){
+        return {'end':true, elements};
+      }
 
       commentArray = commentArray[idx].comments;
 
       elements.push( this.renderRow(reactRowNum++, holdPath, commentArray) );
     }
 
-    //render vertical responses
+    return {reactRowNum, path, holdPath, commentArray, elements};
+  }
+
+  renderVerticalResponses({reactRowNum, holdPath, commentArray, elements}){
+
     while(commentArray[0].comments && commentArray[0].comments.length > 0){
 
       holdPath += '0-';
@@ -223,10 +327,22 @@ class CommentGrid extends React.Component{
     return elements;
   }
 
+  /**
+   * Renders an entire row of top-level response comments. 
+   *  See 'renderRow(reactRowNum, path, commentArray, renderFirstOnly)' for documentation
+   */
   renderRow(reactRowNum, path, commentArray){
     return this.renderRow(reactRowNum, path, commentArray, false);
   }
 
+  /**
+   * Renders an entire row of top-level response comments
+   * @param {Number} reactRowNum - serves as key id for react lists
+   * @param {String} path - dash '-' separated string of numbers holding path to find a specific comment
+   * @param {Array} commentArray - array of comment objects
+   * @param {Boolean} renderFirstOnly - only render first comment of a row of comments
+   * @returns {ReactComponent} - a react component holding a list of CommentDisplay elements
+   */
   renderRow(reactRowNum, path, commentArray, renderFirstOnly){
     
     if(renderFirstOnly) commentArray = commentArray.slice(0,1);
@@ -238,7 +354,7 @@ class CommentGrid extends React.Component{
 
       return e(CommentDisplay, {
                         key: 'k_'+id,
-                        id: id,
+                        id: 'c_'+id,
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
@@ -246,7 +362,7 @@ class CommentGrid extends React.Component{
                         },
                         comment: comment,
                         onClick: this.loadChildComments,
-                        handlePostCommentBtnClick: this.props.handlePostCommentBtnClick
+                        createNewCommentInDB:this.props.createNewCommentInDB
                       }
                 )
     });

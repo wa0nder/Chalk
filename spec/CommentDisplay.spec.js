@@ -3,7 +3,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import CommentDisplay from '../js/react_components/CommentDisplay.js';
-import CommentBlock from '../js/react_components/CommentBlock.js';
 import { unmountComponentAtNode, render } from "react-dom";
 
 function runCommentDisplaySpecs(){

@@ -4,44 +4,38 @@ import {SW_Utils} from './AccountHome.js';
 
 const e = React.createElement;
 
-class TextArea extends React.Component {
-
-  render() {
-
-    return e(
-      'textarea',
-      {className: 'commentBlockTextArea', value: this.props.value, onChange: this.props.onChange},
-      this.props.text
-    );
-
-  }
-}
-
-
+/** Expects one and five optional parameters in the props object
+ * 
+ * @param {Function} createNewCommentInDB - self-explanatory
+ * @param {Function} hidePostReplyBox - optional - self-explanatory, only needed when appearing on a parent comment
+ * @param {String} parentId - optional - if present it is the id of comment one is replying to
+ * @param {String} className - optional - if present applies CSS style
+ * @param {String} style.gridRow - optional - allows attachment to parent comment grid row
+ * @param {String} style.gridColumn - optional - allows attachment to parent comment grid column
+ */
 class CommentBlock extends React.Component{
   constructor(props){
     super(props);
     
-    this.handlePostComment = this.handlePostComment.bind(this);
     this.state = {
       commentText: ''
     }
 
-    this.clearText = this.clearText.bind(this);
+    this.handlePostComment = this.handlePostComment.bind(this);
     this.handleChangeEvt = this.handleChangeEvt.bind(this);
-    this.handleHidePostReplyBox = this.handleHidePostReplyBox.bind(this);
+    this.clearText = this.clearText.bind(this);
   }
 
   clearText(element){
     this.setState({commentText:''});
 
     if(this.props.hidePostReplyBox){
-      this.props.hidePostReplyBox(element);
+      this.props.hidePostReplyBox(undefined, element);
     }
   }
 
   handleChangeEvt(event){
-      this.setState({commentText:event.target.value});
+    this.setState({commentText:event.target.value});
   }
 
   handlePostComment(event){
@@ -53,25 +47,29 @@ class CommentBlock extends React.Component{
       return;
     }
 
-    this.props.handlePostCommentBtnClick(element, this.props.parentId, this.state.commentText, this.clearText);
-  }
+    this.props.createNewCommentInDB(this.props.parentId, this.state.commentText)
 
-  handleHidePostReplyBox(event){
-    this.props.hidePostReplyBox(event.target);
+    .then( () => this.clearText(element) )
+
+    .catch( err => console.log('handlePostComment() This is not supposed to happen: ', err) );
   }
 
   render(){
 
     return(
-      e('div', {id: this.props.id, className:this.props.className, style:this.props.style},
+      e('div', {className:this.props.className, style:this.props.style},
 
         e('h4', null, 'Leave a comment!'),
 
-        e(TextArea, {value: this.state.commentText, onChange: this.handleChangeEvt}, null),
+        e('textarea', {
+                        className: 'commentBlockTextArea', 
+                        value: this.state.commentText, 
+                        onChange: this.handleChangeEvt}
+        ),
 
         e('button', {style:{display:'inline'}, onClick:this.handlePostComment}, 'Post Comment'),
 
-        e('button', {style:{display:'inline'}, onClick:this.handleHidePostReplyBox}, 'Cancel')
+        e('button', {style:{display:'inline'}, onClick:this.hidePostReplyBox}, 'Cancel')
         
       )
     );

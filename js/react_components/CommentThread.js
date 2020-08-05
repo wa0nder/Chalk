@@ -3,54 +3,26 @@
 import CommentBlock from './CommentBlock.js';
 import CommentGrid from './CommentGrid.js';
 
-const useState = React.useState, 
-      useEffect = React.useEffect;
-
 const e = React.createElement;
 
-class CommentThread extends React.Component{
-  constructor(props){
-    super(props);
+function CommentThread(props){
 
-    this.handlePostCommentBtnClick = this.handlePostCommentBtnClick.bind(this);
-  }
+  return(
 
-  
+    e(React.Fragment, null, 
 
-  handlePostCommentBtnClick(targetElement, parentId, commentText, clearTextCallback){
+      e('h3', null, props.commentThreadDoc._id),
 
-    const text = commentText;
+      e(CommentBlock, {createNewCommentInDB:props.createNewCommentInDB}),
 
-    // let update = this.state.dbComments.concat( [{body: text}] );
-    // this.setState( {dbComments: update} );
+      e('h4', null, 'Comments:'),
 
-    this.props.createNewCommentInDB(parentId, text)
-
-    .then( () => clearTextCallback(targetElement) )
-
-    .catch( err => console.log('handlePostCommentBtnClick() This is not supposed to happen: ', err) );
-  }
-
-  render(){
-
-    return(
-
-      e(React.Fragment, null, 
-
-        e('h3', null, this.props.commentThreadDoc._id),
-
-        e(CommentBlock, {parentId: undefined, handlePostCommentBtnClick:this.handlePostCommentBtnClick}),
-
-        e('h4', null, 'Comments:'),
-
-        e(CommentGrid, {
-                        commentThreadDoc:this.props.commentThreadDoc, 
-                        loadChildComments:this.props.loadChildComments,
-                        handlePostCommentBtnClick:this.handlePostCommentBtnClick
-                      })
-      )
-    );
-  }
+      e(CommentGrid, {
+                      commentThreadDoc:props.commentThreadDoc,
+                      createNewCommentInDB:props.createNewCommentInDB
+                    })
+    )
+  );
 }
 
 export default CommentThread;

@@ -99,44 +99,38 @@ __webpack_require__.r(__webpack_exports__);
 
 const e = React.createElement;
 
-class TextArea extends React.Component {
-
-  render() {
-
-    return e(
-      'textarea',
-      {className: 'commentBlockTextArea', value: this.props.value, onChange: this.props.onChange},
-      this.props.text
-    );
-
-  }
-}
-
-
+/** Expects one and five optional parameters in the props object
+ * 
+ * @param {Function} createNewCommentInDB - self-explanatory
+ * @param {Function} hidePostReplyBox - optional - self-explanatory, only needed when appearing on a parent comment
+ * @param {String} parentId - optional - if present it is the id of comment one is replying to
+ * @param {String} className - optional - if present applies CSS style
+ * @param {String} style.gridRow - optional - allows attachment to parent comment grid row
+ * @param {String} style.gridColumn - optional - allows attachment to parent comment grid column
+ */
 class CommentBlock_CommentBlock extends React.Component{
   constructor(props){
     super(props);
     
-    this.handlePostComment = this.handlePostComment.bind(this);
     this.state = {
       commentText: ''
     }
 
-    this.clearText = this.clearText.bind(this);
+    this.handlePostComment = this.handlePostComment.bind(this);
     this.handleChangeEvt = this.handleChangeEvt.bind(this);
-    this.handleHidePostReplyBox = this.handleHidePostReplyBox.bind(this);
+    this.clearText = this.clearText.bind(this);
   }
 
   clearText(element){
     this.setState({commentText:''});
 
     if(this.props.hidePostReplyBox){
-      this.props.hidePostReplyBox(element);
+      this.props.hidePostReplyBox(undefined, element);
     }
   }
 
   handleChangeEvt(event){
-      this.setState({commentText:event.target.value});
+    this.setState({commentText:event.target.value});
   }
 
   handlePostComment(event){
@@ -148,25 +142,29 @@ class CommentBlock_CommentBlock extends React.Component{
       return;
     }
 
-    this.props.handlePostCommentBtnClick(element, this.props.parentId, this.state.commentText, this.clearText);
-  }
+    this.props.createNewCommentInDB(this.props.parentId, this.state.commentText)
 
-  handleHidePostReplyBox(event){
-    this.props.hidePostReplyBox(event.target);
+    .then( () => this.clearText(element) )
+
+    .catch( err => console.log('handlePostComment() This is not supposed to happen: ', err) );
   }
 
   render(){
 
     return(
-      e('div', {id: this.props.id, className:this.props.className, style:this.props.style},
+      e('div', {className:this.props.className, style:this.props.style},
 
         e('h4', null, 'Leave a comment!'),
 
-        e(TextArea, {value: this.state.commentText, onChange: this.handleChangeEvt}, null),
+        e('textarea', {
+                        className: 'commentBlockTextArea', 
+                        value: this.state.commentText, 
+                        onChange: this.handleChangeEvt}
+        ),
 
         e('button', {style:{display:'inline'}, onClick:this.handlePostComment}, 'Post Comment'),
 
-        e('button', {style:{display:'inline'}, onClick:this.handleHidePostReplyBox}, 'Cancel')
+        e('button', {style:{display:'inline'}, onClick:this.hidePostReplyBox}, 'Cancel')
         
       )
     );
@@ -178,9 +176,19 @@ class CommentBlock_CommentBlock extends React.Component{
 // CONCATENATED MODULE: ./js/react_components/CommentDisplay.js
 
 
+
+
 const CommentDisplay_e = React.createElement;
 
-class CommentDisplay extends React.Component{
+/** Expects six properties from the props object
+ * @param {String} id - used to connect rendered comment to specific comment in DB document
+ * @param {String} className - for applying CSS class
+ * @param {Number} style.gridRow - to render matching parent gridRow position
+ * @param {Number} style.gridColumn - to render matching parent gridColumn position
+ * @param {Object} comment - object holding comment data schema from database (at, author, date, body, ...)
+ * @param {Function} createNewCommentInDB - self-explanatory function call needed for passing to CommentBlock
+ */
+class CommentDisplay_CommentDisplay extends React.Component{
     constructor(props){
         super(props);
         
@@ -194,7 +202,13 @@ class CommentDisplay extends React.Component{
         this.setState({showPostReplyBox: true});
     }
 
-    hidePostReplyBox(elem){
+    /**
+     * Expects event OR element depending on calling function
+     * @param {Event} event - if undefined, use element parameter, otherwise event.target
+     * @param {HTMLElement} element
+     */
+    hidePostReplyBox(event, element){
+        let elem = (event !== undefined) ? event.target : element;
         elem = elem.parentElement;
         elem.style.opacity = window.getComputedStyle(elem).opacity;
 
@@ -212,14 +226,14 @@ class CommentDisplay extends React.Component{
             let parent = document.getElementById(this.props.id);
             let gc = parent.style.gridColumn;
             let gr = parent.style.gridRow;
-            replyBox = CommentDisplay_e(CommentBlock, 
-                {
-                    className:'responseBox', 
-                    parentId: this.props.id,
-                    style:{gridColumn: gc, gridRow: gr},
-                    handlePostCommentBtnClick: this.props.handlePostCommentBtnClick,
-                    hidePostReplyBox: this.hidePostReplyBox
-                });
+            replyBox = CommentDisplay_e(react_components_CommentBlock, {
+                            className:'responseBox', 
+                            parentId: this.props.id,
+                            style:{gridColumn: gc, gridRow: gr},
+                            createNewCommentInDB:this.props.createNewCommentInDB,
+                            hidePostReplyBox: this.hidePostReplyBox
+                        }
+                    );
         }
 
         return CommentDisplay_e(React.Fragment, null,
@@ -240,7 +254,7 @@ class CommentDisplay extends React.Component{
     }
 }
 
-/* harmony default export */ var react_components_CommentDisplay = (CommentDisplay);
+/* harmony default export */ var react_components_CommentDisplay = (CommentDisplay_CommentDisplay);
 // CONCATENATED MODULE: ./js/react_components/CommentGrid.js
 
 
@@ -249,18 +263,28 @@ class CommentDisplay extends React.Component{
 
 const CommentGrid_e = React.createElement;
 
+/**
+ * Expects two properties passed in props object
+ * @param {Object} commentThreadDoc - CouchDB document
+ * @param {Function} createNewCommentInDB - self-explanatory function to be passed to CommentDisplay
+ */
 class CommentGrid_CommentGrid extends React.Component{
   constructor(props){
     super(props);
 
     this.state = {currentCommentId: undefined};
+    this.currentThreadId = this.props.commentThreadDoc._id;
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
   }
 
   componentDidMount(){
-    this.handlePostRender('0');
+    this.handlePostRender('c_0');
+  }
+
+  componentDidUpdate(){
+    this.clearOldTints();
   }
 
   handleScrollEvents(event){
@@ -268,7 +292,7 @@ class CommentGrid_CommentGrid extends React.Component{
     this.loadChildComments(event);
   }
 
-  loadChildComments (event){
+  loadChildComments(event){
 
     let elem = event.target;
 
@@ -284,7 +308,10 @@ class CommentGrid_CommentGrid extends React.Component{
 
         //de-highlight old comment
         if(this.state.currentCommentId !== undefined){
-          document.getElementById(this.state.currentCommentId).style.borderColor = null;
+
+          let old = document.getElementById(this.state.currentCommentId);
+          
+          if(old !== null){ old.style.borderColor = null; }
         }
 
         this.setState({currentCommentId: div.id}, this.handlePostRender);
@@ -295,7 +322,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
   /**
    * Find leftmost (first) element in current row where row is calculated by vertical scrollbar position.
-   * @param {*} elem 
+   * @param {HTMLElement} elem - CSS Grid container parent element
    */
   findHighlightedComment(elem){
 
@@ -336,6 +363,8 @@ class CommentGrid_CommentGrid extends React.Component{
 
     if(div !== null){
 
+      this.clearOldTints(div);
+
       this.tintComments(div);
 
       this.setScrollToEndMargin();
@@ -344,8 +373,9 @@ class CommentGrid_CommentGrid extends React.Component{
   }
 
   /**
-   * Tint all comments except highlighted comment and its immediate child comments, which is next grid row
-   * @param {*} commentDiv 
+   * Tint all comments except highlighted comment and its immediate child comments, 
+   *  which is next grid row
+   * @param {HTMLElement} currComment - HTML 'div' element
    */
   tintComments(currComment){
     
@@ -354,19 +384,20 @@ class CommentGrid_CommentGrid extends React.Component{
     let gridsConChildren = Array.from(gridsContainer.children);
     let end = gridsConChildren.findIndex(item => item === grid) + 1;
 
-    function getDiv(item){
+    function getTintDiv(item){
       let e = document.createElement('div');
-      e.id = 'tint_'+item.id;
+      e.id = 'tint_'+item.id.slice(2);
       e.className = 'commentBoxTint';
       e.style.gridRow = 1;
       e.style.gridColumn = item.style.gridColumn;
       return e;
     }
-
+    
     //for each grid row
-    for(let j=1, i=0; i<end; i++){
-
-      let currId = currComment.id.slice(0,j+(2*i));
+    let baseId = currComment.id.slice(2); //remove 'c_'
+    for(let i=0; i<end; i++){
+      
+      let currPathId = baseId.slice(0,1+(2*i));
       
       let gridRow = gridsConChildren[i];
 
@@ -378,20 +409,28 @@ class CommentGrid_CommentGrid extends React.Component{
           item.style.borderColor = 'red'; 
         }
         
-        if(item.id === currId){
-          let getElem = document.getElementById('tint_'+currId);
-          if(getElem !== null) getElem.remove();
+        let id = item.id.slice(2);
+        if(id === currPathId){
+
+          let getElem = document.getElementById('tint_'+currPathId);
+
+          if(getElem !== null){ getElem.remove(); }
         }
-        else if(item.id !== currId && document.getElementById('tint_'+item.id) === null){
-          gridRow.appendChild( getDiv(item) );
+        else if(id !== currPathId && document.getElementById('tint_'+id) === null){
+
+          gridRow.appendChild( getTintDiv(item) );
         }
+        
       });
 
       //clear immediate following row
       if(end < gridsConChildren.length){
+
         Array.from(gridsConChildren[end].children).forEach(item =>{
-          let getElem = document.getElementById('tint_'+item.id);
-          if(getElem !== null) getElem.remove();
+
+          let getElem = document.getElementById('tint_'+item.id.slice(2));
+
+          if(getElem !== null){ getElem.remove(); }
         });
       }
       
@@ -399,6 +438,11 @@ class CommentGrid_CommentGrid extends React.Component{
     
   }
 
+  /**
+   * Adds empty comment boxes to extend scrollbar range. 
+   *  This allows ending comments to be scrolled to far left of parent container
+   *  for highlighting.
+   */
   setScrollToEndMargin(){
     
     if(this.state.currentCommentId === undefined){ return; }
@@ -407,7 +451,7 @@ class CommentGrid_CommentGrid extends React.Component{
     let childRect = elem.getBoundingClientRect();
     let gridElem = elem.parentElement;
 
-    //paddind has already occurred
+    //padding has already occurred
     //console.log('gridElem: ', gridElem, ' - ', gridElem.lastElementChild);
     if(Array.from(gridElem.children).some(item => item.className === 'commentBoxBlank')){ return; }
 
@@ -428,33 +472,107 @@ class CommentGrid_CommentGrid extends React.Component{
     //console.log('margin calc: ', multiplier, ' : ', elem);
   }
 
+  /**
+   * Tinting is manually added on top of react generated components and must be managed
+   * as different comment threads, and thus different number of comments, are loaded. This function
+   * checks for matching underlying comment box using id = 'tint_[id]', if none found the tint is removed.
+   */
+  clearOldTints(){
+
+    if(this.props.commentThreadDoc._id === this.currentThreadId){ return; }
+    
+    this.currentThreadId = this.props.commentThreadDoc._id;
+
+    let gridsContainer = document.querySelector('.container');
+    let gridsConChildren = Array.from(gridsContainer.children);
+
+    gridsConChildren.forEach(row => {
+
+      Array.from(row.children).forEach(commentDiv => {
+
+        let id = 'c_' + commentDiv.id.slice(5); //remove 'tint_' prefix
+        if(commentDiv.className === 'commentBoxTint' && row.querySelector('#'+id) === null){
+          commentDiv.remove();
+        }
+      })
+    });
+
+  }
+
+  checkForThreadChange(path){
+
+    if(this.currentThreadId !== this.props.commentThreadDoc._id){
+
+      document.querySelector('.container').scrollTo(0,0);
+      document.querySelector('.grid').scrollTo(0,0);
+
+      return 'c_0';
+    }
+
+    return path;
+  }
+
   renderComments(path, commentArray){
 
-    path = (path === undefined) ? '0' : path;
+    path = (path === undefined || path === null) ? 'c_0' : path;
+
+    path = this.checkForThreadChange(path);
+
+    path = path.slice(2).split('-').map(item => parseInt(item));
 
     if(!commentArray || commentArray.length === 0) return null;
 
-    let elements = [],
-      reactRowNum = 0;
+    let state = {
+      elements: [],
+      reactRowNum: 0,
+      holdPath: '',
+      path,
+      commentArray,
+    }
 
     //render top-level comments
-    elements.push( this.renderRow(reactRowNum++, '', commentArray) );
+    state.elements.push( this.renderRow(state.reactRowNum++, '', state.commentArray) );
 
-    path = path.split('-').map(item => parseInt(item));
-    let holdPath = '';
+    state = this.renderResponseRowsOfEachCommentOnPath(state);
+
+    if(state.end){ return state.elements; }
+
+    let elements = this.renderVerticalResponses(state);
+
+    return elements;
+  }
+
+  /**
+   * For every comment referenced in 'path', generate row of direct response comments
+   * @param {Object} state - contains five parameters
+   * @param {Number} state.reactRowNum - serves as key id for react lists
+   * @param {String} state.path - dash separate list of numbers indicating where comments are found in DB
+   * @param {String} state.holdPath - holds how far into full render 'path' 
+   * @param {Array} state.commentArray - array holding comment objects (author, comment body, etc.)
+   * @param {Array} state.elements - an array of React Components holding lists of components
+   * @returns {Object} - returns either a two element array containing an 'end' parameter to signal
+   *  that there is nothing left to render or the full state object for further rendering
+   */
+  renderResponseRowsOfEachCommentOnPath({reactRowNum, path, holdPath, commentArray, elements}){
 
     for(let idx of path){
 
       holdPath += idx + '-';
 
-      if(!commentArray[idx].comments || commentArray[idx].comments.length === 0) return elements;
+      if(!commentArray[idx].comments || commentArray[idx].comments.length === 0){
+        return {'end':true, elements};
+      }
 
       commentArray = commentArray[idx].comments;
 
       elements.push( this.renderRow(reactRowNum++, holdPath, commentArray) );
     }
 
-    //render vertical responses
+    return {reactRowNum, path, holdPath, commentArray, elements};
+  }
+
+  renderVerticalResponses({reactRowNum, holdPath, commentArray, elements}){
+
     while(commentArray[0].comments && commentArray[0].comments.length > 0){
 
       holdPath += '0-';
@@ -467,10 +585,22 @@ class CommentGrid_CommentGrid extends React.Component{
     return elements;
   }
 
+  /**
+   * Renders an entire row of top-level response comments. 
+   *  See 'renderRow(reactRowNum, path, commentArray, renderFirstOnly)' for documentation
+   */
   renderRow(reactRowNum, path, commentArray){
     return this.renderRow(reactRowNum, path, commentArray, false);
   }
 
+  /**
+   * Renders an entire row of top-level response comments
+   * @param {Number} reactRowNum - serves as key id for react lists
+   * @param {String} path - dash '-' separated string of numbers holding path to find a specific comment
+   * @param {Array} commentArray - array of comment objects
+   * @param {Boolean} renderFirstOnly - only render first comment of a row of comments
+   * @returns {ReactComponent} - a react component holding a list of CommentDisplay elements
+   */
   renderRow(reactRowNum, path, commentArray, renderFirstOnly){
     
     if(renderFirstOnly) commentArray = commentArray.slice(0,1);
@@ -482,7 +612,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
       return CommentGrid_e(react_components_CommentDisplay, {
                         key: 'k_'+id,
-                        id: id,
+                        id: 'c_'+id,
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
@@ -490,7 +620,7 @@ class CommentGrid_CommentGrid extends React.Component{
                         },
                         comment: comment,
                         onClick: this.loadChildComments,
-                        handlePostCommentBtnClick: this.props.handlePostCommentBtnClick
+                        createNewCommentInDB:this.props.createNewCommentInDB
                       }
                 )
     });
@@ -515,57 +645,29 @@ class CommentGrid_CommentGrid extends React.Component{
 
 
 
-const useState = React.useState, 
-      useEffect = React.useEffect;
-
 const CommentThread_e = React.createElement;
 
-class CommentThread_CommentThread extends React.Component{
-  constructor(props){
-    super(props);
+function CommentThread(props){
 
-    this.handlePostCommentBtnClick = this.handlePostCommentBtnClick.bind(this);
-  }
+  return(
 
-  
+    CommentThread_e(React.Fragment, null, 
 
-  handlePostCommentBtnClick(targetElement, parentId, commentText, clearTextCallback){
+      CommentThread_e('h3', null, props.commentThreadDoc._id),
 
-    const text = commentText;
+      CommentThread_e(react_components_CommentBlock, {createNewCommentInDB:props.createNewCommentInDB}),
 
-    // let update = this.state.dbComments.concat( [{body: text}] );
-    // this.setState( {dbComments: update} );
+      CommentThread_e('h4', null, 'Comments:'),
 
-    this.props.createNewCommentInDB(parentId, text)
-
-    .then( () => clearTextCallback(targetElement) )
-
-    .catch( err => console.log('handlePostCommentBtnClick() This is not supposed to happen: ', err) );
-  }
-
-  render(){
-
-    return(
-
-      CommentThread_e(React.Fragment, null, 
-
-        CommentThread_e('h3', null, this.props.commentThreadDoc._id),
-
-        CommentThread_e(react_components_CommentBlock, {parentId: undefined, handlePostCommentBtnClick:this.handlePostCommentBtnClick}),
-
-        CommentThread_e('h4', null, 'Comments:'),
-
-        CommentThread_e(react_components_CommentGrid, {
-                        commentThreadDoc:this.props.commentThreadDoc, 
-                        loadChildComments:this.props.loadChildComments,
-                        handlePostCommentBtnClick:this.handlePostCommentBtnClick
-                      })
-      )
-    );
-  }
+      CommentThread_e(react_components_CommentGrid, {
+                      commentThreadDoc:props.commentThreadDoc,
+                      createNewCommentInDB:props.createNewCommentInDB
+                    })
+    )
+  );
 }
 
-/* harmony default export */ var react_components_CommentThread = (CommentThread_CommentThread);
+/* harmony default export */ var react_components_CommentThread = (CommentThread);
 // CONCATENATED MODULE: ./js/react_components/AccountHome.js
 
 
@@ -604,9 +706,14 @@ let SW_Utils = {
         return out;
     },
 
+    /**
+     * 
+     * @param {String} path - dash separated list of numbers beginning with 'c_' (e.g. c_1-2-3)
+     * @param {Array} commentArray 
+     */
     findMatchingComment(path, commentArray){
 
-        path = path.split('-').map( num => parseInt(num) );
+        path = path.slice(2).split('-').map( num => parseInt(num) );
         
         let comment = commentArray.comments[ path[0] ];
         
@@ -799,7 +906,6 @@ class AccountHome_AccountHome extends React.Component{
         this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
         this.createNewThreadInDB = this.createNewThreadInDB.bind(this);
-        //this.loadChildComments = this.loadChildComments.bind(this);
     }
 
     componentDidMount(){
@@ -880,7 +986,6 @@ class AccountHome_AccountHome extends React.Component{
             AccountHome_e(react_components_CommentThread, {
                                 commentThreadDoc: this.state.currentThread, 
                                 createNewCommentInDB: this.createNewCommentInDB
-                                //loadChildComments: this.loadChildComments
                             }
                 )
         )
