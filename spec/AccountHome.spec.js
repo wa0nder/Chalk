@@ -2,11 +2,10 @@
 
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { AccountHome, NewThreadButton, RecentThreads, CommentThreadPreview, SW_Utils } from '../js/react_components/AccountHome.js';
+import { AccountHome, NewThreadButton, RecentThreads, SW_Utils } from '../js/react_components/AccountHome.js';
 import { unmountComponentAtNode, render } from "react-dom";
 import runCommentDisplaySpecs from './CommentDisplay.spec.js';
 import runCommentBlockSpecs from './CommentBlock.spec.js';
-import runcommentGridSpecs from './CommentGrid.spec.js';
 import runCommentGridSpecs from './CommentGrid.spec.js';
 
 runCommentDisplaySpecs();
@@ -30,6 +29,39 @@ function runAccountHomeSpecs(){
     unmountComponentAtNode(container);
     container.remove();
     container = null;
+  });
+
+  describe('getNumComments', () => {
+
+    let gnc = SW_Utils.getNumComments;
+
+    it('returns 0 when undefined comments array', () => {
+      expect( gnc({}) ).toBe(0);
+    });
+
+    it('returns correct number for non-nested array', () => {
+      expect( gnc({comments:[{},{},{},{}]}) ).toBe(4);
+    });
+
+    it('returns correct number for nested arrays', () => {
+
+      let sampleDoc = { 
+        comments: [
+          {comments:[{}, {}]},
+
+          {},
+
+          {comments:[{}]},
+          
+          {comments:[
+            {comments: [{}]}
+          ]}
+      ]}
+
+      expect( gnc(sampleDoc)).toBe(9);
+
+    });
+
   });
   
   describe('flashMessage', () =>{

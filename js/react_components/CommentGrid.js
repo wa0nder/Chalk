@@ -246,7 +246,8 @@ class CommentGrid extends React.Component{
     if(this.currentThreadId !== this.props.commentThreadDoc._id){
 
       document.querySelector('.container').scrollTo(0,0);
-      document.querySelector('.grid').scrollTo(0,0);
+      let cg = document.querySelector('.container__grid');
+      if(cg !== null){ cg.scrollTo(0,0); }
 
       return 'c_0';
     }
@@ -367,7 +368,7 @@ class CommentGrid extends React.Component{
                 )
     });
 
-    return e('div', {key:reactRowNum, className: 'grid'}, items);
+    return e('div', {key:reactRowNum, className: 'container__grid'}, items);
   }
 
   render(){

@@ -100,7 +100,22 @@ function runCommentBlockSpecs(){
                     res();
                 });
             });
-        })
+        });
+
+        // it('is removed when "Cancel" button is clicked', () => {
+
+        //     act(() => render(e(CommentBlock), container) );
+
+        //     let postbtn = container.querySelector('div').querySelector('button');
+
+        //     act(() => postbtn.dispatchEvent( new MouseEvent('click', {bubbles:true})) );
+
+        //     await new Promise((res,rej) => {
+        //         setTimeout(() => {
+                    
+        //         });
+        //     });
+        // })
 
     });
 }

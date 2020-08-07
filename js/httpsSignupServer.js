@@ -191,7 +191,7 @@ function putDesignDocInDB(dbHex){
         "map": `function (doc){
           if(doc.type && doc.type === 'thread' && doc.date){
             var key = [doc.date, doc._id]
-            emit(key, doc.comments.slice(0,10));
+            emit(key, {numComments: doc.numComments, previewComments:doc.comments.slice(0,10)});
           }
         }`
       }

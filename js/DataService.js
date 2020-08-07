@@ -78,7 +78,7 @@ function createDataService(pouchDBInstance){
     
     DataService.prototype.updateCommentThreadInDB = function(commentThread){
     
-        db.put(commentThread)
+        return db.put(commentThread)
 
         .then(() => {
 

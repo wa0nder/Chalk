@@ -164,7 +164,7 @@ class CommentBlock_CommentBlock extends React.Component{
 
         e('button', {style:{display:'inline'}, onClick:this.handlePostComment}, 'Post Comment'),
 
-        e('button', {style:{display:'inline'}, onClick:this.hidePostReplyBox}, 'Cancel')
+        e('button', {style:{display:'inline'}, onClick:this.props.hidePostReplyBox}, 'Cancel')
         
       )
     );
@@ -504,7 +504,8 @@ class CommentGrid_CommentGrid extends React.Component{
     if(this.currentThreadId !== this.props.commentThreadDoc._id){
 
       document.querySelector('.container').scrollTo(0,0);
-      document.querySelector('.grid').scrollTo(0,0);
+      let cg = document.querySelector('.container__grid');
+      if(cg !== null){ cg.scrollTo(0,0); }
 
       return 'c_0';
     }
@@ -625,7 +626,7 @@ class CommentGrid_CommentGrid extends React.Component{
                 )
     });
 
-    return CommentGrid_e('div', {key:reactRowNum, className: 'grid'}, items);
+    return CommentGrid_e('div', {key:reactRowNum, className: 'container__grid'}, items);
   }
 
   render(){
@@ -647,27 +648,52 @@ class CommentGrid_CommentGrid extends React.Component{
 
 const CommentThread_e = React.createElement;
 
-function CommentThread(props){
+class CommentThread_CommentThread extends React.Component{
+  constructor(props){
+    super(props);
 
-  return(
+    this.state = {showBlock: false};
 
-    CommentThread_e(React.Fragment, null, 
+    this.toggleShowCommentBlock = this.toggleShowCommentBlock.bind(this);
+  }
 
-      CommentThread_e('h3', null, props.commentThreadDoc._id),
+  toggleShowCommentBlock(){
 
-      CommentThread_e(react_components_CommentBlock, {createNewCommentInDB:props.createNewCommentInDB}),
+    let state = this.state.showBlock;
+    
+    this.setState({showBlock:!state});
+  }
 
-      CommentThread_e('h4', null, 'Comments:'),
+  render(){
+    
+    let date = new Date(this.props.commentThreadDoc.date);
 
-      CommentThread_e(react_components_CommentGrid, {
-                      commentThreadDoc:props.commentThreadDoc,
-                      createNewCommentInDB:props.createNewCommentInDB
-                    })
-    )
-  );
+    return(
+
+      CommentThread_e(React.Fragment, null, 
+  
+        CommentThread_e('h3', null, this.props.commentThreadDoc._id),
+  
+        CommentThread_e('h4', null, date.toDateString()),
+  
+        CommentThread_e('h4', null, `${this.props.commentThreadDoc.numComments} Comments`),
+  
+        ( (this.state.showBlock) ? 
+  
+          CommentThread_e(react_components_CommentBlock, {createNewCommentInDB:this.props.createNewCommentInDB, hidePostReplyBox:this.toggleShowCommentBlock}) :
+  
+          CommentThread_e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!')),
+  
+        CommentThread_e(react_components_CommentGrid, {
+                        commentThreadDoc:this.props.commentThreadDoc,
+                        createNewCommentInDB:this.props.createNewCommentInDB
+                      })
+      )
+    );
+  }
 }
 
-/* harmony default export */ var react_components_CommentThread = (CommentThread);
+/* harmony default export */ var react_components_CommentThread = (CommentThread_CommentThread);
 // CONCATENATED MODULE: ./js/react_components/AccountHome.js
 
 
@@ -728,6 +754,26 @@ let SW_Utils = {
         return comment;
     },
 
+    getNumComments(commentThreadDoc){
+
+        if(!commentThreadDoc.comments) return 0;
+
+        let num = 0,
+            cArray = commentThreadDoc.comments;
+
+        (function countAll(cArray){
+
+            num += cArray.length;
+            
+            cArray.forEach(comment => {
+                if(comment.comments){ countAll(comment.comments); }
+            });
+
+        })(cArray);
+
+        return num;
+    },
+
     scrollCalc : {
         calcScrollBarWidth(elem){
             if(elem === null || elem === undefined) return 0;
@@ -781,6 +827,19 @@ let SW_Utils = {
     }
 };
 
+function ProfileWidget(props){
+
+    return (
+
+        AccountHome_e('div', {className: 'profile'}, 
+
+            AccountHome_e('a', {className: 'profile__item profile__a'}, 'Profile'),
+
+            AccountHome_e('img', {className: 'profile__item', src:'profileCircle.png'})
+        )
+    );
+}
+
 /**
  * Takes a single property
  * @param {Function} props.createNewThreadInDB - calls this self-explanatory function and waits for response
@@ -831,7 +890,7 @@ class NewThreadButton extends React.Component{
         if(this.state.creating === true){
 
             return(
-                AccountHome_e('div', null, 
+                AccountHome_e('div', {className: 'section'}, 
                 
                     AccountHome_e('input', {type:'text', placeholder:'...enter thread name', value:this.state.threadTitleField, onChange:this.updateThreadTitleField}),
 
@@ -842,18 +901,8 @@ class NewThreadButton extends React.Component{
             );
         }
 
-        return AccountHome_e('button', {onClick: this.toggleCreateNewThreadState}, 'Create New Thread');
+        return AccountHome_e('button', {className:'btn--red', onClick: this.toggleCreateNewThreadState}, 'Create New Thread');
     }
-}
-
-function CommentThreadPreview(props){
-
-    let threadId = props.commentThreadDoc.key[1];
-
-    return(
-
-        AccountHome_e('p', {className:'recentThreadLinks',onClickCapture: e => props.loadThread(e,props.commentThreadDoc)}, threadId)
-    );
 }
 
 class RecentThreads extends React.Component{
@@ -863,21 +912,28 @@ class RecentThreads extends React.Component{
 
     render(){
 
-        let elements = this.props.queryResults.map( 
-            item => AccountHome_e(CommentThreadPreview, {
-                key:item.key, 
-                commentThreadDoc: item, 
-                loadThread: this.props.loadThread
-            })
+        let elements = this.props.queryResults.map( item => 
+            
+            AccountHome_e('div', {className:'threadPreview', key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
+
+                        AccountHome_e('h3', {className:'threadPreview__title'}, item.id),
+                        
+                        AccountHome_e('div', {className:'threadPreview__info'}, 
+
+                            AccountHome_e('h3', {className:'threadPreview__info recentThreadLinks'}, new Date(item.key[0]).toDateString().slice(4)),
+
+                            AccountHome_e('h3', {className:'threadPreview__info recentThreadLinks'}, ((item.value.numComments) ? item.value.numComments : 0) + ' Comments')
+                        )
+            )
         )
 
         return(
 
-            AccountHome_e('div', null, 
+            AccountHome_e(React.Fragment, null, 
 
-                AccountHome_e('h2', null, 'Recent Threads'),
-                
-                AccountHome_e('div', null, elements)
+                AccountHome_e('h3', null, 'Recent Threads'),
+
+                AccountHome_e('div', {className:'section section--flex'}, elements)
             )
         );
     }
@@ -934,6 +990,12 @@ class AccountHome_AccountHome extends React.Component{
         });
     }
 
+    /**
+     * Converts comment id into matching comment in database, adds comment to db document, then sends it to db
+     * @param {String} id - dash separated string of numbers to locate comment in database (e.g. c_0-0-1-3)
+     * @param {String} text - body of comment to add to database
+     * @return {Promise}
+     */
     createNewCommentInDB(id, text){
 
         let foundComment = (!id) ? this.state.currentThread : SW_Utils.findMatchingComment(id, this.state.currentThread);
@@ -946,11 +1008,12 @@ class AccountHome_AccountHome extends React.Component{
             body: text
         });
 
-        this.props.DataService.updateCommentThreadInDB(this.state.currentThread)
+        let cn = this.state.currentThread.numComments;
+        this.state.currentThread.numComments = (cn) ? cn + 1 : 1;
 
-        .then(commentThreadDoc => this.setState({currentThread: commentThreadDoc}) )
+        return this.props.DataService.updateCommentThreadInDB(this.state.currentThread)
 
-        .catch(err => console.log('new comment could not be saved: ', err));
+        .then(commentThreadDoc => this.setState({currentThread: commentThreadDoc}) );
     }
 
     /**
@@ -994,22 +1057,15 @@ class AccountHome_AccountHome extends React.Component{
 
             AccountHome_e(React.Fragment, null,
 
+                AccountHome_e(ProfileWidget),
+
                 AccountHome_e(NewThreadButton, {createNewThreadInDB: this.createNewThreadInDB}),
-
-                AccountHome_e('div', null, 
-
-                    AccountHome_e('h2', null, 'Past Comments')
-
-                ),
 
                 AccountHome_e(RecentThreads, {queryResults: this.state.queryResults, loadThread:this.loadThread}),
 
-                AccountHome_e('div', null, 
+                //e('h2', null, (this.state.currentThread === undefined) ? 'No Thread Selected' : this.state.currentThread._id),
 
-                    AccountHome_e('h2', null, 'Current Thread'),
-
-                    commentThreadElement
-                ),
+                commentThreadElement,
             
             )
         );

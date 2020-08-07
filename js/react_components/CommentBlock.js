@@ -69,7 +69,7 @@ class CommentBlock extends React.Component{
 
         e('button', {style:{display:'inline'}, onClick:this.handlePostComment}, 'Post Comment'),
 
-        e('button', {style:{display:'inline'}, onClick:this.hidePostReplyBox}, 'Cancel')
+        e('button', {style:{display:'inline'}, onClick:this.props.hidePostReplyBox}, 'Cancel')
         
       )
     );

@@ -5,24 +5,49 @@ import CommentGrid from './CommentGrid.js';
 
 const e = React.createElement;
 
-function CommentThread(props){
+class CommentThread extends React.Component{
+  constructor(props){
+    super(props);
 
-  return(
+    this.state = {showBlock: false};
 
-    e(React.Fragment, null, 
+    this.toggleShowCommentBlock = this.toggleShowCommentBlock.bind(this);
+  }
 
-      e('h3', null, props.commentThreadDoc._id),
+  toggleShowCommentBlock(){
 
-      e(CommentBlock, {createNewCommentInDB:props.createNewCommentInDB}),
+    let state = this.state.showBlock;
+    
+    this.setState({showBlock:!state});
+  }
 
-      e('h4', null, 'Comments:'),
+  render(){
+    
+    let date = new Date(this.props.commentThreadDoc.date);
 
-      e(CommentGrid, {
-                      commentThreadDoc:props.commentThreadDoc,
-                      createNewCommentInDB:props.createNewCommentInDB
-                    })
-    )
-  );
+    return(
+
+      e(React.Fragment, null, 
+  
+        e('h3', null, this.props.commentThreadDoc._id),
+  
+        e('h4', null, date.toDateString()),
+  
+        e('h4', null, `${this.props.commentThreadDoc.numComments} Comments`),
+  
+        ( (this.state.showBlock) ? 
+  
+          e(CommentBlock, {createNewCommentInDB:this.props.createNewCommentInDB, hidePostReplyBox:this.toggleShowCommentBlock}) :
+  
+          e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!')),
+  
+        e(CommentGrid, {
+                        commentThreadDoc:this.props.commentThreadDoc,
+                        createNewCommentInDB:this.props.createNewCommentInDB
+                      })
+      )
+    );
+  }
 }
 
 export default CommentThread;
