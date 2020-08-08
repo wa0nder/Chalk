@@ -18,8 +18,28 @@ class CommentDisplay extends React.Component{
         
         this.showPostReplyBox = this.showPostReplyBox.bind(this);
         this.hidePostReplyBox = this.hidePostReplyBox.bind(this);
+        this.showContent = this.showContent.bind(this);
 
-        this.state = {showPostReplyBox: false};
+        this.state = {showPostReplyBox: false, showOverflowBtn: false};
+    }
+
+    componentDidMount(){
+        this.applyOverflowButton();
+    }
+
+    applyOverflowButton(){
+
+        let c = document.querySelector('#'+this.props.id);
+        let body = c.querySelector('.commentBox__body');
+
+        if(body.clientHeight < body.scrollHeight){
+
+            this.setState({showOverflowBtn: true});
+        }
+    }
+
+    showContent(event){
+        //event.target.style.ov
     }
 
     showPostReplyBox(){
@@ -81,6 +101,8 @@ class CommentDisplay extends React.Component{
                 ),
 
                 e('p', {className:'commentBox__body'}, comment.body),
+
+                ((this.state.showOverflowBtn) ? e('button', {className:'commentBox__showMoreLbl', onClick:this.showContent}, 'Show More') : null),
 
                 e('div', {className:'commentBox__actions'},
 
