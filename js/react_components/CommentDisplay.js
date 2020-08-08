@@ -60,21 +60,61 @@ class CommentDisplay extends React.Component{
                     );
         }
 
+        let comment = this.props.comment;
+
         return e(React.Fragment, null,
 
-                    e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
+            e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
 
-                        (!this.props.comment.at) ? null : e('h4', null, `@${this.props.comment.at}`),
+                e('div', {className: 'commentBox__header'},
 
-                        e('h4', null, `Author: ${(this.props.comment.author || 'none')}`),
+                    e('div', {className: 'commentBox__header__info'},
 
-                        e('p', {className:'commentBody'}, this.props.comment.body),
+                        (!comment.at) ? null : e('p', null, `⮬  @${comment.at}`),
 
-                        e('button', {onClick: this.showPostReplyBox}, 'Reply')
+                        e('p', null, `${(comment.author || 'Anon')}`),
+
+                        e('p', null, (comment.date || 'date'))
+                    ),
+
+                    e('img', {className: 'profile__item', src:'profileCircle.png'})
+                ),
+
+                e('p', {className:'commentBox__body'}, comment.body),
+
+                e('div', {className:'commentBox__actions'},
+
+                    e('div', {className:'commentBox__actions__likes'},
+
+                        e('p', {style:{display:'inline'}}, (comment.likes) ? comment.likes : '0'),
+
+                        e('button', null, 'Like'),
 
                     ),
-                    replyBox
-                );
+
+                    e('button', {onClick: this.showPostReplyBox}, 'Reply')
+
+                ),
+            ),
+
+            replyBox
+        );
+
+        // return return e(React.Fragment, null,
+
+        //             e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
+
+        //                 (!this.props.comment.at) ? null : e('h4', null, `@${this.props.comment.at}`),
+
+        //                 e('h4', null, `Author: ${(this.props.comment.author || 'none')}`),
+
+        //                 e('p', {className:'commentBody'}, this.props.comment.body),
+
+        //                 e('button', {onClick: this.showPostReplyBox}, 'Reply')
+
+        //             ),
+        //             replyBox
+        //         );
     }
 }
 

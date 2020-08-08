@@ -34,6 +34,11 @@ h3, h4 {
   margin-bottom: 1%;
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 button {
   background-color: white;
   color: rgb(101, 117, 206);
@@ -42,7 +47,7 @@ button {
   font-size: 110%;
   padding: 2px;
   margin: 1%;
-  transition: ease 1s;
+  transition: ease 0.5s;
 }
 
 button:hover {
@@ -84,6 +89,7 @@ button:hover {
 
 .profile__item {
   margin: 1%;
+  max-width: 15%;
   transition: ease 1s;
 }
 
@@ -117,6 +123,7 @@ button:hover {
   box-shadow: 1px 1px 1px 1px darkgray;
   overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
   margin: 3%; 
 }
 
@@ -138,7 +145,9 @@ button:hover {
   background-color: blue;
 }
 
-.commentBox, .responseBox, .commentBoxBlank, .commentBoxTint{
+.commentBox, .responseBox, .commentBox--blank, .commentBox--tint{
+  display: flex;
+  flex-direction: column;
   width: 350px;
   height: 350px;
   max-width: initial;
@@ -147,8 +156,8 @@ button:hover {
   border-bottom: 2px solid black;
   color: black;
   background-color: white;
-  padding: 2%;
   margin: 1%;
+  transition: border-width ease 0.5s;
 }
 
 .responseBox {
@@ -161,21 +170,53 @@ button:hover {
   background-color: black;
 }
 
-.commentBoxBlank {
+.commentBox--blank {
   opacity: 0;
 }
 
-.commentBoxTint {
+.commentBox--tint {
   background-color: black;
   opacity: 0.4;
 }
 
-.commentBody {
+.commentBox__header {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.commentBox__header__info {
+  align-self: flex-end;
   display: block;
-  min-height: 58%;
-  overflow: auto;
-  border-top: 2px solid navy;
+  border-bottom: 2px solid navy;
+  margin-bottom: 1%;
+}
+
+.commentBox__body {
+  display: block;
+  flex: 4;
+  max-height: 250px;
+  overflow-y: auto;
   padding: 2%;
+  margin-top: 1%;
+  white-space: pre-wrap;
+}
+
+.commentBox__actions {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  /*border: 2px solid rgb(101, 117, 206);
+  border-radius: 4px;*/
+  width: 100%;
+}
+
+.commentBox__actions__likes {
+  flex: 1;
+  margin-left: 1%;
 }
 
 .commentBlockTextArea {
@@ -186,6 +227,7 @@ button:hover {
   width: 50%;
   height: 70%;
   margin-bottom: 2%;
+  overflow:auto;
 }
 
 .container, .container__grid {
@@ -204,18 +246,13 @@ button:hover {
   border-bottom: 2px dashed rgb(101, 117, 206);
   border-radius: 10px 10px 0 0;
   box-sizing: border-box;
-  margin: initial;
-  max-width: initial;
-  max-height: 50vh;
+  max-height: 400px;
   overflow-y: auto;
 }
 
 .container__grid {
   display: grid;
   justify-content: start;
-  border: initial;
-  margin: initial;
-  max-width: initial;
   color: #fff;
   overflow-y: hidden;
   overflow-x: auto;

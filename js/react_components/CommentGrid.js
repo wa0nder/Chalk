@@ -53,7 +53,7 @@ class CommentGrid extends React.Component{
 
           let old = document.getElementById(this.state.currentCommentId);
           
-          if(old !== null){ old.style.borderColor = null; }
+          if(old !== null){ old.style.borderWidth = null; }
         }
 
         this.setState({currentCommentId: div.id}, this.handlePostRender);
@@ -129,7 +129,7 @@ class CommentGrid extends React.Component{
     function getTintDiv(item){
       let e = document.createElement('div');
       e.id = 'tint_'+item.id.slice(2);
-      e.className = 'commentBoxTint';
+      e.className = 'commentBox--tint';
       e.style.gridRow = 1;
       e.style.gridColumn = item.style.gridColumn;
       return e;
@@ -145,10 +145,10 @@ class CommentGrid extends React.Component{
 
       Array.from(gridRow.children).forEach(item => {
 
-        if(item.className === 'commentBoxTint' || item.className === 'commentBoxBlank') return;
+        if(item.className === 'commentBox--tint' || item.className === 'commentBox--blank') return;
 
         if(item.id === currComment.id){ 
-          item.style.borderColor = 'red'; 
+          item.style.borderWidth = '6px'; 
         }
         
         let id = item.id.slice(2);
@@ -195,7 +195,7 @@ class CommentGrid extends React.Component{
 
     //padding has already occurred
     //console.log('gridElem: ', gridElem, ' - ', gridElem.lastElementChild);
-    if(Array.from(gridElem.children).some(item => item.className === 'commentBoxBlank')){ return; }
+    if(Array.from(gridElem.children).some(item => item.className === 'commentBox--blank')){ return; }
 
     let multiplier = Math.floor(gridElem.clientWidth / childRect.width);
     let offset = gridElem.children.length;
@@ -203,7 +203,7 @@ class CommentGrid extends React.Component{
     for(let i=0; i<multiplier; i++){
 
       let e = document.createElement(elem.tagName.toLowerCase());
-      e.className = 'commentBoxBlank';
+      e.className = 'commentBox--blank';
       e.style.opacity = 0;
       e.style.gridRow = elem.style.gridRow;
       e.style.gridColumn = offset + i + 1;
@@ -233,7 +233,7 @@ class CommentGrid extends React.Component{
       Array.from(row.children).forEach(commentDiv => {
 
         let id = 'c_' + commentDiv.id.slice(5); //remove 'tint_' prefix
-        if(commentDiv.className === 'commentBoxTint' && row.querySelector('#'+id) === null){
+        if(commentDiv.className === 'commentBox--tint' && row.querySelector('#'+id) === null){
           commentDiv.remove();
         }
       })

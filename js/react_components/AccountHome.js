@@ -305,9 +305,14 @@ class AccountHome extends React.Component{
 
         if(!foundComment.comments){ foundComment.comments = []; }
 
+        let d = new Date();
+        let day = d.toDateString().slice(0,3);
+        let date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+
         foundComment.comments.push({
             at: (foundComment.author || undefined), 
             author: this.state.author, 
+            date: date,
             body: text
         });
 
@@ -368,8 +373,7 @@ class AccountHome extends React.Component{
 
                 //e('h2', null, (this.state.currentThread === undefined) ? 'No Thread Selected' : this.state.currentThread._id),
 
-                commentThreadElement,
-            
+                commentThreadElement
             )
         );
 

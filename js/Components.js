@@ -236,21 +236,61 @@ class CommentDisplay_CommentDisplay extends React.Component{
                     );
         }
 
+        let comment = this.props.comment;
+
         return CommentDisplay_e(React.Fragment, null,
 
-                    CommentDisplay_e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
+            CommentDisplay_e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
 
-                        (!this.props.comment.at) ? null : CommentDisplay_e('h4', null, `@${this.props.comment.at}`),
+                CommentDisplay_e('div', {className: 'commentBox__header'},
 
-                        CommentDisplay_e('h4', null, `Author: ${(this.props.comment.author || 'none')}`),
+                    CommentDisplay_e('div', {className: 'commentBox__header__info'},
 
-                        CommentDisplay_e('p', {className:'commentBody'}, this.props.comment.body),
+                        (!comment.at) ? null : CommentDisplay_e('p', null, `⮬  @${comment.at}`),
 
-                        CommentDisplay_e('button', {onClick: this.showPostReplyBox}, 'Reply')
+                        CommentDisplay_e('p', null, `${(comment.author || 'Anon')}`),
+
+                        CommentDisplay_e('p', null, (comment.date || 'date'))
+                    ),
+
+                    CommentDisplay_e('img', {className: 'profile__item', src:'profileCircle.png'})
+                ),
+
+                CommentDisplay_e('p', {className:'commentBox__body'}, comment.body),
+
+                CommentDisplay_e('div', {className:'commentBox__actions'},
+
+                    CommentDisplay_e('div', {className:'commentBox__actions__likes'},
+
+                        CommentDisplay_e('p', {style:{display:'inline'}}, (comment.likes) ? comment.likes : '0'),
+
+                        CommentDisplay_e('button', null, 'Like'),
 
                     ),
-                    replyBox
-                );
+
+                    CommentDisplay_e('button', {onClick: this.showPostReplyBox}, 'Reply')
+
+                ),
+            ),
+
+            replyBox
+        );
+
+        // return return e(React.Fragment, null,
+
+        //             e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
+
+        //                 (!this.props.comment.at) ? null : e('h4', null, `@${this.props.comment.at}`),
+
+        //                 e('h4', null, `Author: ${(this.props.comment.author || 'none')}`),
+
+        //                 e('p', {className:'commentBody'}, this.props.comment.body),
+
+        //                 e('button', {onClick: this.showPostReplyBox}, 'Reply')
+
+        //             ),
+        //             replyBox
+        //         );
     }
 }
 
@@ -311,7 +351,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
           let old = document.getElementById(this.state.currentCommentId);
           
-          if(old !== null){ old.style.borderColor = null; }
+          if(old !== null){ old.style.borderWidth = null; }
         }
 
         this.setState({currentCommentId: div.id}, this.handlePostRender);
@@ -387,7 +427,7 @@ class CommentGrid_CommentGrid extends React.Component{
     function getTintDiv(item){
       let e = document.createElement('div');
       e.id = 'tint_'+item.id.slice(2);
-      e.className = 'commentBoxTint';
+      e.className = 'commentBox--tint';
       e.style.gridRow = 1;
       e.style.gridColumn = item.style.gridColumn;
       return e;
@@ -403,10 +443,10 @@ class CommentGrid_CommentGrid extends React.Component{
 
       Array.from(gridRow.children).forEach(item => {
 
-        if(item.className === 'commentBoxTint' || item.className === 'commentBoxBlank') return;
+        if(item.className === 'commentBox--tint' || item.className === 'commentBox--blank') return;
 
         if(item.id === currComment.id){ 
-          item.style.borderColor = 'red'; 
+          item.style.borderWidth = '6px'; 
         }
         
         let id = item.id.slice(2);
@@ -453,7 +493,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
     //padding has already occurred
     //console.log('gridElem: ', gridElem, ' - ', gridElem.lastElementChild);
-    if(Array.from(gridElem.children).some(item => item.className === 'commentBoxBlank')){ return; }
+    if(Array.from(gridElem.children).some(item => item.className === 'commentBox--blank')){ return; }
 
     let multiplier = Math.floor(gridElem.clientWidth / childRect.width);
     let offset = gridElem.children.length;
@@ -461,7 +501,7 @@ class CommentGrid_CommentGrid extends React.Component{
     for(let i=0; i<multiplier; i++){
 
       let e = document.createElement(elem.tagName.toLowerCase());
-      e.className = 'commentBoxBlank';
+      e.className = 'commentBox--blank';
       e.style.opacity = 0;
       e.style.gridRow = elem.style.gridRow;
       e.style.gridColumn = offset + i + 1;
@@ -491,7 +531,7 @@ class CommentGrid_CommentGrid extends React.Component{
       Array.from(row.children).forEach(commentDiv => {
 
         let id = 'c_' + commentDiv.id.slice(5); //remove 'tint_' prefix
-        if(commentDiv.className === 'commentBoxTint' && row.querySelector('#'+id) === null){
+        if(commentDiv.className === 'commentBox--tint' && row.querySelector('#'+id) === null){
           commentDiv.remove();
         }
       })
@@ -1002,9 +1042,14 @@ class AccountHome_AccountHome extends React.Component{
 
         if(!foundComment.comments){ foundComment.comments = []; }
 
+        let d = new Date();
+        let day = d.toDateString().slice(0,3);
+        let date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+
         foundComment.comments.push({
             at: (foundComment.author || undefined), 
             author: this.state.author, 
+            date: date,
             body: text
         });
 
@@ -1065,8 +1110,7 @@ class AccountHome_AccountHome extends React.Component{
 
                 //e('h2', null, (this.state.currentThread === undefined) ? 'No Thread Selected' : this.state.currentThread._id),
 
-                commentThreadElement,
-            
+                commentThreadElement
             )
         );
 
