@@ -49,7 +49,7 @@ class CommentGrid extends React.Component{
       
       if(found !== undefined){
 
-        //de-highlight old comment
+        //unhighlight old comment
         if(this.state.currentCommentId !== undefined){
 
           let old = document.getElementById(this.state.currentCommentId);
@@ -117,7 +117,8 @@ class CommentGrid extends React.Component{
 
   /**
    * Tint all comments except highlighted comment and its immediate child comments, 
-   *  which is next grid row
+   *  which is next grid row. The highlighted comment gets a thicker border. If it
+   *  has responses, fade in-out a gradient indicator.
    * @param {HTMLElement} currComment - HTML 'div' element
    */
   tintComments(currComment){
@@ -149,7 +150,10 @@ class CommentGrid extends React.Component{
         if(item.className === 'commentBox--tint' || item.className === 'commentBox--blank') return;
 
         if(item.id === currComment.id){ 
-          item.style.borderWidth = '6px'; 
+
+          item.style.borderWidth = '6px';
+
+          this.showChildCommentsIndicator(item, end, gridsConChildren.length);
         }
         
         let id = item.id.slice(2);
@@ -179,6 +183,29 @@ class CommentGrid extends React.Component{
       
     }
     
+  }
+
+  /**
+   * If comment has responses, indicated by a following grid row, show indicator
+   * @param {HTMLElement} comment 
+   * @param {Number} idx 
+   * @param {Number} arrayLen 
+   */
+  showChildCommentsIndicator(comment, idx, gridArrayLen){
+
+    if(idx >= gridArrayLen){ return; }
+
+    let indic = comment.getElementsByClassName('commentBox__actions__indicator')[0];
+    let opacity = indic.style.opacity = 0;
+    let timeout = 25;
+
+    (function fadeIn(){
+      ((indic.style.opacity = (opacity+=0.07)) >= 0.5) ? fadeOut() : setTimeout(fadeIn, timeout);
+    })();
+
+    function fadeOut(){
+      ((indic.style.opacity = (opacity-=0.07)) <= 0) ? (indic.style.opacity = null) : setTimeout(fadeOut, timeout) 
+    }
   }
 
   /**

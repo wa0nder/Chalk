@@ -136,29 +136,15 @@ class CommentDisplay extends React.Component{
 
                     ),
 
-                    e('button', {onClick: this.showPostReplyBox}, 'Reply')
+                    e('button', {onClick: this.showPostReplyBox}, 'Reply'),
+
+                    e('div', {className:'commentBox__actions__indicator'})
 
                 ),
             ),
 
             replyBox
         );
-
-        // return return e(React.Fragment, null,
-
-        //             e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
-
-        //                 (!this.props.comment.at) ? null : e('h4', null, `@${this.props.comment.at}`),
-
-        //                 e('h4', null, `Author: ${(this.props.comment.author || 'none')}`),
-
-        //                 e('p', {className:'commentBody'}, this.props.comment.body),
-
-        //                 e('button', {onClick: this.showPostReplyBox}, 'Reply')
-
-        //             ),
-        //             replyBox
-        //         );
     }
 }
 
