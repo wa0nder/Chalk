@@ -80,22 +80,23 @@ class CommentDisplay extends React.Component{
     
     render(){
 
+        let comment = this.props.comment;
         let replyBox = null;
+
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
             let gc = parent.style.gridColumn;
             let gr = parent.style.gridRow;
             replyBox = e(CommentBlock, {
-                            className:'commentBlock', 
+                            className:'commentBlock commentBlock--invertColors', 
                             parentId: this.props.id,
+                            parentAuthor: comment.author,
                             style:{gridColumn: gc, gridRow: gr},
                             createNewCommentInDB:this.props.createNewCommentInDB,
                             hidePostReplyBox: this.hidePostReplyBox
                         }
                     );
         }
-
-        let comment = this.props.comment;
 
         return e(React.Fragment, null,
 

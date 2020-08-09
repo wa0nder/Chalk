@@ -154,7 +154,7 @@ class CommentBlock_CommentBlock extends React.Component{
     return(
       e('div', {className:this.props.className, style:this.props.style},
 
-        e('h4', null, 'Share your thoughts!'),
+        e('h4', null, '@' + ((this.props.parentAuthor) ? this.props.parentAuthor : 'Anon')),
 
         e('textarea', {
                         className: 'commentBlockTextArea', 
@@ -256,22 +256,23 @@ class CommentDisplay_CommentDisplay extends React.Component{
     
     render(){
 
+        let comment = this.props.comment;
         let replyBox = null;
+
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
             let gc = parent.style.gridColumn;
             let gr = parent.style.gridRow;
             replyBox = CommentDisplay_e(react_components_CommentBlock, {
-                            className:'commentBlock', 
+                            className:'commentBlock commentBlock--invertColors', 
                             parentId: this.props.id,
+                            parentAuthor: comment.author,
                             style:{gridColumn: gc, gridRow: gr},
                             createNewCommentInDB:this.props.createNewCommentInDB,
                             hidePostReplyBox: this.hidePostReplyBox
                         }
                     );
         }
-
-        let comment = this.props.comment;
 
         return CommentDisplay_e(React.Fragment, null,
 
@@ -784,12 +785,18 @@ class CommentThread_CommentThread extends React.Component{
         CommentThread_e('h4', null, date.toDateString()),
   
         CommentThread_e('h4', null, `${this.props.commentThreadDoc.numComments} Comments`),
+
+        CommentThread_e('div', {className:'commentThreadReplyContainer'},
+
+          CommentThread_e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!'),
   
-        ( (this.state.showBlock) ? 
+          ((this.state.showBlock) ? 
   
-          CommentThread_e(react_components_CommentBlock, {createNewCommentInDB:this.props.createNewCommentInDB, hidePostReplyBox:this.toggleShowCommentBlock}) :
-  
-          CommentThread_e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!')),
+            CommentThread_e(react_components_CommentBlock, { className:'commentBlock commentBlock--overlay', 
+                              createNewCommentInDB:this.props.createNewCommentInDB, 
+                              hidePostReplyBox:this.toggleShowCommentBlock}) 
+            : null)
+        ),
   
         CommentThread_e(react_components_CommentGrid, {
                         commentThreadDoc:this.props.commentThreadDoc,
@@ -934,7 +941,7 @@ let SW_Utils = {
     }
 };
 
-function ProfileWidget(props){
+function ProfileWidget(){
 
     return (
 
@@ -999,16 +1006,19 @@ class NewThreadButton extends React.Component{
             return(
                 AccountHome_e('div', {className: 'section'}, 
                 
-                    AccountHome_e('input', {type:'text', placeholder:'...enter thread name', value:this.state.threadTitleField, onChange:this.updateThreadTitleField}),
+                    AccountHome_e('input', {className:'section__input', type:'text', placeholder:'...enter thread name', value:this.state.threadTitleField, onChange:this.updateThreadTitleField}),
 
-                    AccountHome_e('button', {style:{display:'inline-block'}, onClick: this.createNewThreadInDB}, 'OK'),
+                    AccountHome_e('button', {style:{display:'inline'}, onClick: this.createNewThreadInDB}, 'OK'),
 
-                    AccountHome_e('button', {style:{display:'inline-block'}, onClick: this.toggleCreateNewThreadState}, 'CANCEL')
+                    AccountHome_e('button', {onClick: this.toggleCreateNewThreadState}, 'CANCEL')
                 )
             );
         }
 
-        return AccountHome_e('button', {className:'btn--red', onClick: this.toggleCreateNewThreadState}, 'Create New Thread');
+        return AccountHome_e('div', {className:'section section--neutral'},
+
+                AccountHome_e('button', {className:'btn--margin', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
+        );
     }
 }
 

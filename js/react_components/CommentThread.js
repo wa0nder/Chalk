@@ -34,12 +34,18 @@ class CommentThread extends React.Component{
         e('h4', null, date.toDateString()),
   
         e('h4', null, `${this.props.commentThreadDoc.numComments} Comments`),
+
+        e('div', {className:'commentThreadReplyContainer'},
+
+          e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!'),
   
-        ( (this.state.showBlock) ? 
+          ((this.state.showBlock) ? 
   
-          e(CommentBlock, {createNewCommentInDB:this.props.createNewCommentInDB, hidePostReplyBox:this.toggleShowCommentBlock}) :
-  
-          e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!')),
+            e(CommentBlock, { className:'commentBlock commentBlock--overlay', 
+                              createNewCommentInDB:this.props.createNewCommentInDB, 
+                              hidePostReplyBox:this.toggleShowCommentBlock}) 
+            : null)
+        ),
   
         e(CommentGrid, {
                         commentThreadDoc:this.props.commentThreadDoc,

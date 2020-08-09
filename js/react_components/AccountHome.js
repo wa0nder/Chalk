@@ -130,7 +130,7 @@ let SW_Utils = {
     }
 };
 
-function ProfileWidget(props){
+function ProfileWidget(){
 
     return (
 
@@ -195,16 +195,19 @@ class NewThreadButton extends React.Component{
             return(
                 e('div', {className: 'section'}, 
                 
-                    e('input', {type:'text', placeholder:'...enter thread name', value:this.state.threadTitleField, onChange:this.updateThreadTitleField}),
+                    e('input', {className:'section__input', type:'text', placeholder:'...enter thread name', value:this.state.threadTitleField, onChange:this.updateThreadTitleField}),
 
-                    e('button', {style:{display:'inline-block'}, onClick: this.createNewThreadInDB}, 'OK'),
+                    e('button', {style:{display:'inline'}, onClick: this.createNewThreadInDB}, 'OK'),
 
-                    e('button', {style:{display:'inline-block'}, onClick: this.toggleCreateNewThreadState}, 'CANCEL')
+                    e('button', {onClick: this.toggleCreateNewThreadState}, 'CANCEL')
                 )
             );
         }
 
-        return e('button', {className:'btn--red', onClick: this.toggleCreateNewThreadState}, 'Create New Thread');
+        return e('div', {className:'section section--neutral'},
+
+                e('button', {className:'btn--margin', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
+        );
     }
 }
 
