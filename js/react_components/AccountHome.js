@@ -262,7 +262,8 @@ class AccountHome extends React.Component{
         //set author for comments
         this.props.DataService.getDB().info()
             .then(res => {
-                let hex = res.db_name.split('-')[1];
+                let hex = res.db_name.split('-');
+                hex = hex[ Math.min(hex.length-1, 1) ];
                 this.state.author = SW_Utils.hexDecode(hex);
             });
         

@@ -1,5 +1,3 @@
-'use strict';
-
 function createLocalDataService(dbName){
     return createDataService( new PouchDB(dbName) );
 }
@@ -87,10 +85,38 @@ function createDataService(pouchDBInstance){
             console.log('new comment saved.')
 
             return db.get(commentThread._id);
-        })
+        });
     };
 
     return new DataService();
 }
 
 //export {createLocalDataService, createRemoteDataService};
+
+let DataService = createLocalDataService('userdb-54657374696e67');
+
+let designDoc = {
+    '_id' : '_design/sortThreads',
+    "views": {
+      "sortThreads": {
+        "map": `function (doc){
+          if(doc.type && doc.type === 'thread' && doc.date){
+            var key = [doc.date, doc._id]
+            emit(key, {numComments: doc.numComments, previewComments:doc.comments.slice(0,10)});
+          }
+        }`
+      }
+    },
+    "language": "javascript"
+  }
+
+DataService.getDB().put(designDoc)
+    
+    .then(() => {
+        console.log('design doc saved.');
+    })
+
+    .catch((err) => {
+        
+        console.log('Error! ', err);
+    });

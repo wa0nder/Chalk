@@ -33,7 +33,7 @@ class CommentThread extends React.Component{
   
         e('h4', null, date.toDateString()),
   
-        e('h4', null, `${this.props.commentThreadDoc.numComments} Comments`),
+        e('h4', null, `${this.props.commentThreadDoc.numComments || 0} Comments`),
 
         e('div', {className:'commentThreadReplyContainer'},
 
