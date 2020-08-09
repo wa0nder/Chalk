@@ -16,6 +16,7 @@ class CommentGrid extends React.Component{
 
     this.state = {currentCommentId: undefined};
     this.currentThreadId = this.props.commentThreadDoc._id;
+    this.uniqueIdToggle = true;
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
@@ -241,9 +242,16 @@ class CommentGrid extends React.Component{
 
   }
 
+  /**
+   * If thread change, scroll back to top left corner and toggle React key list prefix to force
+   *   re-render of comment body
+   * @param {String} path 
+   */
   checkForThreadChange(path){
 
     if(this.currentThreadId !== this.props.commentThreadDoc._id){
+
+      this.uniqueIdToggle = !this.uniqueIdToggle;
 
       document.querySelector('.container').scrollTo(0,0);
       let cg = document.querySelector('.container__grid');
@@ -267,6 +275,7 @@ class CommentGrid extends React.Component{
 
     let state = {
       elements: [],
+      end: false,
       reactRowNum: 0,
       holdPath: '',
       path,
@@ -352,9 +361,10 @@ class CommentGrid extends React.Component{
     let items = commentArray.map( comment => {
   
       let id = `${path}${rowPos++}`;
+      let key = this.uniqueIdToggle ? 'k_' : 'K_';
 
       return e(CommentDisplay, {
-                        key: 'k_'+id,
+                        key: key+id,
                         id: 'c_'+id,
                         className: 'commentBox', 
                         style:{

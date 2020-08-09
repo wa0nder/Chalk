@@ -220,6 +220,8 @@ class RecentThreads extends React.Component{
             e('div', {className:'threadPreview', key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
 
                         e('h3', {className:'threadPreview__title'}, item.id),
+
+                        e('h4', {className:'threadPreview__fullTitle'}, item.id),
                         
                         e('div', {className:'threadPreview__info'}, 
 

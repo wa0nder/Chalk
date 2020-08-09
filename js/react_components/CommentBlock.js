@@ -59,7 +59,7 @@ class CommentBlock extends React.Component{
     return(
       e('div', {className:this.props.className, style:this.props.style},
 
-        e('h4', null, 'Leave a comment!'),
+        e('h4', null, 'Share your thoughts!'),
 
         e('textarea', {
                         className: 'commentBlockTextArea', 

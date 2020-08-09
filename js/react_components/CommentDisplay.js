@@ -18,9 +18,10 @@ class CommentDisplay extends React.Component{
         
         this.showPostReplyBox = this.showPostReplyBox.bind(this);
         this.hidePostReplyBox = this.hidePostReplyBox.bind(this);
-        this.showContent = this.showContent.bind(this);
+        this.toggleShowContent = this.toggleShowContent.bind(this);
 
         this.state = {showPostReplyBox: false, showOverflowBtn: false};
+        this.hasOverflow = false;
     }
 
     componentDidMount(){
@@ -32,14 +33,28 @@ class CommentDisplay extends React.Component{
         let c = document.querySelector('#'+this.props.id);
         let body = c.querySelector('.commentBox__body');
 
-        if(body.clientHeight < body.scrollHeight){
+        if(body.clientHeight < body.scrollHeight && !this.hasOverflow){
 
             this.setState({showOverflowBtn: true});
+            this.hasOverflow = true;
         }
     }
 
-    showContent(event){
-        //event.target.style.ov
+    toggleShowContent(event){
+        let elem = event.target;
+        let parent = (elem.parentElement.className === 'commentBox') ? elem.parentElement : elem.parentElement.parentElement;
+        let style = parent.getElementsByClassName('commentBox__body')[0].style;
+
+        if(style.overflowY === 'scroll'){
+
+            elem.parentElement.scrollTo(0,0);
+            style.overflowY = 'hidden';
+            this.setState({showOverflowBtn:true});
+        }
+        else{ 
+            style.overflowY = 'scroll'; 
+            this.setState({showOverflowBtn:false});
+        }
     }
 
     showPostReplyBox(){
@@ -71,7 +86,7 @@ class CommentDisplay extends React.Component{
             let gc = parent.style.gridColumn;
             let gr = parent.style.gridRow;
             replyBox = e(CommentBlock, {
-                            className:'responseBox', 
+                            className:'commentBlock', 
                             parentId: this.props.id,
                             style:{gridColumn: gc, gridRow: gr},
                             createNewCommentInDB:this.props.createNewCommentInDB,
@@ -100,9 +115,16 @@ class CommentDisplay extends React.Component{
                     e('img', {className: 'profile__item', src:'profileCircle.png'})
                 ),
 
-                e('p', {className:'commentBox__body'}, comment.body),
+                e('p', {className:'commentBox__body'},
 
-                ((this.state.showOverflowBtn) ? e('button', {className:'commentBox__showMoreLbl', onClick:this.showContent}, 'Show More') : null),
+                    comment.body,
+
+                    e('br'),
+
+                    ((this.hasOverflow) ? e('button', {onClick:this.toggleShowContent}, 'Show Less') : null)
+                ),
+
+                ((this.state.showOverflowBtn) ? e('button', {className:'commentBox__showMoreLbl', onClick:this.toggleShowContent}, 'Show More') : null),
 
                 e('div', {className:'commentBox__actions'},
 

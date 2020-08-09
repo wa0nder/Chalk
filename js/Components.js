@@ -154,7 +154,7 @@ class CommentBlock_CommentBlock extends React.Component{
     return(
       e('div', {className:this.props.className, style:this.props.style},
 
-        e('h4', null, 'Leave a comment!'),
+        e('h4', null, 'Share your thoughts!'),
 
         e('textarea', {
                         className: 'commentBlockTextArea', 
@@ -194,9 +194,10 @@ class CommentDisplay_CommentDisplay extends React.Component{
         
         this.showPostReplyBox = this.showPostReplyBox.bind(this);
         this.hidePostReplyBox = this.hidePostReplyBox.bind(this);
-        this.showContent = this.showContent.bind(this);
+        this.toggleShowContent = this.toggleShowContent.bind(this);
 
         this.state = {showPostReplyBox: false, showOverflowBtn: false};
+        this.hasOverflow = false;
     }
 
     componentDidMount(){
@@ -205,17 +206,33 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
     applyOverflowButton(){
 
+        console.log('id: ', this.props.id, ' : ', this.state.showOverflowBtn);
+
         let c = document.querySelector('#'+this.props.id);
         let body = c.querySelector('.commentBox__body');
 
-        if(body.clientHeight < body.scrollHeight){
+        if(body.clientHeight < body.scrollHeight && !this.hasOverflow){
 
             this.setState({showOverflowBtn: true});
+            this.hasOverflow = true;
         }
     }
 
-    showContent(event){
-        //event.target.style.ov
+    toggleShowContent(event){
+        let elem = event.target;
+        let parent = (elem.parentElement.className === 'commentBox') ? elem.parentElement : elem.parentElement.parentElement;
+        let style = parent.getElementsByClassName('commentBox__body')[0].style;
+
+        if(style.overflowY === 'scroll'){
+
+            elem.parentElement.scrollTo(0,0);
+            style.overflowY = 'hidden';
+            this.setState({showOverflowBtn:true});
+        }
+        else{ 
+            style.overflowY = 'scroll'; 
+            this.setState({showOverflowBtn:false});
+        }
     }
 
     showPostReplyBox(){
@@ -247,7 +264,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
             let gc = parent.style.gridColumn;
             let gr = parent.style.gridRow;
             replyBox = CommentDisplay_e(react_components_CommentBlock, {
-                            className:'responseBox', 
+                            className:'commentBlock', 
                             parentId: this.props.id,
                             style:{gridColumn: gc, gridRow: gr},
                             createNewCommentInDB:this.props.createNewCommentInDB,
@@ -276,9 +293,16 @@ class CommentDisplay_CommentDisplay extends React.Component{
                     CommentDisplay_e('img', {className: 'profile__item', src:'profileCircle.png'})
                 ),
 
-                CommentDisplay_e('p', {className:'commentBox__body'}, comment.body),
+                CommentDisplay_e('p', {className:'commentBox__body'},
 
-                ((this.state.showOverflowBtn) ? CommentDisplay_e('button', {className:'commentBox__showMoreLbl', onClick:this.showContent}, 'Show More') : null),
+                    comment.body,
+
+                    CommentDisplay_e('br'),
+
+                    ((this.hasOverflow) ? CommentDisplay_e('button', {onClick:this.toggleShowContent}, 'Show Less') : null)
+                ),
+
+                ((this.state.showOverflowBtn) ? CommentDisplay_e('button', {className:'commentBox__showMoreLbl', onClick:this.toggleShowContent}, 'Show More') : null),
 
                 CommentDisplay_e('div', {className:'commentBox__actions'},
 
@@ -336,6 +360,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
     this.state = {currentCommentId: undefined};
     this.currentThreadId = this.props.commentThreadDoc._id;
+    this.uniqueIdToggle = true;
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
@@ -561,9 +586,16 @@ class CommentGrid_CommentGrid extends React.Component{
 
   }
 
+  /**
+   * If thread change, scroll back to top left corner and toggle React key list prefix to force
+   *   re-render of comment body
+   * @param {String} path 
+   */
   checkForThreadChange(path){
 
     if(this.currentThreadId !== this.props.commentThreadDoc._id){
+
+      this.uniqueIdToggle = !this.uniqueIdToggle;
 
       document.querySelector('.container').scrollTo(0,0);
       let cg = document.querySelector('.container__grid');
@@ -587,6 +619,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
     let state = {
       elements: [],
+      end: false,
       reactRowNum: 0,
       holdPath: '',
       path,
@@ -672,9 +705,10 @@ class CommentGrid_CommentGrid extends React.Component{
     let items = commentArray.map( comment => {
   
       let id = `${path}${rowPos++}`;
+      let key = this.uniqueIdToggle ? 'k_' : 'K_';
 
       return CommentGrid_e(react_components_CommentDisplay, {
-                        key: 'k_'+id,
+                        key: key+id,
                         id: 'c_'+id,
                         className: 'commentBox', 
                         style:{
@@ -979,6 +1013,8 @@ class RecentThreads extends React.Component{
             AccountHome_e('div', {className:'threadPreview', key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
 
                         AccountHome_e('h3', {className:'threadPreview__title'}, item.id),
+
+                        AccountHome_e('h4', {className:'threadPreview__fullTitle'}, item.id),
                         
                         AccountHome_e('div', {className:'threadPreview__info'}, 
 
