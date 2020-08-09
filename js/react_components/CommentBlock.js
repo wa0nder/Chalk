@@ -59,7 +59,7 @@ class CommentBlock extends React.Component{
     return(
       e('div', {className:this.props.className, style:this.props.style},
 
-        e('h4', null, '@' + ((this.props.parentAuthor) ? this.props.parentAuthor : 'Anon')),
+        e('h4', null, (this.props.parentAuthor) ? '@'+this.props.parentAuthor : 'Share your thoughts!'),
 
         e('textarea', {
                         className: 'commentBlockTextArea', 

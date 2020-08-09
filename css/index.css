@@ -208,7 +208,7 @@ button:hover {
 .commentBox--tint {
   background-color: black;
   opacity: 0.4;
-  z-index: 1;
+  z-index: 2;
 }
 
 .commentBox__header {
@@ -242,6 +242,7 @@ button:hover {
   top: 80%;
   left: 35%;
   opacity: 0.7;
+  z-index: 1;
 }
 
 .commentBox__actions {
@@ -276,7 +277,7 @@ button:hover {
   top: 0%;
   color: white;
   background-color: rgb(136, 105, 105);
-  z-index: 2;
+  z-index: 3;
 }
 
 .commentBlock--invertColors {
