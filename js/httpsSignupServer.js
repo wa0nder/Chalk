@@ -213,7 +213,7 @@ function putJSFileInDB(dbHex){
       console.log(data);
 
       data += '\n\n';
-      data += `let DataService = createLocalDataService('userdb-${dbHex}');`;
+      data += `let DataService = createRemoteDataService('${serverDBHostName}','${dbHex}');`;
 
       //fs.writeFileSync('testoutput.js', data, 'utf8');
       //let base64e = Buffer.from(jsFileContents).toString('base64');

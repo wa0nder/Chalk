@@ -345,10 +345,12 @@ class CommentGrid_CommentGrid extends React.Component{
 
     this.state = {currentCommentId: undefined};
     this.currentThreadId = this.props.commentThreadDoc._id;
+    this.hasNewComment = false;
     this.uniqueIdToggle = true;
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
+    this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
   }
 
   componentDidMount(){
@@ -356,12 +358,33 @@ class CommentGrid_CommentGrid extends React.Component{
   }
 
   componentDidUpdate(){
-    this.clearOldTints();
+    //this.clearOldTintsAndMargins();
+    this.handlePostRender();
   }
 
   handleScrollEvents(event){
 
     this.loadChildComments(event);
+  }
+
+  /**
+   * Refresh margins for grid row that received new comment.
+   * If 'id' is available just get parent grid, otherwise get first grid row.
+   * 
+   */
+  createNewCommentInDB(id, text){
+
+    this.hasNewComment = true;
+
+    let c = document.querySelector('.container');
+    
+    let cg = (id) ? document.getElementById(id).parentElement : c.getElementsByClassName('.container__grid')[0];
+
+    Array.from(cg.children)
+        .filter(i => i.className === 'commentBox--blank')
+        .forEach(i => i.remove());
+
+    return this.props.createNewCommentInDB(id, text);
   }
 
   loadChildComments(event){
@@ -386,7 +409,7 @@ class CommentGrid_CommentGrid extends React.Component{
           if(old !== null){ old.style.borderWidth = null; }
         }
 
-        this.setState({currentCommentId: div.id}, this.handlePostRender);
+        this.setState({currentCommentId: div.id});
       }
       
     }
@@ -435,7 +458,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
     if(div !== null){
 
-      this.clearOldTints(div);
+      this.clearOldTintsAndMargins(div);
 
       this.tintComments(div);
 
@@ -572,18 +595,32 @@ class CommentGrid_CommentGrid extends React.Component{
   }
 
   /**
+   * Relies on difference between 'this.currentThreadId' and 'this.props.commentThreadDoc._id'
+   *   to detect loading of new thread. Relies on 'this.hasNewComment' as another condition for
+   *   clearing margins
+   */
+  clearOldTintsAndMargins(){
+
+    let gridsContainer = document.querySelector('.container');
+    let gridsConChildren = Array.from(gridsContainer.children);
+
+    this.clearOldTints(gridsConChildren);
+
+    this.clearOldMargins(gridsConChildren);
+
+    //update state
+    this.currentThreadId = this.props.commentThreadDoc._id;
+    this.hasNewComment = false;
+  }
+
+  /**
    * Tinting is manually added on top of react generated components and must be managed
    * as different comment threads, and thus different number of comments, are loaded. This function
    * checks for matching underlying comment box using id = 'tint_[id]', if none found the tint is removed.
    */
-  clearOldTints(){
+  clearOldTints(gridsConChildren){
 
-    if(this.props.commentThreadDoc._id === this.currentThreadId){ return; }
-    
-    this.currentThreadId = this.props.commentThreadDoc._id;
-
-    let gridsContainer = document.querySelector('.container');
-    let gridsConChildren = Array.from(gridsContainer.children);
+    if(this.currentThreadId === this.props.commentThreadDoc._id){ return; }
 
     gridsConChildren.forEach(row => {
 
@@ -595,8 +632,25 @@ class CommentGrid_CommentGrid extends React.Component{
         }
       })
     });
-
   }
+
+  /**
+   * Remove blank boxes serving as margin filler to allow scrolling to left
+   * @param {HTMLElement Array} gridsConChildren
+   */
+  clearOldMargins(gridsConChildren){
+
+    if(this.currentThreadId === this.props.commentThreadDoc._id && !this.hasNewComment){ return; }
+
+    gridsConChildren.forEach(row => {
+
+      Array.from(row.children)
+        .filter(i => i.className === 'commentBox--blank')
+        .forEach(i => i.remove());
+
+    });
+  }
+
 
   /**
    * If thread change, scroll back to top left corner and toggle React key list prefix to force
@@ -729,7 +783,7 @@ class CommentGrid_CommentGrid extends React.Component{
                         },
                         comment: comment,
                         onClick: this.loadChildComments,
-                        createNewCommentInDB:this.props.createNewCommentInDB
+                        createNewCommentInDB:this.createNewCommentInDB
                       }
                 )
     });
