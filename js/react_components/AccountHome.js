@@ -28,7 +28,7 @@ let SW_Utils = {
         let pageBounds = (document.querySelector('.page') || element.parentElement || element);
         SW_Utils.centerLabelOverElement(pageBounds, element, label);
 
-        timeout = timeout ? timeout : 100;
+        timeout = timeout ? timeout : 50;
 
         if(usePromise === true){
             return new Promise( (resolve) => {
@@ -128,6 +128,10 @@ let SW_Utils = {
         return comment;
     },
 
+    /**
+     * Recursively calculate number of comments in a CouchDB document
+     * @param {Object} commentThreadDoc - CouchDB formatted object
+     */
     getNumComments(commentThreadDoc){
 
         if(!commentThreadDoc.comments) return 0;
@@ -146,6 +150,17 @@ let SW_Utils = {
         })(cArray);
 
         return num;
+    },
+
+    /**
+     * @returns {String} - string formatted largest-grouping first to allow CouchDB query sorting by date
+     */
+    dateToDbDate(){
+        let d = new Date();
+        let date = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()+1} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        date += ' ' + d.toTimeString().split(' ').slice(1).join(' '); //adds timezone and any daylight savings info
+
+        return date;
     },
 
     scrollCalc : {
@@ -254,7 +269,7 @@ class NewThreadButton extends React.Component{
             
         .then(() => this.setState({creating: false, threadTitleField:''}) )
 
-        .catch(errMsg => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', errMsg));
+        .catch(errMsg => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', errMsg, 80));
     }
 
     render(){
@@ -354,7 +369,7 @@ class AccountHome extends React.Component{
 
         let returnMsg;
 
-        return this.props.DataService.createNewThreadInDB(threadTitle)
+        return this.props.DataService.createNewThreadInDB(threadTitle, SW_Utils.dateToDbDate())
 
         .then((successMsg) => {
 
@@ -381,9 +396,7 @@ class AccountHome extends React.Component{
 
         if(!foundComment.comments){ foundComment.comments = []; }
 
-        let d = new Date();
-        let day = d.toDateString().slice(0,3);
-        let date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+        let date = SW_Utils.dateToDbDate();
 
         foundComment.comments.push({
             at: (foundComment.author || undefined), 
@@ -438,7 +451,7 @@ class AccountHome extends React.Component{
                 this.setState({currentThreadTitle: title, currentThread: res});
             })
 
-            .catch( err => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Comment thread could not be loaded: ', err) );
+            .catch( err => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Comment thread could not be loaded: ', err, 80) );
         }
 
     }

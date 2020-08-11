@@ -255,7 +255,6 @@ class CommentGrid extends React.Component{
 
       let e = document.createElement(elem.tagName.toLowerCase());
       e.className = 'commentBox--blank';
-      e.style.opacity = 0;
       e.style.gridRow = elem.style.gridRow;
       e.style.gridColumn = offset + i + 1;
 
@@ -352,7 +351,7 @@ class CommentGrid extends React.Component{
 
     path = path.slice(2).split('-').map(item => parseInt(item));
 
-    if(!commentArray || commentArray.length === 0) return null;
+    if(!commentArray || commentArray.length === 0){ return null; } 
 
     let state = {
       elements: [],
