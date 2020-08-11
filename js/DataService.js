@@ -25,7 +25,7 @@ function createDataService(pouchDBInstance){
         return new Promise((resolve, reject) => {
 
             if(threadTitle.length === 0){
-                reject('Must enter a valid thread title!');
+                return reject('Must enter a valid thread title!');
             }
     
             let newThread = {
@@ -84,7 +84,7 @@ function createDataService(pouchDBInstance){
 
         .then(() => {
 
-            console.log('new comment saved.')
+            console.log('change successfully uploaded to db.')
 
             return db.get(commentThread._id);
         })

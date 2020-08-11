@@ -41,7 +41,7 @@ function runCommentBlockSpecs(){
                 rcomp = render(e(CommentBlock), container);
             })
 
-            let textarea = container.querySelector('div').querySelector('textarea');
+            let textarea = container.querySelector('textarea');
             let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
             nativeInputValueSetter.call(textarea, "Just some text");
 
@@ -60,13 +60,13 @@ function runCommentBlockSpecs(){
 
             act(() => render(e(CommentBlock), container) );
 
-            let postbtn = container.querySelector('div').querySelector('button');
+            let postbtn = container.querySelector('button');
 
             act(() => postbtn.dispatchEvent( new MouseEvent('click', {bubbles:true})) );
 
             await new Promise((res,rej) => {
                 setTimeout(() => {
-                    expect(postbtn.querySelector('label')).not.toBe(null);
+                    expect(document.body.querySelector('.messageLbl.messageLbl--red')).not.toBe(null);
                     res();
                 });
             });
@@ -82,7 +82,7 @@ function runCommentBlockSpecs(){
 
             act(() => render(e(CommentBlock, {createNewCommentInDB}), container) );
 
-            let textarea = container.querySelector('div').querySelector('textarea');
+            let textarea = container.querySelector('textarea');
             let nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, "value").set;
             nativeInputValueSetter.call(textarea, "Just some text");
 
@@ -90,7 +90,7 @@ function runCommentBlockSpecs(){
                 textarea.dispatchEvent( new Event('input', {bubbles:true}) );
             });
 
-            let postbtn = container.querySelector('div').querySelector('button');
+            let postbtn = container.querySelector('button');
 
             act(() => postbtn.dispatchEvent( new MouseEvent('click', {bubbles:true})) );
 

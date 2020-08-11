@@ -454,7 +454,8 @@ class CommentGrid extends React.Component{
                         },
                         comment: comment,
                         onClick: this.loadChildComments,
-                        createNewCommentInDB:this.createNewCommentInDB
+                        createNewCommentInDB:this.createNewCommentInDB,
+                        updateCommentLikesInDB: this.props.updateCommentLikesInDB
                       }
                 )
     });

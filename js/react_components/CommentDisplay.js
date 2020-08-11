@@ -133,7 +133,7 @@ class CommentDisplay extends React.Component{
 
                         e('p', {style:{display:'inline'}}, (comment.likes) ? comment.likes : '0'),
 
-                        e('button', null, 'Like'),
+                        e('button', {onClick:() => this.props.updateCommentLikesInDB(this.props.id)}, 'Like'),
 
                     ),
 

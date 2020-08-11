@@ -44,7 +44,7 @@ function runCommentGridSpecs(){
 
         });
 
-        it('shows current comment with red outline', () => {
+        it('shows current comment with thicker outline', () => {
 
           let sampleDoc = {
             "_id": "Testing 1 2 3",
@@ -68,12 +68,10 @@ function runCommentGridSpecs(){
             render(e(CommentGrid, {commentThreadDoc:sampleDoc}), container);
           });
 
-          let gridContainer = container.querySelector('div');
-
           //1st div is grid row, 2nd div is first comment (1st comment is highlighted by default)
-          let comment = gridContainer.querySelector('div').querySelector('div');
+          let comment = container.querySelector('.container__grid').querySelector('div');
 
-          expect(comment.style.borderColor).toBe('red');
+          expect(comment.style.borderWidth).not.toBe(0);
 
         });
 
@@ -101,9 +99,7 @@ function runCommentGridSpecs(){
             render(e(CommentGrid, {commentThreadDoc:sampleDoc}), container);
           });
 
-          let gridContainer = container.querySelector('div');
-
-          let firstRow = gridContainer.querySelector('div');
+          let firstRow = container.querySelector('.container__grid');
 
           let firstComment = firstRow.querySelector('div');
 
@@ -111,11 +107,11 @@ function runCommentGridSpecs(){
 
           let allComments = Array.from(firstRow.children);
 
-          let len = allComments.filter(comment => comment.className !== 'commentBoxTint').length;
+          let len = allComments.filter(comment => comment.className !== 'commentBox--tint').length;
 
-          expect(allComments.filter(comment => comment.style.borderColor).length).toBe(1);
+          expect(allComments.filter(comment => comment.style.borderWidth).length).toBe(1);
 
-          expect(allComments.filter(comment => comment.className === 'commentBoxTint').length).toBe(len-1);
+          expect(allComments.filter(comment => comment.className === 'commentBox--tint').length).toBe(len-1);
 
         });
 

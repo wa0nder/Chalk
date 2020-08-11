@@ -66,29 +66,193 @@ function runAccountHomeSpecs(){
   
   describe('flashMessage', () =>{
   
-    it("attaches label to given element and vanishes after", async () => {
+    it("attaches label to document.body and vanishes after", async () => {
   
       let timeout = 10;
   
       act(() => {
-        SW_Utils.flashMessage(container, 'green', 'gone in a few', timeout);
+        SW_Utils.flashMessage(false, container, '', 'gone in a few', timeout);
       });
   
-      let label = container.querySelector('label');
+      let label = document.querySelector('label');
       
       expect(label.innerText).toBe('gone in a few');
   
-      expect(label.parentElement).toBe(container);
+      expect(label.parentElement).toBe(document.body);
   
       await new Promise((resolve, reject) => {
           setTimeout(() => {
               expect(label.parentElement).toBe(null);
-              expect(container.firstElementChild).toBe(null);
               resolve();
           }, timeout+500);
       });
   
     });
+  });
+
+  describe('centering overlay element with base element', () => {
+
+    it('puts larger overlay element above and to left of smaller element', () => {
+      /*         500
+      ----------------------
+      |                    |
+      |                    |
+      |                    |
+      |                    | 1000
+      |                    |
+      |                    |
+      |                    |
+      |                    |
+      ----------------------
+      with 100 px offset or margin from left of viewport
+      with 0 px offset from top of viewport*/
+      let pb = {
+        getBoundingClientRect(){
+          return {
+            x: 100,
+            y: 0,
+            width: 500,
+            height: 1000
+          }
+        }
+      };
+
+      /*          80
+        ----------------------
+      40|                    |
+        |                    |
+        ----------------------
+      with 300 px offset from left of viewport
+      with 50 px offset from top of viewport*/
+      let pe = {
+        getBoundingClientRect(){
+          return {
+            x: 300,
+            y: 50,
+            width: 80,
+            height: 40
+          }
+        }
+      };
+
+      /*          100
+        ----------------------
+      50|                    |
+        |                    |
+        ---------------------- */
+      let ce = {
+        getBoundingClientRect(){
+          return {
+            x: undefined, //unneeded for function
+            y: undefined, //unneeded for function
+            width: 100,
+            height: 50
+          }
+        },
+        style: {
+          left: undefined,
+          top: undefined
+        }
+      };
+
+      let centerLabelOverElement = SW_Utils.centerLabelOverElement;
+
+      let [x,y] = centerLabelOverElement(pb, pe, ce);
+      let pr = pe.getBoundingClientRect();
+      expect(x < pr.x).toBe(true);
+      expect(y < pr.y).toBe(true);
+    });
+
+    it('puts smaller overlay element below and to right of larger element', () => {
+
+      let pb = {
+        getBoundingClientRect(){
+          return {
+            x: 100,
+            y: 0,
+            width: 500,
+            height: 1000
+          }
+        }
+      };
+
+      let pe = {
+        getBoundingClientRect(){
+          return {
+            x: 300,
+            y: 50,
+            width: 100,
+            height: 50
+          }
+        }
+      };
+
+      let ce = {
+        getBoundingClientRect(){
+          return {
+            width: 80,
+            height: 40
+          }
+        },
+        style: {
+          left: undefined,
+          top: undefined
+        }
+      };
+
+      let centerLabelOverElement = SW_Utils.centerLabelOverElement;
+
+      let [x,y] = centerLabelOverElement(pb, pe, ce);
+      let pr = pe.getBoundingClientRect();
+      expect(x > pr.x).toBe(true);
+      expect(y > pr.y).toBe(true);
+    });
+
+    it('puts overlay element equal to base element if calc result violates boundaries', () => {
+
+      let pb = {
+        getBoundingClientRect(){
+          return {
+            x: 100,
+            y: 0,
+            width: 500,
+            height: 1000
+          }
+        }
+      };
+
+      let pe = {
+        getBoundingClientRect(){
+          return {
+            x: 100,
+            y: 0,
+            width: 80,
+            height: 40
+          }
+        }
+      };
+
+      let ce = {
+        getBoundingClientRect(){
+          return {
+            width: 100,
+            height: 50
+          }
+        },
+        style: {
+          left: undefined,
+          top: undefined
+        }
+      };
+
+      let centerLabelOverElement = SW_Utils.centerLabelOverElement;
+
+      let [x,y] = centerLabelOverElement(pb, pe, ce);
+      let pr = pe.getBoundingClientRect();
+      expect(x === pr.x).toBe(true);
+      expect(y === pr.y).toBe(true);
+    });
+
   });
   
   describe('scrollCalc x/y/height/width calculations', () => {
@@ -157,7 +321,6 @@ function runAccountHomeSpecs(){
           return new Promise((res, rej) => {
   
             if(title.length === 0){
-              //console.log('rejected');
               rej('must type thread name!');
             }
             
@@ -176,7 +339,7 @@ function runAccountHomeSpecs(){
           button.dispatchEvent( new MouseEvent("click", { bubbles: true }) );
         });
   
-        let okButton = container.querySelector('div').querySelector('button');
+        let okButton = container.querySelector('button');
         act(() =>{
           okButton.dispatchEvent( new MouseEvent("click", { bubbles: true }) );
         });
@@ -184,9 +347,9 @@ function runAccountHomeSpecs(){
         //check if error message is displayed
         await new Promise((resolve, reject) => {
           setTimeout(() => {
-            expect(okButton.querySelector('label')).not.toBe(null);
+            expect(document.body.querySelector('.messageLbl')).not.toBe(null);
             resolve();
-          });
+          }, 10);
         });
         
       });

@@ -138,7 +138,7 @@ class CommentBlock_CommentBlock extends React.Component{
     let element = event.target;
 
     if(this.state.commentText.length === 0){
-      SW_Utils.flashMessage(element, 'red', 'Nothing to post!');
+      SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Nothing to post!');
       return;
     }
 
@@ -309,7 +309,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
                         CommentDisplay_e('p', {style:{display:'inline'}}, (comment.likes) ? comment.likes : '0'),
 
-                        CommentDisplay_e('button', null, 'Like'),
+                        CommentDisplay_e('button', {onClick:() => this.props.updateCommentLikesInDB(this.props.id)}, 'Like'),
 
                     ),
 
@@ -783,7 +783,8 @@ class CommentGrid_CommentGrid extends React.Component{
                         },
                         comment: comment,
                         onClick: this.loadChildComments,
-                        createNewCommentInDB:this.createNewCommentInDB
+                        createNewCommentInDB:this.createNewCommentInDB,
+                        updateCommentLikesInDB: this.props.updateCommentLikesInDB
                       }
                 )
     });
@@ -854,7 +855,8 @@ class CommentThread_CommentThread extends React.Component{
   
         CommentThread_e(react_components_CommentGrid, {
                         commentThreadDoc:this.props.commentThreadDoc,
-                        createNewCommentInDB:this.props.createNewCommentInDB
+                        createNewCommentInDB:this.props.createNewCommentInDB,
+                        updateCommentLikesInDB: this.props.updateCommentLikesInDB
                       })
       )
     );
@@ -870,24 +872,87 @@ class CommentThread_CommentThread extends React.Component{
 const AccountHome_e = React.createElement;
 
 let SW_Utils = {
-    flashMessage(element, bgColor, msg, timeout){
-        //put warning styling in css
-        let label = document.createElement('label');
-        label.style.backgroundColor = bgColor;
-        label.style.color = 'white';
-        label.style.opacity = 2.0;
-        label.style.position = 'relative';
-        label.style.borderRadius = '5px';
-        label.style.padding = '1em';
-        label.style.top = '-5px';
-        label.innerText = msg;
-        element.appendChild(label);
 
-        timeout = timeout ? timeout : 50;
+    /**
+     * 
+     * @param {boolean} usePromise - whether to return Promise-wrapped timeout
+     * @param {HTMLElement} element - element that triggered the message
+     * @param {String} className - CSS class(es) to apply to element
+     * @param {String} msg - message to display
+     * @param {Number} timeout - how long to fade out message
+     */
+    flashMessage(usePromise, element, className, msg, timeout){
+
+        let label = document.createElement('label');
+        label.className = className;
+        label.innerText = msg;
+
+        let parent = document.body;
+        parent.style.position = 'relative';
+        parent.appendChild(label);
+
+        label.style.opacity = window.getComputedStyle(label).getPropertyValue('opacity');
+        SW_Utils.centerLabelOverElement(document.querySelector('.page'), element, label);
+
+        timeout = timeout ? timeout : 100;
+
+        if(usePromise === true){
+            return new Promise( (resolve) => {
+                (function fade(){
+                    if((label.style.opacity -= 0.05) <= 0){
+                        label.remove();
+                        parent.style.position = null;
+                        return resolve();
+                    }
+                    else{ setTimeout(fade, timeout); }
+                })();
+            });
+        }
         
         (function fade(){
-            ((label.style.opacity -= 0.05) <= 0) ? label.remove() : setTimeout(fade, timeout);
+            if((label.style.opacity -= 0.05) <= 0){
+                label.remove();
+                parent.style.position = null;
+            }
+            else{ setTimeout(fade, timeout); }
         })();
+    },
+
+    centerLabelOverElement(pageBounds, pElement, cElement){
+        let pageR = pageBounds.getBoundingClientRect();
+        let pR = pElement.getBoundingClientRect();
+        let cR = cElement.getBoundingClientRect();
+
+        let x, y;
+
+        if(pR.width > cR.width){
+            let diff = (pR.width - cR.width) / 2;
+            x = pR.x + diff;
+        }
+        else if(pR.width < cR.width){
+            let diff = (cR.width - pR.width) / 2;
+            x = (pR.x - diff);
+        }
+        else{ x = pR.x; }
+
+        if(pR.height > cR.height){
+            let diff = (pR.height - cR.height) / 2;
+            y = (pR.y + diff);
+        }
+        else if(pR.height < cR.height){
+            let diff = (cR.height - pR.height) / 2;
+            y = (pR.y - diff);
+        }
+        else{ y = pR.y; }
+
+        x = (x <= pageR.x) ? pR.x : x;
+        y = (y <= pageR.y) ? pR.y : y;
+
+        cElement.style.left = x + 'px';
+        cElement.style.top = y + 'px';
+
+        console.log('pr, cr: ', pR, " : ", cR, '\n ', x, ' : ', y);
+        
     },
 
     hexDecode(hexstr){
@@ -1044,13 +1109,11 @@ class NewThreadButton extends React.Component{
         let element = event.target;
         this.props.createNewThreadInDB(this.state.threadTitleField)
 
-        .then((msg) => {
+        .then(msg => SW_Utils.flashMessage(true, element, 'messageLbl', msg) )
             
-            SW_Utils.flashMessage(element.parentElement.parentElement, 'black', msg);
-            this.setState({creating: false, threadTitleField:''});
-        })
+        .then(() => this.setState({creating: false, threadTitleField:''}) )
 
-        .catch((errMsg) => SW_Utils.flashMessage(element, 'red', errMsg));
+        .catch(errMsg => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', errMsg));
     }
 
     render(){
@@ -1134,6 +1197,7 @@ class AccountHome_AccountHome extends React.Component{
         
 
         this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
+        this.updateCommentLikesInDB = this.updateCommentLikesInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
         this.createNewThreadInDB = this.createNewThreadInDB.bind(this);
     }
@@ -1195,6 +1259,23 @@ class AccountHome_AccountHome extends React.Component{
         .then(commentThreadDoc => this.setState({currentThread: commentThreadDoc}) );
     }
 
+    updateCommentLikesInDB(id){
+
+        if(!id) return;
+
+        let foundComment = SW_Utils.findMatchingComment(id, this.state.currentThread);
+
+        if(!foundComment.likes){ foundComment.likes = 0; }
+
+        foundComment.likes += 1;
+
+        return this.props.DataService.updateCommentThreadInDB(this.state.currentThread)
+
+            .then(commentThreadDoc => this.setState({currentThread: commentThreadDoc}))
+
+            .catch(err => console.log('Error! Likes value was not updated in DB. ', err));
+    }
+
     /**
      * 
      * @param {*} event 
@@ -1216,7 +1297,7 @@ class AccountHome_AccountHome extends React.Component{
                 this.setState({currentThreadTitle: title, currentThread: res});
             })
 
-            .catch( err => SW_Utils.flashMessage(element, 'red', 'Comment thread could not be loaded: ', err) );
+            .catch( err => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Comment thread could not be loaded: ', err) );
         }
 
     }
@@ -1227,7 +1308,8 @@ class AccountHome_AccountHome extends React.Component{
             AccountHome_e('p', null, 'Nothing to see here...') :
             AccountHome_e(react_components_CommentThread, {
                                 commentThreadDoc: this.state.currentThread, 
-                                createNewCommentInDB: this.createNewCommentInDB
+                                createNewCommentInDB: this.createNewCommentInDB,
+                                updateCommentLikesInDB: this.updateCommentLikesInDB
                             }
                 )
         )

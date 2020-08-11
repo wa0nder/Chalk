@@ -43,7 +43,7 @@ class CommentBlock extends React.Component{
     let element = event.target;
 
     if(this.state.commentText.length === 0){
-      SW_Utils.flashMessage(element, 'red', 'Nothing to post!');
+      SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Nothing to post!');
       return;
     }
 

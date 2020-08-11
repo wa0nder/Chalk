@@ -24,10 +24,10 @@ function runCommentDisplaySpecs(){
     
     describe('CommentDisplay component', () => {
     
-        it('displays an h4 author, paragraph body and single reply button by default', () => {
+        it('displays a header, body, and actions bar', () => {
             let props = {
-                id: '0',
-                className: 'irrelevant now',
+                id: 'c_0',
+                className: 'commentBox',
                 style: {gridRow: 0, gridColumn: 0},
                 comment: {Author:'cat', body:'sample comment text'}
             };
@@ -36,13 +36,13 @@ function runCommentDisplaySpecs(){
                 render(e(CommentDisplay, props), container);
             });
 
-            let elements = Array.from(container.querySelector('div').children);
-            expect(elements.map(e => e.tagName.toLowerCase())).toEqual(['h4', 'p', 'button']);
+            let elements = Array.from(container.querySelector('.commentBox').children);
+            expect(elements.map(e => e.tagName.toLowerCase())).toEqual(['div', 'p', 'div']);
         });
         
-        it('displays an h4 @ property if supplied', () => {
+        it('displays an @ property if supplied', () => {
             let props = {
-                id: '0',
+                id: 'c_0',
                 className: 'irrelevant now',
                 style: {gridRow: 0, gridColumn: 0},
                 comment: {at: 'Some Commenter', Author:'cat', body:'sample comment text'}
@@ -52,13 +52,13 @@ function runCommentDisplaySpecs(){
                 render(e(CommentDisplay, props), container);
             });
 
-            let elements = Array.from(container.querySelector('div').children);
-            expect(elements.map(e => e.tagName.toLowerCase())).toEqual(['h4', 'h4', 'p', 'button']);
+            let elements = Array.from(container.querySelector('.commentBox__header__info').children);
+            expect(elements.map(e => e.tagName.toLowerCase())).toEqual(['p', 'p', 'p']);
         });
 
-        it('displays a reply CommentBlock if "reply" button is clicked', async () => {
+        it('displays a reply CommentBlock if "reply" button is clicked', () => {
             let props = {
-                id: '0',
+                id: 'c_0',
                 className: 'irrelevant now',
                 style: {gridRow: 0, gridColumn: 0},
                 comment: {Author:'cat', body:'sample comment text'}
@@ -68,13 +68,12 @@ function runCommentDisplaySpecs(){
                 render(e(CommentDisplay, props), container);
             });
 
-            let button = container.querySelector('div').querySelector('button');
+            let button = container.querySelector('.commentBox__actions').getElementsByTagName('button')[1];
             act(() => {
                 button.dispatchEvent( new MouseEvent('click', {bubbles: true}) );
-            })
+            });
 
-            //the second div holds the CommentBlock output
-            expect(container.getElementsByTagName('div').length).toBe(2);
+            expect(container.querySelector('.commentBlock.commentBlock--invertColors')).not.toBe(null);
         });
     
     });

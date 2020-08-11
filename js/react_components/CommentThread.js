@@ -49,7 +49,8 @@ class CommentThread extends React.Component{
   
         e(CommentGrid, {
                         commentThreadDoc:this.props.commentThreadDoc,
-                        createNewCommentInDB:this.props.createNewCommentInDB
+                        createNewCommentInDB:this.props.createNewCommentInDB,
+                        updateCommentLikesInDB: this.props.updateCommentLikesInDB
                       })
       )
     );

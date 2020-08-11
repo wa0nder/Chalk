@@ -23,7 +23,7 @@ function createDataService(pouchDBInstance){
         return new Promise((resolve, reject) => {
 
             if(threadTitle.length === 0){
-                reject('Must enter a valid thread title!');
+                return reject('Must enter a valid thread title!');
             }
     
             let newThread = {
@@ -82,7 +82,7 @@ function createDataService(pouchDBInstance){
 
         .then(() => {
 
-            console.log('new comment saved.')
+            console.log('change successfully uploaded to db.')
 
             return db.get(commentThread._id);
         });
@@ -93,30 +93,4 @@ function createDataService(pouchDBInstance){
 
 //export {createLocalDataService, createRemoteDataService};
 
-let DataService = createLocalDataService('userdb-54657374696e67');
-
-let designDoc = {
-    '_id' : '_design/sortThreads',
-    "views": {
-      "sortThreads": {
-        "map": `function (doc){
-          if(doc.type && doc.type === 'thread' && doc.date){
-            var key = [doc.date, doc._id]
-            emit(key, {numComments: doc.numComments, previewComments:doc.comments.slice(0,10)});
-          }
-        }`
-      }
-    },
-    "language": "javascript"
-  }
-
-DataService.getDB().put(designDoc)
-    
-    .then(() => {
-        console.log('design doc saved.');
-    })
-
-    .catch((err) => {
-        
-        console.log('Error! ', err);
-    });
+let DataService = createRemoteDataService('127.0.0.1','426f62');
