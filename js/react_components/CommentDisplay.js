@@ -82,6 +82,7 @@ class CommentDisplay extends React.Component{
 
         let comment = this.props.comment;
         let replyBox = null;
+        let date;
 
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
@@ -98,6 +99,11 @@ class CommentDisplay extends React.Component{
                     );
         }
 
+        if(comment.date){
+            let d = new Date(comment.date).toDateString().slice(0,3);
+            date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+        }
+
         return e(React.Fragment, null,
 
             e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
@@ -110,7 +116,7 @@ class CommentDisplay extends React.Component{
 
                         e('p', null, `${(comment.author || 'Anon')}`),
 
-                        e('p', null, (comment.date || 'date'))
+                        e('p', null, (date || 'date'))
                     ),
 
                     e('img', {className: 'profile__item', src:'profileCircle.png'})

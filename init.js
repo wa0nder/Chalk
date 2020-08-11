@@ -18,18 +18,18 @@ function createDataService(pouchDBInstance){
         return db;
     };
 
-    DataService.prototype.createNewThreadInDB = function(threadTitle){
+    DataService.prototype.createNewThreadInDB = function(threadTitle, date){
 
         return new Promise((resolve, reject) => {
 
             if(threadTitle.length === 0){
                 return reject('Must enter a valid thread title!');
             }
-    
+
             let newThread = {
                 _id: threadTitle,
                 type: 'thread',
-                date: Date(),
+                date: date,
                 comments: []
             }
     

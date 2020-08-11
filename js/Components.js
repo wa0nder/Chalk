@@ -138,7 +138,7 @@ class CommentBlock_CommentBlock extends React.Component{
     let element = event.target;
 
     if(this.state.commentText.length === 0){
-      SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Nothing to post!');
+      SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Nothing to post!', 80);
       return;
     }
 
@@ -258,6 +258,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
         let comment = this.props.comment;
         let replyBox = null;
+        let date;
 
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
@@ -274,6 +275,11 @@ class CommentDisplay_CommentDisplay extends React.Component{
                     );
         }
 
+        if(comment.date){
+            let d = new Date(comment.date).toDateString().slice(0,3);
+            date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+        }
+
         return CommentDisplay_e(React.Fragment, null,
 
             CommentDisplay_e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
@@ -286,7 +292,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
                         CommentDisplay_e('p', null, `${(comment.author || 'Anon')}`),
 
-                        CommentDisplay_e('p', null, (comment.date || 'date'))
+                        CommentDisplay_e('p', null, (date || 'date'))
                     ),
 
                     CommentDisplay_e('img', {className: 'profile__item', src:'profileCircle.png'})
@@ -584,7 +590,6 @@ class CommentGrid_CommentGrid extends React.Component{
 
       let e = document.createElement(elem.tagName.toLowerCase());
       e.className = 'commentBox--blank';
-      e.style.opacity = 0;
       e.style.gridRow = elem.style.gridRow;
       e.style.gridColumn = offset + i + 1;
 
@@ -681,7 +686,9 @@ class CommentGrid_CommentGrid extends React.Component{
 
     path = path.slice(2).split('-').map(item => parseInt(item));
 
-    if(!commentArray || commentArray.length === 0) return null;
+    if(!commentArray || commentArray.length === 0){
+      return null;//e('div', {className:'commentBox--blank', style:{gridRow:1,gridColumn:1}});
+    } 
 
     let state = {
       elements: [],
@@ -874,7 +881,7 @@ const AccountHome_e = React.createElement;
 let SW_Utils = {
 
     /**
-     * 
+     * Displays a popup message indicating important app information
      * @param {boolean} usePromise - whether to return Promise-wrapped timeout
      * @param {HTMLElement} element - element that triggered the message
      * @param {String} className - CSS class(es) to apply to element
@@ -892,9 +899,10 @@ let SW_Utils = {
         parent.appendChild(label);
 
         label.style.opacity = window.getComputedStyle(label).getPropertyValue('opacity');
-        SW_Utils.centerLabelOverElement(document.querySelector('.page'), element, label);
+        let pageBounds = (document.querySelector('.page') || element.parentElement || element);
+        SW_Utils.centerLabelOverElement(pageBounds, element, label);
 
-        timeout = timeout ? timeout : 100;
+        timeout = timeout ? timeout : 50;
 
         if(usePromise === true){
             return new Promise( (resolve) => {
@@ -918,7 +926,15 @@ let SW_Utils = {
         })();
     },
 
+    /**
+     * Center an overlay element on top of a base element. Accounts for boundaries from a <body>-level type element
+     * @param {HTMLElement} pageBounds - element holding '.page' CSS classname with defines bounds of entire web app
+     * @param {HTMLElement} pElement - parent element that triggered the flash message
+     * @param {HTMLElement} cElement - label to show on screen relative to parent element
+     * @returns {NumberArray} - returns [x,y] pair of final calculated position
+     */
     centerLabelOverElement(pageBounds, pElement, cElement){
+        
         let pageR = pageBounds.getBoundingClientRect();
         let pR = pElement.getBoundingClientRect();
         let cR = cElement.getBoundingClientRect();
@@ -951,8 +967,7 @@ let SW_Utils = {
         cElement.style.left = x + 'px';
         cElement.style.top = y + 'px';
 
-        console.log('pr, cr: ', pR, " : ", cR, '\n ', x, ' : ', y);
-        
+        return [x,y];
     },
 
     hexDecode(hexstr){
@@ -987,6 +1002,10 @@ let SW_Utils = {
         return comment;
     },
 
+    /**
+     * Recursively calculate number of comments in a CouchDB document
+     * @param {Object} commentThreadDoc - CouchDB formatted object
+     */
     getNumComments(commentThreadDoc){
 
         if(!commentThreadDoc.comments) return 0;
@@ -1005,6 +1024,17 @@ let SW_Utils = {
         })(cArray);
 
         return num;
+    },
+
+    /**
+     * @returns {String} - string formatted largest-grouping first to allow CouchDB query sorting by date
+     */
+    dateToDbDate(){
+        let d = new Date();
+        let date = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()+1} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        date += ' ' + d.toTimeString().split(' ').slice(1).join(' '); //adds timezone and any daylight savings info
+
+        return date;
     },
 
     scrollCalc : {
@@ -1113,7 +1143,7 @@ class NewThreadButton extends React.Component{
             
         .then(() => this.setState({creating: false, threadTitleField:''}) )
 
-        .catch(errMsg => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', errMsg));
+        .catch(errMsg => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', errMsg, 80));
     }
 
     render(){
@@ -1213,7 +1243,7 @@ class AccountHome_AccountHome extends React.Component{
 
         let returnMsg;
 
-        return this.props.DataService.createNewThreadInDB(threadTitle)
+        return this.props.DataService.createNewThreadInDB(threadTitle, SW_Utils.dateToDbDate())
 
         .then((successMsg) => {
 
@@ -1240,9 +1270,7 @@ class AccountHome_AccountHome extends React.Component{
 
         if(!foundComment.comments){ foundComment.comments = []; }
 
-        let d = new Date();
-        let day = d.toDateString().slice(0,3);
-        let date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+        let date = SW_Utils.dateToDbDate();
 
         foundComment.comments.push({
             at: (foundComment.author || undefined), 
@@ -1297,7 +1325,7 @@ class AccountHome_AccountHome extends React.Component{
                 this.setState({currentThreadTitle: title, currentThread: res});
             })
 
-            .catch( err => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Comment thread could not be loaded: ', err) );
+            .catch( err => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Comment thread could not be loaded: ', err, 80) );
         }
 
     }

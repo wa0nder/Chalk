@@ -338,6 +338,7 @@ button:hover {
   border-bottom: 2px dashed var(--color_theme);
   border-radius: 10px 10px 0 0;
   box-sizing: border-box;
+  min-height: 400px;
   max-height: 400px;
   overflow-y: auto;
 }
