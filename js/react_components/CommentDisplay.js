@@ -82,7 +82,7 @@ class CommentDisplay extends React.Component{
 
         let comment = this.props.comment;
         let replyBox = null;
-        let date;
+        let date = undefined;
 
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
@@ -100,7 +100,8 @@ class CommentDisplay extends React.Component{
         }
 
         if(comment.date){
-            let d = new Date(comment.date).toDateString().slice(0,3);
+            let d = new Date(comment.date);
+            let day = d.toDateString().slice(0,3);
             date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
         }
 

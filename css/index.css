@@ -7,6 +7,11 @@ website: https://github.com/wa0nder/Chalk
 
 :root {
   --color_theme: rgb(136, 105, 105);
+  --color_theme_blue: rgb(72,197,215);
+  --color_theme_red: rgb(255,87,141);
+  --color_theme_green: rgb(71,220,116);
+  --color_theme_yellow: rgb(255, 250, 138);
+  --color_theme_gray: rgb(127,127,127);
 }
 
 * {
@@ -340,6 +345,7 @@ button:hover {
   box-sizing: border-box;
   min-height: 400px;
   max-height: 400px;
+  margin-bottom: 1%;
   overflow-y: auto;
 }
 

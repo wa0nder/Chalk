@@ -276,7 +276,8 @@ class CommentDisplay_CommentDisplay extends React.Component{
         }
 
         if(comment.date){
-            let d = new Date(comment.date).toDateString().slice(0,3);
+            let d = new Date(comment.date);
+            let day = d.toDateString().slice(0,3);
             date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
         }
 
@@ -686,9 +687,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
     path = path.slice(2).split('-').map(item => parseInt(item));
 
-    if(!commentArray || commentArray.length === 0){
-      return null;//e('div', {className:'commentBox--blank', style:{gridRow:1,gridColumn:1}});
-    } 
+    if(!commentArray || commentArray.length === 0){ return null; } 
 
     let state = {
       elements: [],
