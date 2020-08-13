@@ -174,7 +174,7 @@ class CommentGrid extends React.Component{
 
         if(item.id === currComment.id){ 
 
-          item.style.borderWidth = '6px';
+          item.style.borderWidth = '4px';
 
           this.showChildCommentsIndicator(item, end, gridsConChildren.length);
         }

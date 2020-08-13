@@ -120,7 +120,7 @@ class CommentDisplay extends React.Component{
                         e('p', null, (date || 'date'))
                     ),
 
-                    e('img', {className: 'profile__item', src:'profileCircle.png'})
+                    e('img', {className: 'profile__item profile__item--small', src:'profileCircle.png'})
                 ),
 
                 e('p', {className:'commentBox__body'},

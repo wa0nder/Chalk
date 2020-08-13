@@ -222,9 +222,12 @@ function ProfileWidget(){
 
         e('div', {className: 'profile'}, 
 
-            e('a', {className: 'profile__item profile__a'}, 'Profile'),
+            e('a', {className: 'profile__a'},
 
-            e('img', {className: 'profile__item', src:'profileCircle.png'})
+                e('p', {className: 'profile__p'}, 'Profile'),
+
+                e('img', {className: 'profile__item', src:'profileCircle.png'})
+            )
         )
     );
 }
@@ -290,7 +293,7 @@ class NewThreadButton extends React.Component{
 
         return e('div', {className:'section section--neutral'},
 
-                e('button', {className:'btn--margin', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
+                e('button', {className:'newThreadBtn', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
         );
     }
 }
@@ -323,7 +326,7 @@ class RecentThreads extends React.Component{
 
             e(React.Fragment, null, 
 
-                e('h3', null, 'Recent Threads'),
+                e('h2', null, 'Recent Threads'),
 
                 e('div', {className:'section section--flex'}, elements)
             )

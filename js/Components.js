@@ -258,7 +258,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
         let comment = this.props.comment;
         let replyBox = null;
-        let date;
+        let date = undefined;
 
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
@@ -296,7 +296,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
                         CommentDisplay_e('p', null, (date || 'date'))
                     ),
 
-                    CommentDisplay_e('img', {className: 'profile__item', src:'profileCircle.png'})
+                    CommentDisplay_e('img', {className: 'profile__item profile__item--small', src:'profileCircle.png'})
                 ),
 
                 CommentDisplay_e('p', {className:'commentBox__body'},
@@ -510,7 +510,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
         if(item.id === currComment.id){ 
 
-          item.style.borderWidth = '6px';
+          item.style.borderWidth = '4px';
 
           this.showChildCommentsIndicator(item, end, gridsConChildren.length);
         }
@@ -841,7 +841,7 @@ class CommentThread_CommentThread extends React.Component{
 
       CommentThread_e(React.Fragment, null, 
   
-        CommentThread_e('h3', null, this.props.commentThreadDoc._id),
+        CommentThread_e('h2', null, this.props.commentThreadDoc._id),
   
         CommentThread_e('h4', null, date.toDateString()),
   
@@ -1095,9 +1095,12 @@ function ProfileWidget(){
 
         AccountHome_e('div', {className: 'profile'}, 
 
-            AccountHome_e('a', {className: 'profile__item profile__a'}, 'Profile'),
+            AccountHome_e('a', {className: 'profile__a'},
 
-            AccountHome_e('img', {className: 'profile__item', src:'profileCircle.png'})
+                AccountHome_e('p', {className: 'profile__p'}, 'Profile'),
+
+                AccountHome_e('img', {className: 'profile__item', src:'profileCircle.png'})
+            )
         )
     );
 }
@@ -1163,7 +1166,7 @@ class NewThreadButton extends React.Component{
 
         return AccountHome_e('div', {className:'section section--neutral'},
 
-                AccountHome_e('button', {className:'btn--margin', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
+                AccountHome_e('button', {className:'newThreadBtn', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
         );
     }
 }
@@ -1196,7 +1199,7 @@ class RecentThreads extends React.Component{
 
             AccountHome_e(React.Fragment, null, 
 
-                AccountHome_e('h3', null, 'Recent Threads'),
+                AccountHome_e('h2', null, 'Recent Threads'),
 
                 AccountHome_e('div', {className:'section section--flex'}, elements)
             )

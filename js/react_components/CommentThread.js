@@ -29,7 +29,7 @@ class CommentThread extends React.Component{
 
       e(React.Fragment, null, 
   
-        e('h3', null, this.props.commentThreadDoc._id),
+        e('h2', null, this.props.commentThreadDoc._id),
   
         e('h4', null, date.toDateString()),
   
