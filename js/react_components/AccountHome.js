@@ -301,6 +301,19 @@ class NewThreadButton extends React.Component{
 class RecentThreads extends React.Component{
     constructor(props){
         super(props);
+
+        this.rootRef = React.createRef();
+    }
+
+    componentDidUpdate(){
+        let ref = this.rootRef.current;
+        if(ref !== undefined){
+            if(ref.clientWidth < ref.scrollWidth){
+                ref.classList.add('section--flex--indicateScroll')
+            }
+            else{ ref.classList.remove('section--flex--indicateScroll'); }
+        }
+
     }
 
     render(){
@@ -328,7 +341,7 @@ class RecentThreads extends React.Component{
 
                 e('h2', null, 'Recent Threads'),
 
-                e('div', {className:'section section--flex'}, elements)
+                e('div', {className:'section section--flex', ref:this.rootRef}, elements)
             )
         );
     }
@@ -343,7 +356,8 @@ class AccountHome extends React.Component{
         this.state = {
             queryResults: [],
             currentThreadTitle: undefined,
-            currentThread: undefined
+            currentThread: undefined,
+            mediaQueryWidthUpdate: false
         };
 
         //set author for comments
@@ -362,10 +376,18 @@ class AccountHome extends React.Component{
     }
 
     componentDidMount(){
-
+        
         this.props.DataService.updateRecentThreadsList(undefined)
-        .then(queryResults=> this.setState({queryResults: queryResults, currentThreadTitle: undefined}) )
-        .catch(err => console.log('Error: ', err) );
+            .then(queryResults=> this.setState({queryResults: queryResults, currentThreadTitle: undefined}) )
+            .catch(err => console.log('Error: ', err) );
+
+        
+        const triggerRefresh = () => {
+            let toggle = this.state.mediaQueryWidthUpdate;
+            this.setState({mediaQueryWidthUpdate: !toggle});
+        }
+        window.matchMedia("(min-width: 980px)").addListener(triggerRefresh);
+        window.matchMedia("(max-width: 870px)").addListener(triggerRefresh);
     }
 
     createNewThreadInDB(threadTitle){
