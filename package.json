@@ -1,7 +1,7 @@
 {
   "name": "sidewalks",
   "version": "1.0.0",
-  "description": "cool shit",
+  "description": "grid comment system",
   "main": "index.js",
   "dependencies": {
     "pouchdb": "^7.2.1",
