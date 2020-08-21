@@ -258,7 +258,11 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
         let comment = this.props.comment;
         let replyBox = null;
+<<<<<<< HEAD
         let date = undefined;
+=======
+        let date;
+>>>>>>> 47d89943446aa56471bf9a9606223db8df0e44c7
 
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
@@ -276,8 +280,12 @@ class CommentDisplay_CommentDisplay extends React.Component{
         }
 
         if(comment.date){
+<<<<<<< HEAD
             let d = new Date(comment.date);
             let day = d.toDateString().slice(0,3);
+=======
+            let d = new Date(comment.date).toDateString().slice(0,3);
+>>>>>>> 47d89943446aa56471bf9a9606223db8df0e44c7
             date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
         }
 
@@ -690,7 +698,13 @@ class CommentGrid_CommentGrid extends React.Component{
 
     path = path.slice(2).split('-').map(item => parseInt(item));
 
+<<<<<<< HEAD
     if(!commentArray || commentArray.length === 0){ return null; } 
+=======
+    if(!commentArray || commentArray.length === 0){
+      return null;//e('div', {className:'commentBox--blank', style:{gridRow:1,gridColumn:1}});
+    } 
+>>>>>>> 47d89943446aa56471bf9a9606223db8df0e44c7
 
     let state = {
       elements: [],
@@ -1046,6 +1060,7 @@ let SW_Utils = {
         return date;
     },
 
+<<<<<<< HEAD
     /**
      * @returns {CSS_RGB_ColorsArray} - returns an array of colors retrieved from CSS variable declarations
      *   for the purpose of styling comment colors in a specific order. First run initializes the array and
@@ -1093,6 +1108,8 @@ let SW_Utils = {
         return Math.floor(Math.random() * (max - min) + min); 
     },
 
+=======
+>>>>>>> 47d89943446aa56471bf9a9606223db8df0e44c7
     scrollCalc : {
         calcScrollBarWidth(elem){
             if(elem === null || elem === undefined) return 0;
