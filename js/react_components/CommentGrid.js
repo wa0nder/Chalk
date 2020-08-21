@@ -18,6 +18,7 @@ class CommentGrid extends React.Component{
     this.currentThreadId = this.props.commentThreadDoc._id;
     this.hasNewComment = false;
     this.uniqueIdToggle = true;
+    this.colorIdx = SW_Utils.getRandomInt(0,SW_Utils.getColorsArray().length);
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
@@ -324,7 +325,7 @@ class CommentGrid extends React.Component{
 
   /**
    * If thread change, scroll back to top left corner and toggle React key list prefix to force
-   *   re-render of comment body
+   *   re-render of comment body. Also update color cycling offset.
    * @param {String} path 
    */
   checkForThreadChange(path){
@@ -332,6 +333,8 @@ class CommentGrid extends React.Component{
     if(this.currentThreadId !== this.props.commentThreadDoc._id){
 
       this.uniqueIdToggle = !this.uniqueIdToggle;
+      
+      this.colorIdx = SW_Utils.getRandomInt(0,SW_Utils.getColorsArray().length);
 
       document.querySelector('.container').scrollTo(0,0);
       let cg = document.querySelector('.container__grid');
@@ -437,7 +440,12 @@ class CommentGrid extends React.Component{
     
     if(renderFirstOnly) commentArray = commentArray.slice(0,1);
 
+    let colorsArray = SW_Utils.getColorsArray(),
+        cArrLen = colorsArray.length,
+        colorIdx = (this.colorIdx + reactRowNum) % cArrLen;
+
     let rowPos = 0;
+    
     let items = commentArray.map( comment => {
   
       let id = `${path}${rowPos++}`;
@@ -449,7 +457,9 @@ class CommentGrid extends React.Component{
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
-                          gridColumn: rowPos
+                          gridColumn: rowPos,
+                          borderRight: `2px solid ${colorsArray[(colorIdx % cArrLen)]}`,
+                          borderBottom: `2px solid ${colorsArray[(colorIdx++ % cArrLen)]}`,
                         },
                         comment: comment,
                         onClick: this.loadChildComments,

@@ -44,7 +44,8 @@ function uploadFile(filename, rev, verbose, db_path){
 
     return new Promise( function(resolve, reject){
         
-        let type = path.extname(filename).substr(1);
+        let ending = path.extname(filename).substr(1);
+        let [prefix, type] = getFileMimeType(ending);
         let fname_only = filename.split('/').pop();
         
         let options = {
@@ -54,7 +55,7 @@ function uploadFile(filename, rev, verbose, db_path){
             method: 'PUT',
             auth: `${admin}:${pass}`,
             headers: {
-                'Content-Type': (type==='js') ? 'application/javascript' : `text/${type}`
+                'Content-Type': (type==='js') ? 'application/javascript' : `${prefix}/${type}`
             }
         };
         
@@ -107,6 +108,23 @@ function uploadFile(filename, rev, verbose, db_path){
         //     //console.log('ERROR: ' + err);
         // })
     });
+}
+
+function getFileMimeType(filenameEnding){
+
+    let fe = filenameEnding;
+    let imgEndings = ['png', 'jpg', 'jpeg', 'bmp', 'gif'];
+
+    if( imgEndings.some(ending => ending === fe) ){
+        return ['image', fe];
+    }
+
+    if(filenameEnding === 'js'){
+        return ['application', 'javascript'];
+    }
+    
+    return ['text', fe];
+
 }
 
 function getFilesToUpdate(){

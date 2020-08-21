@@ -163,6 +163,53 @@ let SW_Utils = {
         return date;
     },
 
+    /**
+     * @returns {CSS_RGB_ColorsArray} - returns an array of colors retrieved from CSS variable declarations
+     *   for the purpose of styling comment colors in a specific order. First run initializes the array and
+     *   all subsequent calls returns same copy of array.
+     */
+    getColorsArray(){
+        let style = getComputedStyle(document.body);
+        let colors = [
+            style.getPropertyValue('--color_theme_base'),
+            style.getPropertyValue('--color_theme_green_11'),
+            style.getPropertyValue('--color_theme_red_11'),
+            style.getPropertyValue('--color_theme_blue_11'),
+            style.getPropertyValue('--color_theme_yellow_11'),
+            style.getPropertyValue('--color_theme_purple_11'),
+            style.getPropertyValue('--color_theme_gray_11'),
+
+            style.getPropertyValue('--color_theme_green_12'),
+            style.getPropertyValue('--color_theme_red_12'),
+            style.getPropertyValue('--color_theme_blue_12'),
+            style.getPropertyValue('--color_theme_yellow_12'),
+            style.getPropertyValue('--color_theme_purple_12'),
+            style.getPropertyValue('--color_theme_gray_12'),
+            
+            style.getPropertyValue('--color_theme_green_13'),
+            style.getPropertyValue('--color_theme_red_13'),
+            style.getPropertyValue('--color_theme_blue_13'),
+            style.getPropertyValue('--color_theme_yellow_13'),
+            style.getPropertyValue('--color_theme_purple_13'),
+            style.getPropertyValue('--color_theme_gray_13')
+        ];
+
+        SW_Utils.getColorsArray = () => colors;
+
+        return colors;
+    },
+
+    /**
+     * Taken from MDN: 
+     *   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#Getting_a_random_integer_between_two_values
+     *   The maximum is exclusive and the minimum is inclusive
+     */
+    getRandomInt(min, max){
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min); 
+    },
+
     scrollCalc : {
         calcScrollBarWidth(elem){
             if(elem === null || elem === undefined) return 0;
@@ -221,6 +268,8 @@ function ProfileWidget(){
     return (
 
         e('div', {className: 'profile'}, 
+
+            e('img', {className: 'profile__img', src: '/sidewalks/front-end/chalkLogoTwoTanSmall.png'}),
 
             e('a', {className: 'profile__a'},
 
@@ -318,9 +367,13 @@ class RecentThreads extends React.Component{
 
     render(){
 
-        let elements = this.props.queryResults.map( item => 
-            
-            e('div', {className:'threadPreview', key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
+        let colorsArray = SW_Utils.getColorsArray();
+        let cArrLen = colorsArray.length;
+        let colorIdx = SW_Utils.getRandomInt(0,cArrLen);
+        
+        let elements = this.props.queryResults.map( item =>
+
+            e('div', {className:'threadPreview', style:{borderBottom: `2px solid ${colorsArray[(colorIdx++ % cArrLen)]}`}, key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
 
                         e('h3', {className:'threadPreview__title'}, item.id),
 

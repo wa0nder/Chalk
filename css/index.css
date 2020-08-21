@@ -7,6 +7,8 @@ website: https://github.com/wa0nder/Chalk
 
 :root {
   --color_theme_bg: white;
+  --color_theme_bg--tan: rgb(254,216,144);
+  --color_theme_bg--lightPurple: rgb(193,193,232);
   --color_theme_base: rgb(92, 92, 92);
   --color_theme_green_11: rgb(71,220,116);
   --color_theme_red_11: rgb(255,87,141);
@@ -55,7 +57,9 @@ title {
 h2 {
   text-align: center;
   margin: 1%;
-  color: var(--color_theme_base);
+  color: var(--color_theme_bg);
+  text-shadow: 1px 1px 3px var(--color_theme_base);
+  font-size: 190%;
 }
 
 h3, h4 {
@@ -128,7 +132,7 @@ input:focus, input:active {
   text-align:left;  
   margin-left:auto;  
   margin-right:auto;
-  background-color: var(--color_theme_bg); 
+  background-color: var(--color_theme_bg--lightPurple); 
 }
 
 
@@ -254,6 +258,7 @@ input:focus, input:active {
 
 .container {
   display: block;
+  background-color: var(--color_theme_bg--tan);
   border-left: 6px solid var(--color_theme_base);
   border-right: 2px dashed var(--color_theme_purple_11);
   border-bottom: 2px dashed var(--color_theme_purple_11);
@@ -269,6 +274,7 @@ input:focus, input:active {
   display: grid;
   justify-content: start;
   color: #fff;
+  background-color: var(--color_theme_bg--tan);
   overflow-y: hidden;
   overflow-x: auto;
 }
@@ -311,6 +317,7 @@ input:focus, input:active {
 .profile {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .profile__a {
@@ -341,6 +348,14 @@ input:focus, input:active {
   align-self: center;
   color: var(--color_theme_base);
   padding-right: 30%;
+}
+
+.profile__img {
+  align-self: flex-start;
+  max-width: 15%;
+  border: 2px solid var(--color_theme_blue_11);
+  border-radius: 5px;
+  margin: 0.5%;
 }
 
 .recentThreadLinks{
@@ -388,6 +403,7 @@ input:focus, input:active {
   position: relative;
   border-bottom: 2px solid var(--color_theme_purple_11);
   border-radius: var(--theme_border-radius);
+  background-color: var(--color_theme_bg);
   margin-left: 1%;
   margin-right: 1%;
   flex: 1;

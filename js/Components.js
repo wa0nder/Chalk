@@ -354,6 +354,7 @@ class CommentGrid_CommentGrid extends React.Component{
     this.currentThreadId = this.props.commentThreadDoc._id;
     this.hasNewComment = false;
     this.uniqueIdToggle = true;
+    this.colorIdx = SW_Utils.getRandomInt(0,SW_Utils.getColorsArray().length);
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
@@ -660,7 +661,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
   /**
    * If thread change, scroll back to top left corner and toggle React key list prefix to force
-   *   re-render of comment body
+   *   re-render of comment body. Also update color cycling offset.
    * @param {String} path 
    */
   checkForThreadChange(path){
@@ -668,6 +669,8 @@ class CommentGrid_CommentGrid extends React.Component{
     if(this.currentThreadId !== this.props.commentThreadDoc._id){
 
       this.uniqueIdToggle = !this.uniqueIdToggle;
+      
+      this.colorIdx = SW_Utils.getRandomInt(0,SW_Utils.getColorsArray().length);
 
       document.querySelector('.container').scrollTo(0,0);
       let cg = document.querySelector('.container__grid');
@@ -773,7 +776,12 @@ class CommentGrid_CommentGrid extends React.Component{
     
     if(renderFirstOnly) commentArray = commentArray.slice(0,1);
 
+    let colorsArray = SW_Utils.getColorsArray(),
+        cArrLen = colorsArray.length,
+        colorIdx = (this.colorIdx + reactRowNum) % cArrLen;
+
     let rowPos = 0;
+    
     let items = commentArray.map( comment => {
   
       let id = `${path}${rowPos++}`;
@@ -785,7 +793,9 @@ class CommentGrid_CommentGrid extends React.Component{
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
-                          gridColumn: rowPos
+                          gridColumn: rowPos,
+                          borderRight: `2px solid ${colorsArray[(colorIdx % cArrLen)]}`,
+                          borderBottom: `2px solid ${colorsArray[(colorIdx++ % cArrLen)]}`,
                         },
                         comment: comment,
                         onClick: this.loadChildComments,
@@ -1036,6 +1046,53 @@ let SW_Utils = {
         return date;
     },
 
+    /**
+     * @returns {CSS_RGB_ColorsArray} - returns an array of colors retrieved from CSS variable declarations
+     *   for the purpose of styling comment colors in a specific order. First run initializes the array and
+     *   all subsequent calls returns same copy of array.
+     */
+    getColorsArray(){
+        let style = getComputedStyle(document.body);
+        let colors = [
+            style.getPropertyValue('--color_theme_base'),
+            style.getPropertyValue('--color_theme_green_11'),
+            style.getPropertyValue('--color_theme_red_11'),
+            style.getPropertyValue('--color_theme_blue_11'),
+            style.getPropertyValue('--color_theme_yellow_11'),
+            style.getPropertyValue('--color_theme_purple_11'),
+            style.getPropertyValue('--color_theme_gray_11'),
+
+            style.getPropertyValue('--color_theme_green_12'),
+            style.getPropertyValue('--color_theme_red_12'),
+            style.getPropertyValue('--color_theme_blue_12'),
+            style.getPropertyValue('--color_theme_yellow_12'),
+            style.getPropertyValue('--color_theme_purple_12'),
+            style.getPropertyValue('--color_theme_gray_12'),
+            
+            style.getPropertyValue('--color_theme_green_13'),
+            style.getPropertyValue('--color_theme_red_13'),
+            style.getPropertyValue('--color_theme_blue_13'),
+            style.getPropertyValue('--color_theme_yellow_13'),
+            style.getPropertyValue('--color_theme_purple_13'),
+            style.getPropertyValue('--color_theme_gray_13')
+        ];
+
+        SW_Utils.getColorsArray = () => colors;
+
+        return colors;
+    },
+
+    /**
+     * Taken from MDN: 
+     *   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#Getting_a_random_integer_between_two_values
+     *   The maximum is exclusive and the minimum is inclusive
+     */
+    getRandomInt(min, max){
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min); 
+    },
+
     scrollCalc : {
         calcScrollBarWidth(elem){
             if(elem === null || elem === undefined) return 0;
@@ -1094,6 +1151,8 @@ function ProfileWidget(){
     return (
 
         AccountHome_e('div', {className: 'profile'}, 
+
+            AccountHome_e('img', {className: 'profile__img', src: '/sidewalks/front-end/chalkLogoTwoTanSmall.png'}),
 
             AccountHome_e('a', {className: 'profile__a'},
 
@@ -1191,9 +1250,13 @@ class RecentThreads extends React.Component{
 
     render(){
 
-        let elements = this.props.queryResults.map( item => 
-            
-            AccountHome_e('div', {className:'threadPreview', key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
+        let colorsArray = SW_Utils.getColorsArray();
+        let cArrLen = colorsArray.length;
+        let colorIdx = SW_Utils.getRandomInt(0,cArrLen);
+        
+        let elements = this.props.queryResults.map( item =>
+
+            AccountHome_e('div', {className:'threadPreview', style:{borderBottom: `2px solid ${colorsArray[(colorIdx++ % cArrLen)]}`}, key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
 
                         AccountHome_e('h3', {className:'threadPreview__title'}, item.id),
 
