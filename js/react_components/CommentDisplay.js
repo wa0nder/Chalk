@@ -82,7 +82,11 @@ class CommentDisplay extends React.Component{
 
         let comment = this.props.comment;
         let replyBox = null;
+<<<<<<< HEAD
         let date = undefined;
+=======
+        let date;
+>>>>>>> 47d89943446aa56471bf9a9606223db8df0e44c7
 
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
