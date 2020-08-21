@@ -4,7 +4,7 @@
 
 August 2020 - Warning: even though there is now a live working demo of the project (see below), there's still plenty of room to evolve the idea in terms of live-deployment of the app. This, in turn, means there still can be serious breaking changes in terms of underlying technology used.
 
-Information relating to the development process behind the aesthetic choices and technical decisions--along with some associated ramblings--for this project can be read at my site here: https://www.clarityncode.com/p/1-first-steps.html
+Information relating to the development process behind the aesthetic choices and technical decisions for this project can be read at my site here: https://www.clarityncode.com/p/1-first-steps.html
 
 Purpose: solve the 'nesting layout issue' which plauges nearly all comment thread systems on the web. ~~Also the components should update themselves using a local database synced with remote database.~~ In practice, and in terms of underlying technology patterns (e.g. ReactJS), this autonomous aspect didn't work out.
 
