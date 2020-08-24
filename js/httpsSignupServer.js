@@ -16,7 +16,7 @@ function hexEncode(str){
 }
 
 let filename = process.argv[2] || '../credentials.txt';
-let pair = fs.readFileSync(filename, 'utf8').split('|');
+let pair = fs.readFileSync(filename, 'utf8').replace(/\s/g, "").split('|');
 const [admin, pass] = [pair[0], pair[1].trim()];
 
 const options = {

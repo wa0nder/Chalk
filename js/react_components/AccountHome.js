@@ -275,7 +275,7 @@ function ProfileWidget(){
 
                 e('p', {className: 'profile__p'}, 'Profile'),
 
-                e('img', {className: 'profile__item', src:'profileCircle.png'})
+                e('img', {className: 'profile__item', src:'profileCircle2.png'})
             )
         )
     );
