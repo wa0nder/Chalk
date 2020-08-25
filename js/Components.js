@@ -154,7 +154,7 @@ class CommentBlock_CommentBlock extends React.Component{
     return(
       e('div', {className:this.props.className, style:this.props.style},
 
-        e('h4', null, (this.props.parentAuthor) ? '@'+this.props.parentAuthor : 'Share your thoughts!'),
+        e('h4', {className:'commentBlock__h4'}, (this.props.parentAuthor) ? '@'+this.props.parentAuthor : 'Share your thoughts!'),
 
         e('textarea', {
                         className: 'commentBlockTextArea', 
@@ -310,7 +310,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
                 ((this.state.showOverflowBtn) ? CommentDisplay_e('button', {className:'commentBox__showMoreLbl', onClick:this.toggleShowContent}, 'Show More') : null),
 
-                CommentDisplay_e('div', {className:'commentBox__actions'},
+                CommentDisplay_e('div', {className:'commentBox__actions', style:{backgroundColor:this.props.actionBarColor}},
 
                     CommentDisplay_e('div', {className:'commentBox__actions__likes'},
 
@@ -793,10 +793,9 @@ class CommentGrid_CommentGrid extends React.Component{
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
-                          gridColumn: rowPos,
-                          borderRight: `2px solid ${colorsArray[(colorIdx % cArrLen)]}`,
-                          borderBottom: `2px solid ${colorsArray[(colorIdx++ % cArrLen)]}`,
+                          gridColumn: rowPos
                         },
+                        actionBarColor: `${colorsArray[(colorIdx++ % cArrLen)]}`,
                         comment: comment,
                         onClick: this.loadChildComments,
                         createNewCommentInDB:this.createNewCommentInDB,
@@ -850,16 +849,20 @@ class CommentThread_CommentThread extends React.Component{
     return(
 
       CommentThread_e(React.Fragment, null, 
+
+        CommentThread_e('div', {className: 'commentThreadHeader'}, 
   
-        CommentThread_e('h2', null, this.props.commentThreadDoc._id),
-  
-        CommentThread_e('h4', null, date.toDateString()),
-  
-        CommentThread_e('h4', null, `${this.props.commentThreadDoc.numComments || 0} Comments`),
+          CommentThread_e('h3', null, this.props.commentThreadDoc._id),
+    
+          CommentThread_e('h4', null, date.toDateString()),
+    
+          CommentThread_e('h4', null, `${this.props.commentThreadDoc.numComments || 0} Comments`)
+
+        ),
 
         CommentThread_e('div', {className:'commentThreadReplyContainer'},
 
-          CommentThread_e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!'),
+          CommentThread_e('button', {className: 'addCommentBtn', onClick:this.toggleShowCommentBlock}, 'Leave a comment!'),
   
           ((this.state.showBlock) ? 
   
@@ -1054,7 +1057,6 @@ let SW_Utils = {
     getColorsArray(){
         let style = getComputedStyle(document.body);
         let colors = [
-            style.getPropertyValue('--color_theme_base'),
             style.getPropertyValue('--color_theme_green_11'),
             style.getPropertyValue('--color_theme_red_11'),
             style.getPropertyValue('--color_theme_blue_11'),
@@ -1152,13 +1154,13 @@ function ProfileWidget(){
 
         AccountHome_e('div', {className: 'profile'}, 
 
-            AccountHome_e('img', {className: 'profile__img', src: '/sidewalks/front-end/chalkLogoTwoTanSmall.png'}),
+            AccountHome_e('img', {className: 'profile__img', src: '/sidewalks/front-end/chalkLogoTwoClearSmall.png'}),
 
             AccountHome_e('a', {className: 'profile__a'},
 
-                AccountHome_e('p', {className: 'profile__p'}, 'Profile'),
+                AccountHome_e('img', {className: 'profile__item', src:'profileCircle.png'}),
 
-                AccountHome_e('img', {className: 'profile__item', src:'profileCircle2.png'})
+                AccountHome_e('p', {className: 'profile__p'}, 'Profile')
             )
         )
     );
@@ -1225,7 +1227,7 @@ class NewThreadButton extends React.Component{
 
         return AccountHome_e('div', {className:'section section--neutral'},
 
-                AccountHome_e('button', {className:'newThreadBtn', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
+                AccountHome_e('button', {className:'newThreadBtn', onClick: this.toggleCreateNewThreadState}, '+ new thread')
         );
     }
 }
@@ -1234,6 +1236,8 @@ class RecentThreads extends React.Component{
     constructor(props){
         super(props);
 
+        this.threadRenderFlag = !this.props.threadCreateFlag;
+        this.colorIdx = 0;
         this.rootRef = React.createRef();
     }
 
@@ -1252,15 +1256,26 @@ class RecentThreads extends React.Component{
 
         let colorsArray = SW_Utils.getColorsArray();
         let cArrLen = colorsArray.length;
-        let colorIdx = SW_Utils.getRandomInt(0,cArrLen);
+
+        if(this.threadRenderFlag !== this.props.threadCreateFlag){
+
+            this.threadRenderFlag = this.props.threadCreateFlag;
+            
+            this.colorIdx = SW_Utils.getRandomInt(0,cArrLen);
+        }
         
+        let colorIdx = this.colorIdx;
         let elements = this.props.queryResults.map( item =>
 
-            AccountHome_e('div', {className:'threadPreview', style:{borderBottom: `2px solid ${colorsArray[(colorIdx++ % cArrLen)]}`}, key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
+            AccountHome_e('div', { className:'threadPreview', 
+                        style:{ background: `linear-gradient(${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`}, 
+                        key:item.key,
+                        onClickCapture: e => this.props.loadThread(e,item)
+                    },
 
                         AccountHome_e('h3', {className:'threadPreview__title'}, item.id),
 
-                        AccountHome_e('h4', {className:'threadPreview__fullTitle'}, item.id),
+                        AccountHome_e('h3', {className:'threadPreview__fullTitle'}, item.id),
                         
                         AccountHome_e('div', {className:'threadPreview__info'}, 
 
@@ -1293,8 +1308,11 @@ class AccountHome_AccountHome extends React.Component{
             queryResults: [],
             currentThreadTitle: undefined,
             currentThread: undefined,
+            threadCreateFlag: false,
             mediaQueryWidthUpdate: false
         };
+
+
 
         //set author for comments
         this.props.DataService.getDB().info()
@@ -1339,7 +1357,9 @@ class AccountHome_AccountHome extends React.Component{
         })
 
         .then(queryResult => {
-            this.setState({queryResults: queryResult, currentThreadTitle: threadTitle})
+
+            let flag = this.state.threadCreateFlag;
+            this.setState({queryResults: queryResult, currentThreadTitle: threadTitle, threadCreateFlag: !flag})
 
             return returnMsg;
         });
@@ -1420,7 +1440,7 @@ class AccountHome_AccountHome extends React.Component{
     render(){
 
         let commentThreadElement = ( (this.state.currentThread === undefined) ? 
-            AccountHome_e('p', null, 'Nothing to see here...') :
+            AccountHome_e('h4', null, 'Nothing to see here...') :
             AccountHome_e(react_components_CommentThread, {
                                 commentThreadDoc: this.state.currentThread, 
                                 createNewCommentInDB: this.createNewCommentInDB,
@@ -1437,9 +1457,9 @@ class AccountHome_AccountHome extends React.Component{
 
                 AccountHome_e(NewThreadButton, {createNewThreadInDB: this.createNewThreadInDB}),
 
-                AccountHome_e(RecentThreads, {queryResults: this.state.queryResults, loadThread:this.loadThread}),
+                AccountHome_e(RecentThreads, {threadCreateFlag: this.state.threadCreateFlag, queryResults: this.state.queryResults, loadThread:this.loadThread}),
 
-                //e('h2', null, (this.state.currentThread === undefined) ? 'No Thread Selected' : this.state.currentThread._id),
+                AccountHome_e('h2', null, 'Current Thread'),
 
                 commentThreadElement
             )

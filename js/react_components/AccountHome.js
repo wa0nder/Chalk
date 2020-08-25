@@ -171,7 +171,6 @@ let SW_Utils = {
     getColorsArray(){
         let style = getComputedStyle(document.body);
         let colors = [
-            style.getPropertyValue('--color_theme_base'),
             style.getPropertyValue('--color_theme_green_11'),
             style.getPropertyValue('--color_theme_red_11'),
             style.getPropertyValue('--color_theme_blue_11'),
@@ -269,13 +268,13 @@ function ProfileWidget(){
 
         e('div', {className: 'profile'}, 
 
-            e('img', {className: 'profile__img', src: '/sidewalks/front-end/chalkLogoTwoTanSmall.png'}),
+            e('img', {className: 'profile__img', src: '/sidewalks/front-end/chalkLogoTwoClearSmall.png'}),
 
             e('a', {className: 'profile__a'},
 
-                e('p', {className: 'profile__p'}, 'Profile'),
+                e('img', {className: 'profile__item', src:'profileCircle.png'}),
 
-                e('img', {className: 'profile__item', src:'profileCircle2.png'})
+                e('p', {className: 'profile__p'}, 'Profile')
             )
         )
     );
@@ -342,7 +341,7 @@ class NewThreadButton extends React.Component{
 
         return e('div', {className:'section section--neutral'},
 
-                e('button', {className:'newThreadBtn', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
+                e('button', {className:'newThreadBtn', onClick: this.toggleCreateNewThreadState}, '+ new thread')
         );
     }
 }
@@ -351,6 +350,8 @@ class RecentThreads extends React.Component{
     constructor(props){
         super(props);
 
+        this.threadRenderFlag = !this.props.threadCreateFlag;
+        this.colorIdx = 0;
         this.rootRef = React.createRef();
     }
 
@@ -369,15 +370,26 @@ class RecentThreads extends React.Component{
 
         let colorsArray = SW_Utils.getColorsArray();
         let cArrLen = colorsArray.length;
-        let colorIdx = SW_Utils.getRandomInt(0,cArrLen);
+
+        if(this.threadRenderFlag !== this.props.threadCreateFlag){
+
+            this.threadRenderFlag = this.props.threadCreateFlag;
+            
+            this.colorIdx = SW_Utils.getRandomInt(0,cArrLen);
+        }
         
+        let colorIdx = this.colorIdx;
         let elements = this.props.queryResults.map( item =>
 
-            e('div', {className:'threadPreview', style:{borderBottom: `2px solid ${colorsArray[(colorIdx++ % cArrLen)]}`}, key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
+            e('div', { className:'threadPreview', 
+                        style:{ background: `linear-gradient(${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`}, 
+                        key:item.key,
+                        onClickCapture: e => this.props.loadThread(e,item)
+                    },
 
                         e('h3', {className:'threadPreview__title'}, item.id),
 
-                        e('h4', {className:'threadPreview__fullTitle'}, item.id),
+                        e('h3', {className:'threadPreview__fullTitle'}, item.id),
                         
                         e('div', {className:'threadPreview__info'}, 
 
@@ -410,8 +422,11 @@ class AccountHome extends React.Component{
             queryResults: [],
             currentThreadTitle: undefined,
             currentThread: undefined,
+            threadCreateFlag: false,
             mediaQueryWidthUpdate: false
         };
+
+
 
         //set author for comments
         this.props.DataService.getDB().info()
@@ -456,7 +471,9 @@ class AccountHome extends React.Component{
         })
 
         .then(queryResult => {
-            this.setState({queryResults: queryResult, currentThreadTitle: threadTitle})
+
+            let flag = this.state.threadCreateFlag;
+            this.setState({queryResults: queryResult, currentThreadTitle: threadTitle, threadCreateFlag: !flag})
 
             return returnMsg;
         });
@@ -537,7 +554,7 @@ class AccountHome extends React.Component{
     render(){
 
         let commentThreadElement = ( (this.state.currentThread === undefined) ? 
-            e('p', null, 'Nothing to see here...') :
+            e('h4', null, 'Nothing to see here...') :
             e(CommentThread, {
                                 commentThreadDoc: this.state.currentThread, 
                                 createNewCommentInDB: this.createNewCommentInDB,
@@ -554,9 +571,9 @@ class AccountHome extends React.Component{
 
                 e(NewThreadButton, {createNewThreadInDB: this.createNewThreadInDB}),
 
-                e(RecentThreads, {queryResults: this.state.queryResults, loadThread:this.loadThread}),
+                e(RecentThreads, {threadCreateFlag: this.state.threadCreateFlag, queryResults: this.state.queryResults, loadThread:this.loadThread}),
 
-                //e('h2', null, (this.state.currentThread === undefined) ? 'No Thread Selected' : this.state.currentThread._id),
+                e('h2', null, 'Current Thread'),
 
                 commentThreadElement
             )

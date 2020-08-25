@@ -134,7 +134,7 @@ class CommentDisplay extends React.Component{
 
                 ((this.state.showOverflowBtn) ? e('button', {className:'commentBox__showMoreLbl', onClick:this.toggleShowContent}, 'Show More') : null),
 
-                e('div', {className:'commentBox__actions'},
+                e('div', {className:'commentBox__actions', style:{backgroundColor:this.props.actionBarColor}},
 
                     e('div', {className:'commentBox__actions__likes'},
 

@@ -28,16 +28,20 @@ class CommentThread extends React.Component{
     return(
 
       e(React.Fragment, null, 
+
+        e('div', {className: 'commentThreadHeader'}, 
   
-        e('h2', null, this.props.commentThreadDoc._id),
-  
-        e('h4', null, date.toDateString()),
-  
-        e('h4', null, `${this.props.commentThreadDoc.numComments || 0} Comments`),
+          e('h3', null, this.props.commentThreadDoc._id),
+    
+          e('h4', null, date.toDateString()),
+    
+          e('h4', null, `${this.props.commentThreadDoc.numComments || 0} Comments`)
+
+        ),
 
         e('div', {className:'commentThreadReplyContainer'},
 
-          e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!'),
+          e('button', {className: 'addCommentBtn', onClick:this.toggleShowCommentBlock}, 'Leave a comment!'),
   
           ((this.state.showBlock) ? 
   

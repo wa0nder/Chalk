@@ -457,10 +457,9 @@ class CommentGrid extends React.Component{
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
-                          gridColumn: rowPos,
-                          borderRight: `2px solid ${colorsArray[(colorIdx % cArrLen)]}`,
-                          borderBottom: `2px solid ${colorsArray[(colorIdx++ % cArrLen)]}`,
+                          gridColumn: rowPos
                         },
+                        actionBarColor: `${colorsArray[(colorIdx++ % cArrLen)]}`,
                         comment: comment,
                         onClick: this.loadChildComments,
                         createNewCommentInDB:this.createNewCommentInDB,

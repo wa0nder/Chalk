@@ -7,6 +7,7 @@ website: https://github.com/wa0nder/Chalk
 
 :root {
   --color_theme_bg: white;
+  --color_theme_bg_invert: black;
   --color_theme_bg--tan: rgb(254,216,144);
   --color_theme_bg--lightPurple: rgb(193,193,232);
   --color_theme_base: rgb(92, 92, 92);
@@ -55,18 +56,24 @@ title {
 }
 
 h2 {
-  text-align: center;
+  text-align: left;
   margin: 1%;
   color: var(--color_theme_bg);
-  text-shadow: 1px 1px 3px var(--color_theme_base);
+  text-shadow: 0px 3px 2px var(--color_theme_bg--lightPurple), 
+                0px 4px 2px var(--color_theme_base), 
+                0px -1px 4px var(--color_theme_gray_11);
   font-size: 190%;
 }
 
+h3 {
+  font-size: 130%;
+}
+
 h3, h4 {
-  text-align: center;
+  text-align: left;
   margin-top: 1%;
   margin-bottom: 1%;
-  color: var(--color_theme_base);
+  color: var(--color_theme_purple_13);
 }
 
 img {
@@ -132,11 +139,19 @@ input:focus, input:active {
   text-align:left;  
   margin-left:auto;  
   margin-right:auto;
-  background-color: var(--color_theme_bg--lightPurple); 
+  background-color: var(--color_theme_bg); 
 }
 
 
 /* Specific class styling */
+
+.commentThreadHeader {
+  text-align: center;
+  width: 50%;
+  padding-left: 1%;
+  margin-left: 1%;
+  margin-top: 3%;
+}
 
 .commentThreadReplyContainer {
   position: relative;
@@ -149,8 +164,8 @@ input:focus, input:active {
   width: 350px;
   height: 350px;
   border-radius: 5px;
-  border-right: 2px solid var(--color_theme_purple_13);
-  border-bottom: 2px solid var(--color_theme_purple_13);
+  border-right: 2px solid var(--color_theme_base);
+  border-bottom: 2px solid var(--color_theme_base);
   color: black;
   background-color: var(--color_theme_bg);
   margin: 1%;
@@ -232,17 +247,17 @@ input:focus, input:active {
   height: 400px;
   top: 0%;
   color: var(--color_theme_bg);
-  background-color: var(--color_theme_base);
+  background-color: var(--color_theme_bg--lightPurple);
   z-index: 3;
 }
 
 .commentBlock--invertColors {
   left: 15%;
-  z-index: 1;
-  opacity: 0.9;
+  z-index: 3;
+  opacity: 0.95;
   border: 2px solid var(--color_theme_bg);
   color: var(--color_theme_bg);
-  background-color: var(--color_theme_base);
+  background-color: var(--color_theme_bg--lightPurple);
 }
 
 .commentBlockTextArea {
@@ -256,9 +271,13 @@ input:focus, input:active {
   overflow:auto;
 }
 
+.commentBlock__h4 {
+  margin: 2%;
+}
+
 .container {
   display: block;
-  background-color: var(--color_theme_bg--tan);
+  background-color: var(--color_theme_gray_12);
   border-left: 6px solid var(--color_theme_base);
   border-right: 2px dashed var(--color_theme_purple_11);
   border-bottom: 2px dashed var(--color_theme_purple_11);
@@ -274,7 +293,7 @@ input:focus, input:active {
   display: grid;
   justify-content: start;
   color: #fff;
-  background-color: var(--color_theme_bg--tan);
+  background-color: var(--color_theme_gray_12);
   overflow-y: hidden;
   overflow-x: auto;
 }
@@ -297,19 +316,23 @@ input:focus, input:active {
   background-color: var(--color_theme_red_13);
 }
 
-.newThreadBtn {
+.newThreadBtn, .addCommentBtn {
   box-shadow: 4px 4px 8px var(--color_theme_purple_12);
   color: var(--color_theme_purple_13);
   background-color: var(--color_theme_bg);
   border-bottom-color: transparent;
   border-radius: 5px;
   font-size: 110%;
-  padding: 2px;
+  padding: 2%;
   margin: 1%;
   margin-bottom: 6%;
 }
 
-.newThreadBtn:hover {
+.addCommentBtn {
+  margin-bottom: 1%;
+}
+
+.newThreadBtn:hover, .addCommentBtn:hover {
   color: var(--color_theme_bg);
   background-color: var(--color_theme_purple_13);
 }
@@ -322,11 +345,14 @@ input:focus, input:active {
 
 .profile__a {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   border-radius: 5px;
   padding: 1%;
   margin-left: auto;
+  margin-right: 1%;
+  margin-top: 1%;
   max-width: 50%;
 }
 .profile__a:hover {
@@ -347,14 +373,12 @@ input:focus, input:active {
 .profile__p {
   align-self: center;
   color: var(--color_theme_base);
-  padding-right: 30%;
+  padding-top: 5%;
 }
 
 .profile__img {
   align-self: flex-start;
-  max-width: 15%;
-  border: 2px solid var(--color_theme_blue_11);
-  border-radius: 5px;
+  max-width: 25%;
   margin: 0.5%;
 }
 
@@ -362,7 +386,7 @@ input:focus, input:active {
   color: none;
 }
 .recentThreadLinks:hover {
-  color: var(--color_theme_purple_11);
+  color: var(--color_theme_bg--lightPurple);
 }
 .recentThreadLinks:active {
   color: var(--color_theme_bg);
@@ -397,11 +421,13 @@ input:focus, input:active {
 .section__input {
   display: block;
   font-size: 115%;
+  margin-top: 1.87%;
+  margin-bottom: 2%;
 }
 
 .threadPreview {
   position: relative;
-  border-bottom: 2px solid var(--color_theme_purple_11);
+  border-bottom: 4px solid var(--color_theme_bg--lightPurple);
   border-radius: var(--theme_border-radius);
   background-color: var(--color_theme_bg);
   margin-left: 1%;
@@ -417,23 +443,28 @@ input:focus, input:active {
 }
 
 .threadPreview__title {
+  background-color: var(--color_theme_bg);
+  color: var(--color_theme_purple_13);
   box-shadow: 1px 1px 1px 1px var(--color_theme_gray_12);;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  margin: 3%; 
+  text-align: center;
+  margin: 3%;
+  padding: 2%;
 }
 
 .threadPreview__fullTitle {
   opacity: 0;
-  transition: opacity ease 0.5s;
+  transition: opacity ease 0.2s;
   position: absolute;
   top: 0%;
   min-width: 95%;
   border-radius: 4px;
-  background-color: var(--color_theme_purple_13);
-  color: var(--color_theme_bg);
+  background-color: var(--color_theme_bg);
+  color: var(--color_theme_purple_13);
   white-space: nowrap;
+  text-align: center;
   padding: 3%;
   margin: 3%;
   z-index: 1;
@@ -448,6 +479,7 @@ input:focus, input:active {
   justify-content: space-between;
   margin: 3%;
   font-size: 90%;
+  color: var(--color_theme_bg_invert);
 }
 
 
