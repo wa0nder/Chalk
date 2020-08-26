@@ -23,13 +23,13 @@ Roadmap
 .
 * (Completed) Analyze the user experience both from a front-end styling perspective and back-end technical maintenance
 
-## jsFiddle Version
+## Hosted Version (in-browser DB)
 
-View a fullscreen demo of the app [here](https://jsfiddle.net/waonder/ay1r8opL/5/show). 
+Try out a demo of the app [here](http://chalk.infinityfreeapp.com). 
 
 *Important!* If you are viewing on a mobile device, only Chromium-based browsers (Chrome, Opera, Vivaldi, Edge, ...) work with jsFiddle + PouchDB. Firefox, due to how it handles CORS, just shows "invalid error". This demo is a browser-based version of the app that only uses a local in-browser DB to run.
 
-## Local Disk Version
+## Local Disk Version (in-browser DB)
 
 If on desktop you can download all files in the 'chalk_local' folder and run the entire app from your local disk.
 
