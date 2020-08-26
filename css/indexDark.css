@@ -37,7 +37,6 @@ website: https://github.com/wa0nder/Chalk
   
     --theme_border-radius: 3px;
   
-  
   }
   
   * {
@@ -64,7 +63,7 @@ website: https://github.com/wa0nder/Chalk
   }
   
   body {
-    font: 100%  "Lucida Grande", "Lucida Sans", Tahoma, Verdana, sans-serif; 
+    font: 80%  "Lucida Grande", "Lucida Sans", Tahoma, Verdana, sans-serif; 
     color: #000000;
     background-color: rgb(236, 234, 234);
   } 
@@ -86,7 +85,10 @@ website: https://github.com/wa0nder/Chalk
   
   h2 {
     text-align: left;
-    margin: 1%;
+    margin-right: 72%;
+    padding-left: 1%;
+    min-width: 280px;
+    background: linear-gradient(90deg, var(--color_theme_gray_11), 80%, transparent);
     color: var(--color_theme_bg--lightPurple);
     text-shadow: 0px 3px 2px var(--color_theme_purple_13), 
                   0px 4px 2px black;
@@ -166,7 +168,7 @@ website: https://github.com/wa0nder/Chalk
   
   @media screen and (max-width: 870px) {
     .page {
-      width: 490px;
+      width: 350px;
     }
   }
   
@@ -175,6 +177,7 @@ website: https://github.com/wa0nder/Chalk
     margin-left:auto;  
     margin-right:auto;
     background-color: var(--color_theme_bg); 
+    background: linear-gradient(var(--color_theme_base--darkBlue), 61%, var(--color_theme_bg--lightBlue), 66%, var(--color_theme_base--gravel));
   }
   
   
@@ -396,13 +399,18 @@ website: https://github.com/wa0nder/Chalk
     margin-top: 1%;
     max-width: 50%;
     text-decoration: none;
+    filter: drop-shadow(0 0 20px var(--color_theme_bg--lightBlue));
+    color: var(--color_theme_bg--lightBlue);
+    
   }
   .profile__a:hover {
-    box-shadow: 2px 2px 4px var(--color_theme_bg--lightPurple);
+    filter: drop-shadow(0 0 20px var(--color_theme_bg--lightPurple));
     text-decoration: none;
+    color: var(--color_theme_bg--lightPurple);
   }
   .profile__a:active{
-    box-shadow: 2px 2px 4px var(--color_theme_purple_11);
+    filter: drop-shadow(0 0 20px var(--color_theme_purple_11));
+    color: var(--color_theme_purple_11);
   }
   
   .profile__container {
@@ -429,7 +437,7 @@ website: https://github.com/wa0nder/Chalk
   
   .profile__p {
     align-self: center;
-    color: var(--color_theme_bg--lightPurple);
+    color: inherit;
     padding-top: 5%;
   }
   

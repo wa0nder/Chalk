@@ -276,7 +276,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
         }
 
         if(comment.date){
-            let d = new Date(comment.date);
+            let d = new Date(comment.date.split(' G')[0]);
             let day = d.toDateString().slice(0,3);
             date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
         }

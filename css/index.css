@@ -8,6 +8,7 @@ website: https://github.com/wa0nder/Chalk
 :root {
   --color_theme_bg: white;
   --color_theme_bg--tan: rgb(254,216,144);
+  --color_theme_bg--darkTan: rgb(252, 193, 95);
   --color_theme_bg--lightPurple: rgb(193,193,232);
   --color_theme_bg--lightBlue: rgb(101, 117, 206);
   --color_theme_base--darkBlue: rgb(45,60,140);
@@ -35,8 +36,6 @@ website: https://github.com/wa0nder/Chalk
   --color_theme_gray_13: rgb(157,157,157);
 
   --theme_border-radius: 3px;
-
-
 }
 
 * {
@@ -63,7 +62,7 @@ a:active {
 }
 
 body {
-  font: 100%  "Lucida Grande", "Lucida Sans", Tahoma, Verdana, sans-serif; 
+  font: 80%  "Lucida Grande", "Lucida Sans", Tahoma, Verdana, sans-serif; 
   color: #000000;
   background-color: rgb(236, 234, 234);
 } 
@@ -74,7 +73,11 @@ title {
 
 h2 {
   text-align: left;
-  margin: 1%;
+  margin-right: 72%;
+  padding-left: 1%;
+  min-width: 280px;
+  background: linear-gradient(90deg, var(--color_theme_gray_11), 80%, transparent);
+  border-radius: var(--theme_border-radius);
   color: var(--color_theme_bg);
   text-shadow: 0px 3px 2px var(--color_theme_bg--lightPurple), 
                 0px 4px 2px var(--color_theme_base--gravel), 
@@ -122,7 +125,7 @@ input {
 }
 
 input:focus, input:active {
-  border: 3px solid var(--color_theme_purple_13);
+  border: 3px solid var(--color_theme_bg--lightBlue);
   outline: none;
   font-size: 107%;
 }
@@ -149,7 +152,7 @@ input:focus, input:active {
 
 @media screen and (max-width: 870px) {
   .page {
-    width: 490px;
+    width: 350px;
   }
 }
 
@@ -158,6 +161,7 @@ input:focus, input:active {
   margin-left:auto;  
   margin-right:auto;
   background-color: var(--color_theme_bg); 
+  background: linear-gradient(var(--color_theme_bg--tan), 63%, var(--color_theme_purple_12), 64%, var(--color_theme_gray_12));
 }
 
 
@@ -374,11 +378,12 @@ input:focus, input:active {
   text-decoration: none;
 }
 .profile__a:hover {
-  box-shadow: 2px 2px 4px var(--color_theme_purple_13);
+  filter: drop-shadow(0 0 20px var(--color_theme_purple_11));
+  color: var(--color_theme_purple_11);
   text-decoration: none;
 }
 .profile__a:active{
-  box-shadow: 2px 2px 4px var(--color_theme_purple_11);
+  filter: drop-shadow(0 0 20px var(--color_theme_purple_13));
 }
 
 .profile__container {
@@ -405,7 +410,7 @@ input:focus, input:active {
 
 .profile__p {
   align-self: center;
-  color: var(--color_theme_base--gravel);
+  color: inherit;
   padding-top: 5%;
 }
 
