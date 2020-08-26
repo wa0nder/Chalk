@@ -113,7 +113,7 @@ class CommentDisplay extends React.Component{
 
                     e('div', {className: 'commentBox__header__info'},
 
-                        (!comment.at) ? null : e('p', null, `⮬  @${comment.at}`),
+                        (!comment.at) ? null : e('p', null, `@${comment.at}`),
 
                         e('p', null, `${(comment.author || 'Anon')}`),
 
@@ -134,7 +134,7 @@ class CommentDisplay extends React.Component{
 
                 ((this.state.showOverflowBtn) ? e('button', {className:'commentBox__showMoreLbl', onClick:this.toggleShowContent}, 'Show More') : null),
 
-                e('div', {className:'commentBox__actions', style:{backgroundColor:this.props.actionBarColor}},
+                e('div', {className:'commentBox__actions', style:{background:this.props.actionBarColor}},
 
                     e('div', {className:'commentBox__actions__likes'},
 

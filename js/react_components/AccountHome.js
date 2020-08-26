@@ -24,7 +24,7 @@ let SW_Utils = {
         parent.style.position = 'relative';
         parent.appendChild(label);
 
-        label.style.opacity = window.getComputedStyle(label).getPropertyValue('opacity');
+        label.style.opacity = parseInt(window.getComputedStyle(label).getPropertyValue('opacity')) + 1;
         let pageBounds = (document.querySelector('.page') || element.parentElement || element);
         SW_Utils.centerLabelOverElement(pageBounds, element, label);
 
@@ -268,7 +268,7 @@ function ProfileWidget(){
 
         e('div', {className: 'profile'}, 
 
-            e('img', {className: 'profile__img', src: '/sidewalks/front-end/chalkLogoTwoClearSmall.png'}),
+            e('img', {className: 'profile__logo', src: '/sidewalks/front-end/chalkLogoTwoClearSmall.png'}),
 
             e('a', {className: 'profile__a'},
 
@@ -382,7 +382,7 @@ class RecentThreads extends React.Component{
         let elements = this.props.queryResults.map( item =>
 
             e('div', { className:'threadPreview', 
-                        style:{ background: `linear-gradient(${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`}, 
+                        style:{ background: `linear-gradient(135deg, ${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`}, 
                         key:item.key,
                         onClickCapture: e => this.props.loadThread(e,item)
                     },
@@ -441,6 +441,7 @@ class AccountHome extends React.Component{
         this.updateCommentLikesInDB = this.updateCommentLikesInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
         this.createNewThreadInDB = this.createNewThreadInDB.bind(this);
+        this.changeStyleSheet = this.changeStyleSheet.bind(this);
     }
 
     componentDidMount(){
@@ -551,6 +552,16 @@ class AccountHome extends React.Component{
 
     }
 
+    changeStyleSheet(event){
+
+        let text = event.target.innerText;
+        let name = (text === 'light') ? 'index.css' : 'indexDark.css';
+
+        document.getElementById('stylesheet').href = `/sidewalks/front-end/${name}`;
+
+        return false;
+    }
+
     render(){
 
         let commentThreadElement = ( (this.state.currentThread === undefined) ? 
@@ -566,6 +577,14 @@ class AccountHome extends React.Component{
         return(
 
             e(React.Fragment, null,
+            
+                e('div', {className: 'profile__container'},
+            
+                    e('a', {onClick: this.changeStyleSheet}, 'light'),
+    
+                    e('a', {onClick: this.changeStyleSheet}, 'dark')
+                        
+                ),
 
                 e(ProfileWidget),
 

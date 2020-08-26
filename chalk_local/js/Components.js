@@ -138,7 +138,7 @@ class CommentBlock_CommentBlock extends React.Component{
     let element = event.target;
 
     if(this.state.commentText.length === 0){
-      SW_Utils.flashMessage(element, 'red', 'Nothing to post!');
+      SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Nothing to post!', 80);
       return;
     }
 
@@ -154,7 +154,7 @@ class CommentBlock_CommentBlock extends React.Component{
     return(
       e('div', {className:this.props.className, style:this.props.style},
 
-        e('h4', null, (this.props.parentAuthor) ? '@'+this.props.parentAuthor : 'Share your thoughts!'),
+        e('h4', {className:'commentBlock__h4'}, (this.props.parentAuthor) ? '@'+this.props.parentAuthor : 'Share your thoughts!'),
 
         e('textarea', {
                         className: 'commentBlockTextArea', 
@@ -258,6 +258,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
         let comment = this.props.comment;
         let replyBox = null;
+        let date = undefined;
 
         if(this.state.showPostReplyBox){
             let parent = document.getElementById(this.props.id);
@@ -274,6 +275,12 @@ class CommentDisplay_CommentDisplay extends React.Component{
                     );
         }
 
+        if(comment.date){
+            let d = new Date(comment.date);
+            let day = d.toDateString().slice(0,3);
+            date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+        }
+
         return CommentDisplay_e(React.Fragment, null,
 
             CommentDisplay_e('div', {id:this.props.id, className:this.props.className, style:this.props.style},
@@ -282,14 +289,14 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
                     CommentDisplay_e('div', {className: 'commentBox__header__info'},
 
-                        (!comment.at) ? null : CommentDisplay_e('p', null, `⮬  @${comment.at}`),
+                        (!comment.at) ? null : CommentDisplay_e('p', null, `@${comment.at}`),
 
                         CommentDisplay_e('p', null, `${(comment.author || 'Anon')}`),
 
-                        CommentDisplay_e('p', null, (comment.date || 'date'))
+                        CommentDisplay_e('p', null, (date || 'date'))
                     ),
 
-                    CommentDisplay_e('img', {className: 'profile__item', src:'profileCircle.png'})
+                    CommentDisplay_e('img', {className: 'profile__item profile__item--small', src:'profileCircle.png'})
                 ),
 
                 CommentDisplay_e('p', {className:'commentBox__body'},
@@ -303,13 +310,13 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
                 ((this.state.showOverflowBtn) ? CommentDisplay_e('button', {className:'commentBox__showMoreLbl', onClick:this.toggleShowContent}, 'Show More') : null),
 
-                CommentDisplay_e('div', {className:'commentBox__actions'},
+                CommentDisplay_e('div', {className:'commentBox__actions', style:{background:this.props.actionBarColor}},
 
                     CommentDisplay_e('div', {className:'commentBox__actions__likes'},
 
                         CommentDisplay_e('p', {style:{display:'inline'}}, (comment.likes) ? comment.likes : '0'),
 
-                        CommentDisplay_e('button', null, 'Like'),
+                        CommentDisplay_e('button', {onClick:() => this.props.updateCommentLikesInDB(this.props.id)}, 'Like'),
 
                     ),
 
@@ -347,6 +354,7 @@ class CommentGrid_CommentGrid extends React.Component{
     this.currentThreadId = this.props.commentThreadDoc._id;
     this.hasNewComment = false;
     this.uniqueIdToggle = true;
+    this.colorIdx = SW_Utils.getRandomInt(0,SW_Utils.getColorsArray().length);
     
     this.loadChildComments = this.loadChildComments.bind(this);
     this.handleScrollEvents = this.handleScrollEvents.bind(this);
@@ -503,7 +511,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
         if(item.id === currComment.id){ 
 
-          item.style.borderWidth = '6px';
+          item.style.borderWidth = '4px';
 
           this.showChildCommentsIndicator(item, end, gridsConChildren.length);
         }
@@ -549,7 +557,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
     let indic = comment.getElementsByClassName('commentBox__actions__indicator')[0];
     let opacity = indic.style.opacity = 0;
-    let timeout = 25;
+    let timeout = 50;
 
     (function fadeIn(){
       ((indic.style.opacity = (opacity+=0.07)) >= 0.5) ? fadeOut() : setTimeout(fadeIn, timeout);
@@ -584,7 +592,6 @@ class CommentGrid_CommentGrid extends React.Component{
 
       let e = document.createElement(elem.tagName.toLowerCase());
       e.className = 'commentBox--blank';
-      e.style.opacity = 0;
       e.style.gridRow = elem.style.gridRow;
       e.style.gridColumn = offset + i + 1;
 
@@ -654,7 +661,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
   /**
    * If thread change, scroll back to top left corner and toggle React key list prefix to force
-   *   re-render of comment body
+   *   re-render of comment body. Also update color cycling offset.
    * @param {String} path 
    */
   checkForThreadChange(path){
@@ -662,6 +669,8 @@ class CommentGrid_CommentGrid extends React.Component{
     if(this.currentThreadId !== this.props.commentThreadDoc._id){
 
       this.uniqueIdToggle = !this.uniqueIdToggle;
+      
+      this.colorIdx = SW_Utils.getRandomInt(0,SW_Utils.getColorsArray().length);
 
       document.querySelector('.container').scrollTo(0,0);
       let cg = document.querySelector('.container__grid');
@@ -681,7 +690,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
     path = path.slice(2).split('-').map(item => parseInt(item));
 
-    if(!commentArray || commentArray.length === 0) return null;
+    if(!commentArray || commentArray.length === 0){ return null; } 
 
     let state = {
       elements: [],
@@ -767,11 +776,18 @@ class CommentGrid_CommentGrid extends React.Component{
     
     if(renderFirstOnly) commentArray = commentArray.slice(0,1);
 
+    let colorsArray = SW_Utils.getColorsArray(),
+        cArrLen = colorsArray.length,
+        colorIdx = (this.colorIdx + reactRowNum) % cArrLen;
+
     let rowPos = 0;
+    
     let items = commentArray.map( comment => {
   
       let id = `${path}${rowPos++}`;
       let key = this.uniqueIdToggle ? 'k_' : 'K_';
+      let color = colorsArray[(colorIdx % cArrLen)];
+      let gradient = `linear-gradient(135deg, ${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`;
 
       return CommentGrid_e(react_components_CommentDisplay, {
                         key: key+id,
@@ -779,11 +795,15 @@ class CommentGrid_CommentGrid extends React.Component{
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
-                          gridColumn: rowPos
+                          gridColumn: rowPos,
+                          borderRight: `2px solid ${color}`,
+                          borderBottom: `2px solid ${color}`
                         },
+                        actionBarColor: gradient,
                         comment: comment,
                         onClick: this.loadChildComments,
-                        createNewCommentInDB:this.createNewCommentInDB
+                        createNewCommentInDB:this.createNewCommentInDB,
+                        updateCommentLikesInDB: this.props.updateCommentLikesInDB
                       }
                 )
     });
@@ -833,16 +853,20 @@ class CommentThread_CommentThread extends React.Component{
     return(
 
       CommentThread_e(React.Fragment, null, 
+
+        CommentThread_e('div', {className: 'commentThreadHeader'}, 
   
-        CommentThread_e('h3', null, this.props.commentThreadDoc._id),
-  
-        CommentThread_e('h4', null, date.toDateString()),
-  
-        CommentThread_e('h4', null, `${this.props.commentThreadDoc.numComments || 0} Comments`),
+          CommentThread_e('h3', null, this.props.commentThreadDoc._id),
+    
+          CommentThread_e('h4', null, date.toDateString()),
+    
+          CommentThread_e('h4', null, `${this.props.commentThreadDoc.numComments || 0} Comments`)
+
+        ),
 
         CommentThread_e('div', {className:'commentThreadReplyContainer'},
 
-          CommentThread_e('button', {onClick:this.toggleShowCommentBlock}, 'Leave a comment!'),
+          CommentThread_e('button', {className: 'addCommentBtn', onClick:this.toggleShowCommentBlock}, 'Leave a comment!'),
   
           ((this.state.showBlock) ? 
   
@@ -854,7 +878,8 @@ class CommentThread_CommentThread extends React.Component{
   
         CommentThread_e(react_components_CommentGrid, {
                         commentThreadDoc:this.props.commentThreadDoc,
-                        createNewCommentInDB:this.props.createNewCommentInDB
+                        createNewCommentInDB:this.props.createNewCommentInDB,
+                        updateCommentLikesInDB: this.props.updateCommentLikesInDB
                       })
       )
     );
@@ -870,24 +895,95 @@ class CommentThread_CommentThread extends React.Component{
 const AccountHome_e = React.createElement;
 
 let SW_Utils = {
-    flashMessage(element, bgColor, msg, timeout){
-        //put warning styling in css
+
+    /**
+     * Displays a popup message indicating important app information
+     * @param {boolean} usePromise - whether to return Promise-wrapped timeout
+     * @param {HTMLElement} element - element that triggered the message
+     * @param {String} className - CSS class(es) to apply to element
+     * @param {String} msg - message to display
+     * @param {Number} timeout - how long to fade out message
+     */
+    flashMessage(usePromise, element, className, msg, timeout){
+
         let label = document.createElement('label');
-        label.style.backgroundColor = bgColor;
-        label.style.color = 'white';
-        label.style.opacity = 2.0;
-        label.style.position = 'relative';
-        label.style.borderRadius = '5px';
-        label.style.padding = '1em';
-        label.style.top = '-5px';
+        label.className = className;
         label.innerText = msg;
-        element.appendChild(label);
+
+        let parent = document.body;
+        parent.style.position = 'relative';
+        parent.appendChild(label);
+
+        label.style.opacity = window.getComputedStyle(label).getPropertyValue('opacity');
+        let pageBounds = (document.querySelector('.page') || element.parentElement || element);
+        SW_Utils.centerLabelOverElement(pageBounds, element, label);
 
         timeout = timeout ? timeout : 50;
+
+        if(usePromise === true){
+            return new Promise( (resolve) => {
+                (function fade(){
+                    if((label.style.opacity -= 0.05) <= 0){
+                        label.remove();
+                        parent.style.position = null;
+                        return resolve();
+                    }
+                    else{ setTimeout(fade, timeout); }
+                })();
+            });
+        }
         
         (function fade(){
-            ((label.style.opacity -= 0.05) <= 0) ? label.remove() : setTimeout(fade, timeout);
+            if((label.style.opacity -= 0.05) <= 0){
+                label.remove();
+                parent.style.position = null;
+            }
+            else{ setTimeout(fade, timeout); }
         })();
+    },
+
+    /**
+     * Center an overlay element on top of a base element. Accounts for boundaries from a <body>-level type element
+     * @param {HTMLElement} pageBounds - element holding '.page' CSS classname with defines bounds of entire web app
+     * @param {HTMLElement} pElement - parent element that triggered the flash message
+     * @param {HTMLElement} cElement - label to show on screen relative to parent element
+     * @returns {NumberArray} - returns [x,y] pair of final calculated position
+     */
+    centerLabelOverElement(pageBounds, pElement, cElement){
+        
+        let pageR = pageBounds.getBoundingClientRect();
+        let pR = pElement.getBoundingClientRect();
+        let cR = cElement.getBoundingClientRect();
+
+        let x, y;
+
+        if(pR.width > cR.width){
+            let diff = (pR.width - cR.width) / 2;
+            x = pR.x + diff;
+        }
+        else if(pR.width < cR.width){
+            let diff = (cR.width - pR.width) / 2;
+            x = (pR.x - diff);
+        }
+        else{ x = pR.x; }
+
+        if(pR.height > cR.height){
+            let diff = (pR.height - cR.height) / 2;
+            y = (pR.y + diff);
+        }
+        else if(pR.height < cR.height){
+            let diff = (cR.height - pR.height) / 2;
+            y = (pR.y - diff);
+        }
+        else{ y = pR.y; }
+
+        x = (x <= pageR.x) ? pR.x : x;
+        y = (y <= pageR.y) ? pR.y : y;
+
+        cElement.style.left = x + 'px';
+        cElement.style.top = y + 'px';
+
+        return [x,y];
     },
 
     hexDecode(hexstr){
@@ -922,6 +1018,10 @@ let SW_Utils = {
         return comment;
     },
 
+    /**
+     * Recursively calculate number of comments in a CouchDB document
+     * @param {Object} commentThreadDoc - CouchDB formatted object
+     */
     getNumComments(commentThreadDoc){
 
         if(!commentThreadDoc.comments) return 0;
@@ -940,6 +1040,63 @@ let SW_Utils = {
         })(cArray);
 
         return num;
+    },
+
+    /**
+     * @returns {String} - string formatted largest-grouping first to allow CouchDB query sorting by date
+     */
+    dateToDbDate(){
+        let d = new Date();
+        let date = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()+1} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+        date += ' ' + d.toTimeString().split(' ').slice(1).join(' '); //adds timezone and any daylight savings info
+
+        return date;
+    },
+
+    /**
+     * @returns {CSS_RGB_ColorsArray} - returns an array of colors retrieved from CSS variable declarations
+     *   for the purpose of styling comment colors in a specific order. First run initializes the array and
+     *   all subsequent calls returns same copy of array.
+     */
+    getColorsArray(){
+        let style = getComputedStyle(document.body);
+        let colors = [
+            style.getPropertyValue('--color_theme_green_11'),
+            style.getPropertyValue('--color_theme_red_11'),
+            style.getPropertyValue('--color_theme_blue_11'),
+            style.getPropertyValue('--color_theme_yellow_11'),
+            style.getPropertyValue('--color_theme_purple_11'),
+            style.getPropertyValue('--color_theme_gray_11'),
+
+            style.getPropertyValue('--color_theme_green_12'),
+            style.getPropertyValue('--color_theme_red_12'),
+            style.getPropertyValue('--color_theme_blue_12'),
+            style.getPropertyValue('--color_theme_yellow_12'),
+            style.getPropertyValue('--color_theme_purple_12'),
+            style.getPropertyValue('--color_theme_gray_12'),
+            
+            style.getPropertyValue('--color_theme_green_13'),
+            style.getPropertyValue('--color_theme_red_13'),
+            style.getPropertyValue('--color_theme_blue_13'),
+            style.getPropertyValue('--color_theme_yellow_13'),
+            style.getPropertyValue('--color_theme_purple_13'),
+            style.getPropertyValue('--color_theme_gray_13')
+        ];
+
+        SW_Utils.getColorsArray = () => colors;
+
+        return colors;
+    },
+
+    /**
+     * Taken from MDN: 
+     *   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random#Getting_a_random_integer_between_two_values
+     *   The maximum is exclusive and the minimum is inclusive
+     */
+    getRandomInt(min, max){
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min); 
     },
 
     scrollCalc : {
@@ -1001,9 +1158,14 @@ function ProfileWidget(){
 
         AccountHome_e('div', {className: 'profile'}, 
 
-            AccountHome_e('a', {className: 'profile__item profile__a'}, 'Profile'),
+            AccountHome_e('img', {className: 'profile__logo', src: 'chalkLogoTwoClearSmall.png'}),
 
-            AccountHome_e('img', {className: 'profile__item', src:'profileCircle.png'})
+            AccountHome_e('a', {className: 'profile__a'},
+
+                AccountHome_e('img', {className: 'profile__item', src:'profileCircle.png'}),
+
+                AccountHome_e('p', {className: 'profile__p'}, 'Profile')
+            )
         )
     );
 }
@@ -1044,13 +1206,11 @@ class NewThreadButton extends React.Component{
         let element = event.target;
         this.props.createNewThreadInDB(this.state.threadTitleField)
 
-        .then((msg) => {
+        .then(msg => SW_Utils.flashMessage(true, element, 'messageLbl', msg) )
             
-            SW_Utils.flashMessage(element.parentElement.parentElement, 'black', msg);
-            this.setState({creating: false, threadTitleField:''});
-        })
+        .then(() => this.setState({creating: false, threadTitleField:''}) )
 
-        .catch((errMsg) => SW_Utils.flashMessage(element, 'red', errMsg));
+        .catch(errMsg => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', errMsg, 80));
     }
 
     render(){
@@ -1071,7 +1231,7 @@ class NewThreadButton extends React.Component{
 
         return AccountHome_e('div', {className:'section section--neutral'},
 
-                AccountHome_e('button', {className:'btn--margin', onClick: this.toggleCreateNewThreadState}, 'Create New Thread')
+                AccountHome_e('button', {className:'newThreadBtn', onClick: this.toggleCreateNewThreadState}, '+ new thread')
         );
     }
 }
@@ -1079,17 +1239,47 @@ class NewThreadButton extends React.Component{
 class RecentThreads extends React.Component{
     constructor(props){
         super(props);
+
+        this.threadRenderFlag = !this.props.threadCreateFlag;
+        this.colorIdx = 0;
+        this.rootRef = React.createRef();
+    }
+
+    componentDidUpdate(){
+        let ref = this.rootRef.current;
+        if(ref !== undefined){
+            if(ref.clientWidth < ref.scrollWidth){
+                ref.classList.add('section--flex--indicateScroll')
+            }
+            else{ ref.classList.remove('section--flex--indicateScroll'); }
+        }
+
     }
 
     render(){
 
-        let elements = this.props.queryResults.map( item => 
+        let colorsArray = SW_Utils.getColorsArray();
+        let cArrLen = colorsArray.length;
+
+        if(this.threadRenderFlag !== this.props.threadCreateFlag){
+
+            this.threadRenderFlag = this.props.threadCreateFlag;
             
-            AccountHome_e('div', {className:'threadPreview', key:item.key, onClickCapture: e => this.props.loadThread(e,item)},
+            this.colorIdx = SW_Utils.getRandomInt(0,cArrLen);
+        }
+        
+        let colorIdx = this.colorIdx;
+        let elements = this.props.queryResults.map( item =>
+
+            AccountHome_e('div', { className:'threadPreview', 
+                        style:{ background: `linear-gradient(135deg, ${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`}, 
+                        key:item.key,
+                        onClickCapture: e => this.props.loadThread(e,item)
+                    },
 
                         AccountHome_e('h3', {className:'threadPreview__title'}, item.id),
 
-                        AccountHome_e('h4', {className:'threadPreview__fullTitle'}, item.id),
+                        AccountHome_e('h3', {className:'threadPreview__fullTitle'}, item.id),
                         
                         AccountHome_e('div', {className:'threadPreview__info'}, 
 
@@ -1104,9 +1294,9 @@ class RecentThreads extends React.Component{
 
             AccountHome_e(React.Fragment, null, 
 
-                AccountHome_e('h3', null, 'Recent Threads'),
+                AccountHome_e('h2', null, 'Recent Threads'),
 
-                AccountHome_e('div', {className:'section section--flex'}, elements)
+                AccountHome_e('div', {className:'section section--flex', ref:this.rootRef}, elements)
             )
         );
     }
@@ -1121,8 +1311,12 @@ class AccountHome_AccountHome extends React.Component{
         this.state = {
             queryResults: [],
             currentThreadTitle: undefined,
-            currentThread: undefined
+            currentThread: undefined,
+            threadCreateFlag: false,
+            mediaQueryWidthUpdate: false
         };
+
+
 
         //set author for comments
         this.props.DataService.getDB().info()
@@ -1134,22 +1328,32 @@ class AccountHome_AccountHome extends React.Component{
         
 
         this.createNewCommentInDB = this.createNewCommentInDB.bind(this);
+        this.updateCommentLikesInDB = this.updateCommentLikesInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
         this.createNewThreadInDB = this.createNewThreadInDB.bind(this);
+        this.changeStyleSheet = this.changeStyleSheet.bind(this);
     }
 
     componentDidMount(){
-
+        
         this.props.DataService.updateRecentThreadsList(undefined)
-        .then(queryResults=> this.setState({queryResults: queryResults, currentThreadTitle: undefined}) )
-        .catch(err => console.log('Error: ', err) );
+            .then(queryResults=> this.setState({queryResults: queryResults, currentThreadTitle: undefined}) )
+            .catch(err => console.log('Error: ', err) );
+
+        
+        const triggerRefresh = () => {
+            let toggle = this.state.mediaQueryWidthUpdate;
+            this.setState({mediaQueryWidthUpdate: !toggle});
+        }
+        window.matchMedia("(min-width: 980px)").addListener(triggerRefresh);
+        window.matchMedia("(max-width: 870px)").addListener(triggerRefresh);
     }
 
     createNewThreadInDB(threadTitle){
 
         let returnMsg;
 
-        return this.props.DataService.createNewThreadInDB(threadTitle)
+        return this.props.DataService.createNewThreadInDB(threadTitle, SW_Utils.dateToDbDate())
 
         .then((successMsg) => {
 
@@ -1158,7 +1362,9 @@ class AccountHome_AccountHome extends React.Component{
         })
 
         .then(queryResult => {
-            this.setState({queryResults: queryResult, currentThreadTitle: threadTitle})
+
+            let flag = this.state.threadCreateFlag;
+            this.setState({queryResults: queryResult, currentThreadTitle: threadTitle, threadCreateFlag: !flag})
 
             return returnMsg;
         });
@@ -1176,9 +1382,7 @@ class AccountHome_AccountHome extends React.Component{
 
         if(!foundComment.comments){ foundComment.comments = []; }
 
-        let d = new Date();
-        let day = d.toDateString().slice(0,3);
-        let date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+        let date = SW_Utils.dateToDbDate();
 
         foundComment.comments.push({
             at: (foundComment.author || undefined), 
@@ -1193,6 +1397,23 @@ class AccountHome_AccountHome extends React.Component{
         return this.props.DataService.updateCommentThreadInDB(this.state.currentThread)
 
         .then(commentThreadDoc => this.setState({currentThread: commentThreadDoc}) );
+    }
+
+    updateCommentLikesInDB(id){
+
+        if(!id) return;
+
+        let foundComment = SW_Utils.findMatchingComment(id, this.state.currentThread);
+
+        if(!foundComment.likes){ foundComment.likes = 0; }
+
+        foundComment.likes += 1;
+
+        return this.props.DataService.updateCommentThreadInDB(this.state.currentThread)
+
+            .then(commentThreadDoc => this.setState({currentThread: commentThreadDoc}))
+
+            .catch(err => console.log('Error! Likes value was not updated in DB. ', err));
     }
 
     /**
@@ -1216,18 +1437,29 @@ class AccountHome_AccountHome extends React.Component{
                 this.setState({currentThreadTitle: title, currentThread: res});
             })
 
-            .catch( err => SW_Utils.flashMessage(element, 'red', 'Comment thread could not be loaded: ', err) );
+            .catch( err => SW_Utils.flashMessage(false, element, 'messageLbl messageLbl--red', 'Comment thread could not be loaded: ', err, 80) );
         }
 
+    }
+
+    changeStyleSheet(event){
+
+        let text = event.target.innerText;
+        let name = (text === 'light') ? 'index.css' : 'indexDark.css';
+
+        document.getElementById('stylesheet').href = `css/${name}`;
+
+        return false;
     }
 
     render(){
 
         let commentThreadElement = ( (this.state.currentThread === undefined) ? 
-            AccountHome_e('p', null, 'Nothing to see here...') :
+            AccountHome_e('h4', null, 'Nothing to see here...') :
             AccountHome_e(react_components_CommentThread, {
                                 commentThreadDoc: this.state.currentThread, 
-                                createNewCommentInDB: this.createNewCommentInDB
+                                createNewCommentInDB: this.createNewCommentInDB,
+                                updateCommentLikesInDB: this.updateCommentLikesInDB
                             }
                 )
         )
@@ -1235,14 +1467,22 @@ class AccountHome_AccountHome extends React.Component{
         return(
 
             AccountHome_e(React.Fragment, null,
+            
+                AccountHome_e('div', {className: 'profile__container'},
+            
+                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'light'),
+    
+                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'dark')
+                        
+                ),
 
                 AccountHome_e(ProfileWidget),
 
                 AccountHome_e(NewThreadButton, {createNewThreadInDB: this.createNewThreadInDB}),
 
-                AccountHome_e(RecentThreads, {queryResults: this.state.queryResults, loadThread:this.loadThread}),
+                AccountHome_e(RecentThreads, {threadCreateFlag: this.state.threadCreateFlag, queryResults: this.state.queryResults, loadThread:this.loadThread}),
 
-                //e('h2', null, (this.state.currentThread === undefined) ? 'No Thread Selected' : this.state.currentThread._id),
+                AccountHome_e('h2', null, 'Current Thread'),
 
                 commentThreadElement
             )

@@ -221,7 +221,7 @@ class CommentGrid extends React.Component{
 
     let indic = comment.getElementsByClassName('commentBox__actions__indicator')[0];
     let opacity = indic.style.opacity = 0;
-    let timeout = 25;
+    let timeout = 50;
 
     (function fadeIn(){
       ((indic.style.opacity = (opacity+=0.07)) >= 0.5) ? fadeOut() : setTimeout(fadeIn, timeout);
@@ -450,6 +450,8 @@ class CommentGrid extends React.Component{
   
       let id = `${path}${rowPos++}`;
       let key = this.uniqueIdToggle ? 'k_' : 'K_';
+      let color = colorsArray[(colorIdx % cArrLen)];
+      let gradient = `linear-gradient(135deg, ${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`;
 
       return e(CommentDisplay, {
                         key: key+id,
@@ -457,9 +459,11 @@ class CommentGrid extends React.Component{
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
-                          gridColumn: rowPos
+                          gridColumn: rowPos,
+                          borderRight: `2px solid ${color}`,
+                          borderBottom: `2px solid ${color}`
                         },
-                        actionBarColor: `${colorsArray[(colorIdx++ % cArrLen)]}`,
+                        actionBarColor: gradient,
                         comment: comment,
                         onClick: this.loadChildComments,
                         createNewCommentInDB:this.createNewCommentInDB,
