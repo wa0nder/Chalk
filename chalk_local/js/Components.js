@@ -914,7 +914,7 @@ let SW_Utils = {
         parent.style.position = 'relative';
         parent.appendChild(label);
 
-        label.style.opacity = window.getComputedStyle(label).getPropertyValue('opacity');
+        label.style.opacity = parseInt(window.getComputedStyle(label).getPropertyValue('opacity')) + 1;
         let pageBounds = (document.querySelector('.page') || element.parentElement || element);
         SW_Utils.centerLabelOverElement(pageBounds, element, label);
 
