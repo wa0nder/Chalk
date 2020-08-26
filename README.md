@@ -27,13 +27,13 @@ Roadmap
 
 Try out a demo of the app [here](http://chalk.infinityfreeapp.com). 
 
-*note* This demo is a browser-based version of the app that uses a local in-browser DB to run.
+\**note* - This demo is a browser-based version of the app that uses a local in-browser DB to run.
 
 ## Local Disk Version
 
 If on desktop you can download all files in the 'chalk_local' folder and run the entire app from your local disk.
 
-*note* also in-browser DB
+\**note* - also in-browser DB
 
 ## CouchDB Version
 
