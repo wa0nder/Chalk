@@ -25,7 +25,7 @@ Roadmap
 
 ## Hosted Version
 
-Try out a demo of the app [here](http://chalk.infinityfreeapp.com). 
+Try out a demo of the app [here](http://chalk.infinityfreeapp.com). On desktop, press and hold 'shift' to scroll horizontally with mouse scroll wheel.
 
 \**note* - This demo is a browser-based version of the app that uses a local in-browser DB to run.
 
