@@ -289,7 +289,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
                     CommentDisplay_e('div', {className: 'commentBox__header__info'},
 
-                        (!comment.at) ? null : CommentDisplay_e('p', null, `⮬  @${comment.at}`),
+                        (!comment.at) ? null : CommentDisplay_e('p', null, `@${comment.at}`),
 
                         CommentDisplay_e('p', null, `${(comment.author || 'Anon')}`),
 
@@ -310,7 +310,7 @@ class CommentDisplay_CommentDisplay extends React.Component{
 
                 ((this.state.showOverflowBtn) ? CommentDisplay_e('button', {className:'commentBox__showMoreLbl', onClick:this.toggleShowContent}, 'Show More') : null),
 
-                CommentDisplay_e('div', {className:'commentBox__actions', style:{backgroundColor:this.props.actionBarColor}},
+                CommentDisplay_e('div', {className:'commentBox__actions', style:{background:this.props.actionBarColor}},
 
                     CommentDisplay_e('div', {className:'commentBox__actions__likes'},
 
@@ -557,7 +557,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
     let indic = comment.getElementsByClassName('commentBox__actions__indicator')[0];
     let opacity = indic.style.opacity = 0;
-    let timeout = 25;
+    let timeout = 50;
 
     (function fadeIn(){
       ((indic.style.opacity = (opacity+=0.07)) >= 0.5) ? fadeOut() : setTimeout(fadeIn, timeout);
@@ -786,6 +786,8 @@ class CommentGrid_CommentGrid extends React.Component{
   
       let id = `${path}${rowPos++}`;
       let key = this.uniqueIdToggle ? 'k_' : 'K_';
+      let color = colorsArray[(colorIdx % cArrLen)];
+      let gradient = `linear-gradient(135deg, ${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`;
 
       return CommentGrid_e(react_components_CommentDisplay, {
                         key: key+id,
@@ -793,9 +795,11 @@ class CommentGrid_CommentGrid extends React.Component{
                         className: 'commentBox', 
                         style:{
                           gridRow: 1,
-                          gridColumn: rowPos
+                          gridColumn: rowPos,
+                          borderRight: `2px solid ${color}`,
+                          borderBottom: `2px solid ${color}`
                         },
-                        actionBarColor: `${colorsArray[(colorIdx++ % cArrLen)]}`,
+                        actionBarColor: gradient,
                         comment: comment,
                         onClick: this.loadChildComments,
                         createNewCommentInDB:this.createNewCommentInDB,
@@ -910,7 +914,7 @@ let SW_Utils = {
         parent.style.position = 'relative';
         parent.appendChild(label);
 
-        label.style.opacity = window.getComputedStyle(label).getPropertyValue('opacity');
+        label.style.opacity = parseInt(window.getComputedStyle(label).getPropertyValue('opacity')) + 1;
         let pageBounds = (document.querySelector('.page') || element.parentElement || element);
         SW_Utils.centerLabelOverElement(pageBounds, element, label);
 
@@ -1154,7 +1158,7 @@ function ProfileWidget(){
 
         AccountHome_e('div', {className: 'profile'}, 
 
-            AccountHome_e('img', {className: 'profile__img', src: '/sidewalks/front-end/chalkLogoTwoClearSmall.png'}),
+            AccountHome_e('img', {className: 'profile__logo', src: '/sidewalks/front-end/chalkLogoTwoClearSmall.png'}),
 
             AccountHome_e('a', {className: 'profile__a'},
 
@@ -1268,7 +1272,7 @@ class RecentThreads extends React.Component{
         let elements = this.props.queryResults.map( item =>
 
             AccountHome_e('div', { className:'threadPreview', 
-                        style:{ background: `linear-gradient(${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`}, 
+                        style:{ background: `linear-gradient(135deg, ${colorsArray[((colorIdx+12) % cArrLen)]}, 10%, ${colorsArray[(colorIdx++ % cArrLen)]})`}, 
                         key:item.key,
                         onClickCapture: e => this.props.loadThread(e,item)
                     },
@@ -1327,6 +1331,7 @@ class AccountHome_AccountHome extends React.Component{
         this.updateCommentLikesInDB = this.updateCommentLikesInDB.bind(this);
         this.loadThread = this.loadThread.bind(this);
         this.createNewThreadInDB = this.createNewThreadInDB.bind(this);
+        this.changeStyleSheet = this.changeStyleSheet.bind(this);
     }
 
     componentDidMount(){
@@ -1437,6 +1442,16 @@ class AccountHome_AccountHome extends React.Component{
 
     }
 
+    changeStyleSheet(event){
+
+        let text = event.target.innerText;
+        let name = (text === 'light') ? 'index.css' : 'indexDark.css';
+
+        document.getElementById('stylesheet').href = `/sidewalks/front-end/${name}`;
+
+        return false;
+    }
+
     render(){
 
         let commentThreadElement = ( (this.state.currentThread === undefined) ? 
@@ -1452,6 +1467,14 @@ class AccountHome_AccountHome extends React.Component{
         return(
 
             AccountHome_e(React.Fragment, null,
+            
+                AccountHome_e('div', {className: 'profile__container'},
+            
+                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'light'),
+    
+                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'dark')
+                        
+                ),
 
                 AccountHome_e(ProfileWidget),
 
