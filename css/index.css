@@ -344,9 +344,9 @@ input:focus, input:active {
 }
 
 .newThreadBtn, .addCommentBtn {
-  box-shadow: 4px 4px 8px var(--color_theme_purple_12);
+  box-shadow: 4px 4px 7px var(--color_theme_purple_12);
   color: var(--color_theme_base--darkBlue);
-  background: var(--color_theme_bg--darkTan);
+  background: linear-gradient(295deg, var(--color_theme_bg--darkTan), var(--color_theme_bg--tan));
   border-bottom: 2px solid transparent;
   border-radius: 5px;
   font-size: 110%;
@@ -362,7 +362,7 @@ input:focus, input:active {
 
 .newThreadBtn:hover, .addCommentBtn:hover {
   color: var(--color_theme_bg);
-  background-color: var(--color_theme_purple_12);
+  background: var(--color_theme_purple_12);
 }
 
 .profile {
@@ -383,10 +383,11 @@ input:focus, input:active {
   margin-top: 1%;
   max-width: 50%;
   text-decoration: none;
+  filter: drop-shadow(0 0 20px var(--color_theme_gray_11));
 }
 .profile__a:hover {
-  filter: drop-shadow(0 0 20px var(--color_theme_purple_11));
-  color: var(--color_theme_purple_11);
+  filter: drop-shadow(0 0 20px var(--color_theme_purple_12));
+  color: var(--color_theme_purple_12);
   text-decoration: none;
 }
 .profile__a:active{

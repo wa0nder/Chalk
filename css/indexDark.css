@@ -348,7 +348,7 @@ website: https://github.com/wa0nder/Chalk
     z-index: 6;
     border-radius: 5px;
     color: var(--color_theme_bg);
-    background-color: var(--color_theme_base--gravel);
+    background-color: var(--color_theme_gray_12);
     opacity: 1.0;
     font-size: 120%;
     padding: 2%;
@@ -360,7 +360,7 @@ website: https://github.com/wa0nder/Chalk
   }
   
   .newThreadBtn, .addCommentBtn {
-    box-shadow: 4px 4px 8px var(--color_theme_bg--lightPurple);
+    box-shadow: 4px 4px 8px var(--color_theme_bg--lightBlue);
     color: var(--color_theme_base--darkBlue);
     background-color: var(--color_theme_bg--lightPurple);
     border-bottom-color: transparent;
@@ -379,6 +379,7 @@ website: https://github.com/wa0nder/Chalk
   .newThreadBtn:hover, .addCommentBtn:hover {
     color: var(--color_theme_bg);
     background-color: var(--color_theme_bg--lightBlue);
+    border-bottom-color: transparent;
   }
   
   .profile {

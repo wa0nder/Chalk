@@ -161,7 +161,7 @@ website: https://github.com/wa0nder/Chalk
     text-align:left;  
     margin-left:auto;  
     margin-right:auto;
-    background-color: var(--color_theme_bg);
+    background: linear-gradient(var(--color_theme_bg), 63%, var(--color_theme_gray_11), 64%, var(--color_theme_gray_12));
   }
   
   
@@ -382,10 +382,11 @@ website: https://github.com/wa0nder/Chalk
     margin-top: 1%;
     max-width: 50%;
     text-decoration: none;
+    filter: drop-shadow(0 0 20px var(--color_theme_bg--lightPurple));
   }
   .profile__a:hover {
-    filter: drop-shadow(0 0 20px var(--color_theme_purple_11));
-    color: var(--color_theme_purple_11);
+    filter: drop-shadow(0 0 20px var(--color_theme_gray_12));
+    color: var(--color_theme_gray_12);
     text-decoration: none;
   }
   .profile__a:active{
