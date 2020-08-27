@@ -6,9 +6,9 @@ website: https://github.com/wa0nder/Chalk
 */
 
 :root {
-    --color_theme_bg: rgb(45,60,140);
-    --color_theme_bg_invert: white;
+    --color_theme_bg: white;
     --color_theme_bg--tan: rgb(254,216,144);
+    --color_theme_bg--darkTan: rgb(252, 193, 95);
     --color_theme_bg--lightPurple: rgb(193,193,232);
     --color_theme_bg--lightBlue: rgb(101, 117, 206);
     --color_theme_base--darkBlue: rgb(45,60,140);
@@ -36,7 +36,6 @@ website: https://github.com/wa0nder/Chalk
     --color_theme_gray_13: rgb(157,157,157);
   
     --theme_border-radius: 3px;
-  
   }
   
   * {
@@ -48,7 +47,7 @@ website: https://github.com/wa0nder/Chalk
   
   /* General tag styling */
   a {
-    color: var(--color_theme_bg--lightPurple);
+    color: var(--color_theme_bg--lightBlue);
     text-decoration: underline;
   }
   
@@ -67,20 +66,9 @@ website: https://github.com/wa0nder/Chalk
     color: #000000;
     background-color: rgb(236, 234, 234);
   } 
-
-  button {
-    color: var(--color_theme_base--darkBlue);
-    background-color: var(--color_theme_bg--lightPurple);
-    border-bottom: 2px solid var(--color_theme_bg--lightBlue);
-    border-radius: 5px;
-    font-size: 110%;
-    padding: 1%;
-    margin: 1%;
-  }
   
-  button:hover {
-    background-color: var(--color_theme_bg--lightBlue);
-    border-bottom: 2px solid var(--color_theme_bg--lightPurple);
+  title {
+    display: none;
   }
   
   h2 {
@@ -89,9 +77,12 @@ website: https://github.com/wa0nder/Chalk
     padding-left: 1%;
     min-width: 280px;
     background: linear-gradient(90deg, var(--color_theme_gray_11), 80%, transparent);
-    color: var(--color_theme_bg--lightPurple);
-    text-shadow: 0px 3px 2px var(--color_theme_purple_13), 
-                  0px 4px 2px black;
+    border-radius: var(--theme_border-radius);
+    color: var(--color_theme_bg);
+    text-shadow: 0px 3px 2px var(--color_theme_bg--lightPurple), 
+                  0px 4px 2px var(--color_theme_base--gravel), 
+                  0px 4px 2px black, 
+                  0px -1px 4px var(--color_theme_gray_11);
     font-size: 190%;
   }
   
@@ -103,7 +94,7 @@ website: https://github.com/wa0nder/Chalk
     text-align: left;
     margin-top: 1%;
     margin-bottom: 1%;
-    color: var(--color_theme_bg--lightPurple);
+    color: var(--color_theme_blue_12);
   }
   
   img {
@@ -111,39 +102,33 @@ website: https://github.com/wa0nder/Chalk
     height: auto;
   }
   
-  input {
-    color: var(--color_theme_bg_invert);
-    background-color: var(--color_theme_bg--lightBlue);
-    border: 2px solid var(--color_theme_bg--lightBlue);
+  button {
+    color: var(--color_theme_base--darkBlue);
+    background-color: var(--color_theme_bg);
+    border-bottom: 2px solid var(--color_theme_base--darkBlue);
     border-radius: 5px;
+    font-size: 110%;
+    padding: 1%;
+    margin: 1%;
+  }
+  
+  button:hover {
+    color: var(--color_theme_bg);
+    background-color: var(--color_theme_base--darkBlue);
+    border-bottom: 2px solid transparent;
+  }
+  
+  input {
+    border: 2px solid transparent;
+    border-radius: 5px;
+    background-color: var(--color_theme_gray_12);
     padding: 1%;
   }
   
   input:focus, input:active {
-    border: 3px solid var(--color_theme_bg--lightPurple);
+    border: 3px solid var(--color_theme_base--darkBlue);
     outline: none;
     font-size: 107%;
-  }
-
-  ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-    color: var(--color_theme_bg);
-    opacity: 1; /* Firefox */
-  }
-  
-  :-ms-input-placeholder { /* Internet Explorer 10-11 */
-    color: var(--color_theme_bg);
-  }
-  
-  ::-ms-input-placeholder { /* Microsoft Edge */
-    color: var(--color_theme_bg);
-  }
-
-  p {
-    color: var(--color_theme_bg_invert);
-  }
-
-  title {
-    display: none;
   }
   
   /* Remove scrollbars */
@@ -176,8 +161,7 @@ website: https://github.com/wa0nder/Chalk
     text-align:left;  
     margin-left:auto;  
     margin-right:auto;
-    background-color: var(--color_theme_bg); 
-    background: linear-gradient(var(--color_theme_base--darkBlue), 61%, var(--color_theme_bg--lightBlue), 66%, var(--color_theme_base--gravel));
+    background-color: var(--color_theme_bg);
   }
   
   
@@ -205,7 +189,7 @@ website: https://github.com/wa0nder/Chalk
     border-right: 2px solid var(--color_theme_base--gravel);
     border-bottom: 2px solid var(--color_theme_base--gravel);
     color: black;
-    background-color: var(--color_theme_bg--lightBlue);
+    background-color: var(--color_theme_bg);
     margin: 1%;
     transition: border-width ease 0.5s;
   }
@@ -285,39 +269,38 @@ website: https://github.com/wa0nder/Chalk
     height: 350px;
     top: 0%;
     color: var(--color_theme_bg);
-    background-color: var(--color_theme_base--gravel);
-    border: 2px solid transparent;
+    background-color: var(--color_theme_bg--lightPurple);
     z-index: 3;
   }
   
   .commentBlock--invertColors {
     left: 15%;
     z-index: 3;
-    color: var(--color_theme_bg);
-    background-color: var(--color_theme_base--gravel);
+    opacity: 0.95;
     border: 2px solid transparent;
+    color: var(--color_theme_bg);
+    background-color: var(--color_theme_bg--lightPurple);
+    box-shadow: 0px 0px 4px var(--color_theme_base--gravel);
   }
   
   .commentBlockTextArea {
     display: block;
     resize: none;
-    border: 2px solid transparent;
+    border: 2px solid var(--color_theme_base--darkBlue);
     border-radius: 3px;
-    background-color: var(--color_theme_bg--lightBlue);
-    color: var(--color_theme_bg_invert);
     flex-basis: 100%;
     height: 70%;
     margin: 2%;
     overflow:auto;
   }
-
+  
   .commentBlockTextArea:active,
   .commentBlockTextArea:focus {
-    outline: 2px solid white;
+    outline-color: var(--color_theme_base--darkBlue)
   }
   
   .commentBlock__h4 {
-    color: var(--color_theme_bg_invert);
+    color: var(--color_theme_base--darkBlue);
     margin: 2%;
   }
   
@@ -362,7 +345,7 @@ website: https://github.com/wa0nder/Chalk
   .newThreadBtn, .addCommentBtn {
     box-shadow: 4px 4px 8px var(--color_theme_bg--lightPurple);
     color: var(--color_theme_base--darkBlue);
-    background-color: var(--color_theme_bg--lightPurple);
+    background-color: var(--color_theme_bg);
     border-bottom-color: transparent;
     border-radius: 5px;
     font-size: 110%;
@@ -378,7 +361,7 @@ website: https://github.com/wa0nder/Chalk
   
   .newThreadBtn:hover, .addCommentBtn:hover {
     color: var(--color_theme_bg);
-    background-color: var(--color_theme_bg--lightBlue);
+    background-color: var(--color_theme_base--darkBlue);
   }
   
   .profile {
@@ -399,18 +382,14 @@ website: https://github.com/wa0nder/Chalk
     margin-top: 1%;
     max-width: 50%;
     text-decoration: none;
-    filter: drop-shadow(0 0 20px var(--color_theme_bg--lightBlue));
-    color: var(--color_theme_bg--lightBlue);
-    
   }
   .profile__a:hover {
-    filter: drop-shadow(0 0 20px var(--color_theme_bg--lightPurple));
-    text-decoration: none;
-    color: var(--color_theme_bg--lightPurple);
-  }
-  .profile__a:active{
     filter: drop-shadow(0 0 20px var(--color_theme_purple_11));
     color: var(--color_theme_purple_11);
+    text-decoration: none;
+  }
+  .profile__a:active{
+    filter: drop-shadow(0 0 20px var(--color_theme_purple_13));
   }
   
   .profile__container {
@@ -442,7 +421,7 @@ website: https://github.com/wa0nder/Chalk
   }
   
   .recentThreadLinks{
-    color: var(--color_theme_base--darkBlue);
+    color: none;
   }
   .recentThreadLinks:hover {
     color: var(--color_theme_bg--lightPurple);
@@ -454,6 +433,7 @@ website: https://github.com/wa0nder/Chalk
   
   .section {
     border-left: 3px solid transparent;
+    border-radius: 0;
     max-width: 100%;
     margin-top: 1%;
     margin-bottom: 3%;
@@ -497,14 +477,13 @@ website: https://github.com/wa0nder/Chalk
   }
   
   .threadPreview:hover {
-    box-shadow: 1px 1px 5px var(--color_theme_bg--lightPurple);
+    box-shadow: 1px 1px 5px var(--color_theme_base--darkBlue);
   }
   
   .threadPreview__title {
-    background-color: var(--color_theme_bg--lightPurple);
+    background-color: var(--color_theme_bg);
     color: var(--color_theme_base--darkBlue);
-    text-shadow: 1px 1px 2px var(--color_theme_bg_invert);
-    box-shadow: 0px 0px 3px var(--color_theme_bg--lightPurple);;
+    box-shadow: 1px 1px 1px 1px var(--color_theme_gray_12);;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -515,13 +494,13 @@ website: https://github.com/wa0nder/Chalk
   
   .threadPreview__fullTitle {
     opacity: 0;
+    transition: opacity ease 0.2s;
     position: absolute;
     top: 0%;
     min-width: 95%;
     border-radius: 4px;
-    background-color: var(--color_theme_bg--lightPurple);
+    background-color: var(--color_theme_bg);
     color: var(--color_theme_base--darkBlue);
-    text-shadow: 1px 1px 2px var(--color_theme_bg_invert);
     white-space: nowrap;
     text-align: center;
     padding: 3%;
@@ -530,7 +509,7 @@ website: https://github.com/wa0nder/Chalk
   }
   
   .threadPreview__fullTitle:hover {
-    opacity: 1;
+    opacity: 0.9;
   }
   
   .threadPreview__info {
@@ -538,6 +517,7 @@ website: https://github.com/wa0nder/Chalk
     justify-content: space-between;
     margin: 3%;
     font-size: 90%;
+    color: var(--color_theme_base--darkBlue);
   }
   
   
