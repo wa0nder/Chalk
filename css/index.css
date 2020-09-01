@@ -9,6 +9,7 @@ website: https://github.com/wa0nder/Chalk
   --color_theme_bg: white;
   --color_theme_bg--tan: rgb(254,216,144);
   --color_theme_bg--darkTan: rgb(252, 193, 95);
+  --color_theme_bg--palePurple: rgb(229, 229, 250);
   --color_theme_bg--lightPurple: rgb(193,193,232);
   --color_theme_bg--lightBlue: rgb(101, 117, 206);
   --color_theme_base--darkBlue: rgb(45,60,140);
@@ -289,6 +290,7 @@ input:focus, input:active {
   resize: none;
   border: 2px solid var(--color_theme_base--darkBlue);
   border-radius: 3px;
+  background-color: var(--color_theme_bg);
   flex-basis: 100%;
   height: 70%;
   margin: 2%;
@@ -483,9 +485,8 @@ input:focus, input:active {
 }
 
 .threadPreview__title {
-  background-color: var(--color_theme_bg);
+  background: var(--color_theme_bg);
   color: var(--color_theme_base--darkBlue);
-  box-shadow: 1px 1px 1px 1px var(--color_theme_gray_12);;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

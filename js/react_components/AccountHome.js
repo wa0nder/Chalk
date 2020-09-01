@@ -555,7 +555,7 @@ class AccountHome extends React.Component{
     changeStyleSheet(event){
 
         let text = event.target.innerText;
-        let name = (text === 'light') ? 'index.css' : (text === 'bright' ? 'indexBright.css' : 'indexDark.css');
+        let name = (text === 'dusk') ? 'index.css' : (text === 'day' ? 'indexBright.css' : 'indexDark.css');
 
         document.getElementById('stylesheet').href = `/sidewalks/front-end/${name}`;
 
@@ -580,11 +580,11 @@ class AccountHome extends React.Component{
             
                 e('div', {className: 'profile__container'},
             
-                    e('a', {onClick: this.changeStyleSheet}, 'bright'),
+                    e('a', {onClick: this.changeStyleSheet}, 'day'),
 
-                    e('a', {onClick: this.changeStyleSheet}, 'light'),
-    
-                    e('a', {onClick: this.changeStyleSheet}, 'dark')
+                    e('a', {onClick: this.changeStyleSheet}, 'dusk'),
+
+                    e('a', {onClick: this.changeStyleSheet}, 'night')
                         
                 ),
 

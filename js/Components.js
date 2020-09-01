@@ -276,9 +276,14 @@ class CommentDisplay_CommentDisplay extends React.Component{
         }
 
         if(comment.date){
-            let d = new Date(comment.date.split(' G')[0]);
+            date = comment.date.split(' '); //year time GMT ()
+            let dateArray = date[0].split('-');
+            let timeArray = date[1].split(':');
+            let d = new Date(dateArray[0],dateArray[1],dateArray[2], timeArray[0],timeArray[1],timeArray[2]);
             let day = d.toDateString().slice(0,3);
-            date = `${d.getMonth()}/${d.getFullYear().toString().slice(2)} ${day} ${d.getHours()%12}:${d.getMinutes()}`;
+            let hourWrap = d.getHours()%12;
+            hourWrap = (hourWrap === 0) ? 12 : hourWrap;
+            date = `${d.getMonth()}/${dateArray[0].slice(2)} ${day} ${hourWrap}:${timeArray[1]}`;
         }
 
         return CommentDisplay_e(React.Fragment, null,
@@ -1445,7 +1450,7 @@ class AccountHome_AccountHome extends React.Component{
     changeStyleSheet(event){
 
         let text = event.target.innerText;
-        let name = (text === 'light') ? 'index.css' : (text === 'bright' ? 'indexBright.css' : 'indexDark.css');
+        let name = (text === 'dusk') ? 'index.css' : (text === 'day' ? 'indexBright.css' : 'indexDark.css');
 
         document.getElementById('stylesheet').href = `/sidewalks/front-end/${name}`;
 
@@ -1470,11 +1475,11 @@ class AccountHome_AccountHome extends React.Component{
             
                 AccountHome_e('div', {className: 'profile__container'},
             
-                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'bright'),
+                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'day'),
 
-                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'light'),
-    
-                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'dark')
+                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'dusk'),
+
+                    AccountHome_e('a', {onClick: this.changeStyleSheet}, 'night')
                         
                 ),
 
