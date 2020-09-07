@@ -6,7 +6,7 @@ August 2020 - Warning: even though there is now a live working demo of the proje
 
 Information relating to the development process behind the aesthetic choices and technical decisions for this project can be read at my site here: https://www.clarityncode.com/p/1-first-steps.html
 
-Purpose: solve the 'nesting layout issue' which plauges nearly all comment thread systems on the web with a 2D grid comment thread layout. ~~Also the components should update themselves using a local database synced with remote database.~~ In practice, and in terms of underlying technology patterns (e.g. ReactJS), this autonomous aspect didn't work out.
+Purpose: solve the 'nesting layout issue' which plagues nearly all comment thread systems on the web with a 2D grid comment thread layout. ~~Also the components should update themselves using a local database synced with remote database.~~ In practice, and in terms of underlying technology patterns (e.g. ReactJS), this autonomous aspect didn't work out.
 
 ~~It is created in the spirit of a 'CouchApp'* where the website files are attached to the CouchDB database and served from there.~~ * CouchDB's team is still working on integrating a 'per document access' feature so I'll need to add a third, application-layer tier.
 
