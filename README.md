@@ -47,7 +47,7 @@ at CLI, navigate to 'sidewalks' root folder:
 
 5. type 'npm run build' - this runs webpack
 6. type 'npm run update -- js/Components.js' - "update" runs 'updateScriptNodeJS.js' which uploads files to the DB
-7. type 'npm run update -- css/index.css css/indexDark.css'
+7. type 'npm run update -- css/index.css css/indexDark.css css/indexBright.css'
 8. type 'npm run update -- js/libs/pouchdb-7.1.1.js'
 
 all shared resources needed by individual user db's are now in the 'sidewalks' db
