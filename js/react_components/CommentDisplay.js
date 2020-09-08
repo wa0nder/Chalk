@@ -1,6 +1,7 @@
 'use strict';
 
 import CommentBlock from './CommentBlock.js';
+import {SW_Utils} from './AccountHome.js';
 
 const e = React.createElement;
 
@@ -104,10 +105,10 @@ class CommentDisplay extends React.Component{
             let dateArray = date[0].split('-');
             let timeArray = date[1].split(':');
             let d = new Date(dateArray[0],dateArray[1],dateArray[2], timeArray[0],timeArray[1],timeArray[2]);
-            let day = d.toDateString().slice(0,3);
-            let hourWrap = d.getHours()%12;
+            let day = SW_Utils.numToDay(d.getDay());
+            let hourWrap = timeArray[0]%12;
             hourWrap = (hourWrap === 0) ? 12 : hourWrap;
-            date = `${d.getMonth()}/${dateArray[0].slice(2)} ${day} ${hourWrap}:${timeArray[1]}`;
+            date = `${dateArray[1]}/${dateArray[0].slice(2)} ${day} ${hourWrap}:${timeArray[1]}`;
         }
 
         return e(React.Fragment, null,

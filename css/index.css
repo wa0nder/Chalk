@@ -193,7 +193,6 @@ input:focus, input:active {
   color: black;
   background-color: var(--color_theme_bg);
   margin: 1%;
-  transition: border-width ease 0.5s;
 }
 
 .commentBox--blank {

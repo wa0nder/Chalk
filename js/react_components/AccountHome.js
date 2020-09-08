@@ -163,6 +163,31 @@ let SW_Utils = {
         return date;
     },
 
+    numToMonth(num){
+        let months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        SW_Utils.numToMonth = function(num){
+            
+            if(num < 0 || num > 11){ throw new RangeError(`${num} does not map to 0-11 month range`); }
+
+            return months[num];
+        }
+
+        return SW_Utils.numToMonth(num);
+    },
+
+    numToDay(num){
+        let days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+
+        SW_Utils.numToDay = function(num){
+            
+            if(num < 0 || num > 6){ throw new RangeError(`${num} does not map to 0-6 day range`); }
+
+            return days[num];
+        }
+
+        return SW_Utils.numToDay(num);
+    },
+
     /**
      * @returns {CSS_RGB_ColorsArray} - returns an array of colors retrieved from CSS variable declarations
      *   for the purpose of styling comment colors in a specific order. First run initializes the array and
@@ -426,8 +451,6 @@ class AccountHome extends React.Component{
             mediaQueryWidthUpdate: false
         };
 
-
-
         //set author for comments
         this.props.DataService.getDB().info()
             .then(res => {
@@ -445,10 +468,15 @@ class AccountHome extends React.Component{
     }
 
     componentDidMount(){
+
+        this.props.DataService.addDemoThread()
         
-        this.props.DataService.updateRecentThreadsList(undefined)
-            .then(queryResults=> this.setState({queryResults: queryResults, currentThreadTitle: undefined}) )
-            .catch(err => console.log('Error: ', err) );
+        .then(() => this.props.DataService.updateRecentThreadsList(undefined) )
+
+        .then(queryResults => this.setState({queryResults: queryResults, currentThreadTitle: undefined}) )
+                
+        .catch(err => console.log('Error: ', err) );
+        
 
         
         const triggerRefresh = () => {
