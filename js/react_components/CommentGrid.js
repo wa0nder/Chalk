@@ -134,7 +134,7 @@ class CommentGrid extends React.Component{
 
       this.tintComments(div);
 
-      this.setScrollToEndMargin();
+      this.setScrollToEndMargin(id);
     }
     
   }
@@ -237,11 +237,13 @@ class CommentGrid extends React.Component{
    *  This allows ending comments to be scrolled to far left of parent container
    *  for highlighting.
    */
-  setScrollToEndMargin(){
-    
-    if(this.state.currentCommentId === undefined){ return; }
+  setScrollToEndMargin(id){
 
-    let elem = document.getElementById(this.state.currentCommentId);
+    let currentCommentId = this.state.currentCommentId;
+    if(currentCommentId === undefined){ currentCommentId = id; }
+    if(currentCommentId === undefined){ return; }
+
+    let elem = document.getElementById(currentCommentId);
     let childRect = elem.getBoundingClientRect();
     let gridElem = elem.parentElement;
 

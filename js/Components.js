@@ -476,7 +476,7 @@ class CommentGrid_CommentGrid extends React.Component{
 
       this.tintComments(div);
 
-      this.setScrollToEndMargin();
+      this.setScrollToEndMargin(id);
     }
     
   }
@@ -579,11 +579,13 @@ class CommentGrid_CommentGrid extends React.Component{
    *  This allows ending comments to be scrolled to far left of parent container
    *  for highlighting.
    */
-  setScrollToEndMargin(){
-    
-    if(this.state.currentCommentId === undefined){ return; }
+  setScrollToEndMargin(id){
 
-    let elem = document.getElementById(this.state.currentCommentId);
+    let currentCommentId = this.state.currentCommentId;
+    if(currentCommentId === undefined){ currentCommentId = id; }
+    if(currentCommentId === undefined){ return; }
+
+    let elem = document.getElementById(currentCommentId);
     let childRect = elem.getBoundingClientRect();
     let gridElem = elem.parentElement;
 
@@ -1481,7 +1483,13 @@ class AccountHome_AccountHome extends React.Component{
         let text = event.target.innerText;
         let name = (text === 'dusk') ? 'index.css' : (text === 'day' ? 'indexBright.css' : 'indexDark.css');
 
-        document.getElementById('stylesheet').href = `/sidewalks/front-end/${name}`;
+        fetch(`/sidewalks/front-end/${name}`)
+
+        .then(response => response.blob())
+
+        .then(blob => document.getElementById('stylesheet').href = URL.createObjectURL( blob ))
+
+        .catch(err => console.log("Error! ", err.message));
 
         return false;
     }

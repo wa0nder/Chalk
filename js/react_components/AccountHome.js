@@ -585,7 +585,13 @@ class AccountHome extends React.Component{
         let text = event.target.innerText;
         let name = (text === 'dusk') ? 'index.css' : (text === 'day' ? 'indexBright.css' : 'indexDark.css');
 
-        document.getElementById('stylesheet').href = `/sidewalks/front-end/${name}`;
+        fetch(`/sidewalks/front-end/${name}`)
+
+        .then(response => response.blob())
+
+        .then(blob => document.getElementById('stylesheet').href = URL.createObjectURL( blob ))
+
+        .catch(err => console.log("Error! ", err.message));
 
         return false;
     }
