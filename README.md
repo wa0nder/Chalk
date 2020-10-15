@@ -2,7 +2,9 @@
 
 ~~July 2020 - Warning: this project is in an initial stage of development so anything is up for change.~~
 
-August 2020 - Warning: even though there is now a live working demo of the project (see below), there's still plenty of room to evolve the idea in terms of live-deployment of the app. This, in turn, means there still can be serious breaking changes in terms of underlying technology used.
+~~August 2020 - Warning: even though there is now a live working demo of the project (see below), there's still plenty of room to evolve the idea in terms of live-deployment of the app. This, in turn, means there still can be serious breaking changes in terms of underlying technology used.~~
+
+October 2020 - Currently switching to a PHP/SQL backend. More details soon to come on my site.
 
 Information relating to the development process behind the aesthetic choices and technical decisions for this project can be read at my site here: https://www.clarityncode.com/p/1-first-steps.html
 
