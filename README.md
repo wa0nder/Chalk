@@ -1,3 +1,5 @@
+Two-dimensional comment thread layout written using JavaScript and React
+
 ![Chalk](assets/chalkLogoTwoTanSmall.png?raw=true "Chalk")
 
 ~~July 2020 - Warning: this project is in an initial stage of development so anything is up for change.~~
