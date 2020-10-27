@@ -1,3 +1,4 @@
+# Chalk
 Two-dimensional comment thread layout written using JavaScript and React
 
 ![Chalk](assets/chalkLogoTwoTanSmall.png?raw=true "Chalk")
