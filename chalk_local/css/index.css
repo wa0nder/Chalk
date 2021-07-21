@@ -8,6 +8,8 @@ website: https://github.com/wa0nder/Chalk
 :root {
   --color_theme_bg: white;
   --color_theme_bg--tan: rgb(254,216,144);
+  --color_theme_bg--darkTan: rgb(252, 193, 95);
+  --color_theme_bg--palePurple: rgb(229, 229, 250);
   --color_theme_bg--lightPurple: rgb(193,193,232);
   --color_theme_bg--lightBlue: rgb(101, 117, 206);
   --color_theme_base--darkBlue: rgb(45,60,140);
@@ -35,8 +37,6 @@ website: https://github.com/wa0nder/Chalk
   --color_theme_gray_13: rgb(157,157,157);
 
   --theme_border-radius: 3px;
-
-
 }
 
 * {
@@ -63,7 +63,7 @@ a:active {
 }
 
 body {
-  font: 100%  "Lucida Grande", "Lucida Sans", Tahoma, Verdana, sans-serif; 
+  font: 80%  "Lucida Grande", "Lucida Sans", Tahoma, Verdana, sans-serif; 
   color: #000000;
   background-color: rgb(236, 234, 234);
 } 
@@ -74,7 +74,11 @@ title {
 
 h2 {
   text-align: left;
-  margin: 1%;
+  margin-right: 72%;
+  padding-left: 1%;
+  min-width: 280px;
+  background: linear-gradient(90deg, var(--color_theme_gray_11), 80%, transparent);
+  border-radius: var(--theme_border-radius);
   color: var(--color_theme_bg);
   text-shadow: 0px 3px 2px var(--color_theme_bg--lightPurple), 
                 0px 4px 2px var(--color_theme_base--gravel), 
@@ -101,28 +105,29 @@ img {
 
 button {
   color: var(--color_theme_base--darkBlue);
-  background-color: var(--color_theme_bg);
-  border-bottom: 2px solid var(--color_theme_base--darkBlue);
+  background-color: var(--color_theme_bg--tan);
+  border-bottom: 2px solid var(--color_theme_purple_12);
   border-radius: 5px;
   font-size: 110%;
-  padding: 2px;
+  padding: 1%;
   margin: 1%;
 }
 
 button:hover {
   color: var(--color_theme_bg);
-  background-color: var(--color_theme_base--darkBlue);
+  background-color: var(--color_theme_purple_12);
   border-bottom: 2px solid transparent;
 }
 
 input {
-  border: 2px solid var(--color_theme_base--darkBlue);
+  border: 2px solid var(--color_theme_bg--darkTan);
   border-radius: 5px;
+  background-color: var(--color_theme_bg--darkTan);
   padding: 1%;
 }
 
 input:focus, input:active {
-  border: 3px solid var(--color_theme_purple_13);
+  border: 3px solid var(--color_theme_purple_12);
   outline: none;
   font-size: 107%;
 }
@@ -149,7 +154,7 @@ input:focus, input:active {
 
 @media screen and (max-width: 870px) {
   .page {
-    width: 490px;
+    width: 350px;
   }
 }
 
@@ -158,6 +163,7 @@ input:focus, input:active {
   margin-left:auto;  
   margin-right:auto;
   background-color: var(--color_theme_bg); 
+  background: linear-gradient(var(--color_theme_bg--tan), 63%, var(--color_theme_purple_12), 64%, var(--color_theme_gray_12));
 }
 
 
@@ -187,7 +193,6 @@ input:focus, input:active {
   color: black;
   background-color: var(--color_theme_bg);
   margin: 1%;
-  transition: border-width ease 0.5s;
 }
 
 .commentBox--blank {
@@ -261,11 +266,11 @@ input:focus, input:active {
 
 .commentBlock--overlay {
   position: absolute;
-  width: 400px;
-  height: 400px;
+  width: 350px;
+  height: 350px;
   top: 0%;
   color: var(--color_theme_bg);
-  background-color: var(--color_theme_bg--lightPurple);
+  background-color: var(--color_theme_bg--lightBlue);
   z-index: 3;
 }
 
@@ -273,20 +278,27 @@ input:focus, input:active {
   left: 15%;
   z-index: 3;
   opacity: 0.95;
-  border: 2px solid var(--color_theme_bg);
+  border: 2px solid transparent;
   color: var(--color_theme_bg);
-  background-color: var(--color_theme_bg--lightPurple);
+  background-color: var(--color_theme_bg--lightBlue);
+  box-shadow: 0px 0px 4px var(--color_theme_base--gravel);
 }
 
 .commentBlockTextArea {
   display: block;
   resize: none;
-  border: 2px solid black;
+  border: 2px solid var(--color_theme_base--darkBlue);
   border-radius: 3px;
+  background-color: var(--color_theme_bg);
   flex-basis: 100%;
   height: 70%;
   margin: 2%;
   overflow:auto;
+}
+
+.commentBlockTextArea:active,
+.commentBlockTextArea:focus {
+  outline-color: var(--color_theme_base--darkBlue)
 }
 
 .commentBlock__h4 {
@@ -333,10 +345,10 @@ input:focus, input:active {
 }
 
 .newThreadBtn, .addCommentBtn {
-  box-shadow: 4px 4px 8px var(--color_theme_bg--lightPurple);
+  box-shadow: 4px 4px 7px var(--color_theme_purple_12);
   color: var(--color_theme_base--darkBlue);
-  background-color: var(--color_theme_bg);
-  border-bottom-color: transparent;
+  background: linear-gradient(295deg, var(--color_theme_bg--darkTan), var(--color_theme_bg--tan));
+  border-bottom: 2px solid transparent;
   border-radius: 5px;
   font-size: 110%;
   padding: 2%;
@@ -351,7 +363,7 @@ input:focus, input:active {
 
 .newThreadBtn:hover, .addCommentBtn:hover {
   color: var(--color_theme_bg);
-  background-color: var(--color_theme_base--darkBlue);
+  background: var(--color_theme_purple_12);
 }
 
 .profile {
@@ -372,19 +384,21 @@ input:focus, input:active {
   margin-top: 1%;
   max-width: 50%;
   text-decoration: none;
+  filter: drop-shadow(0 0 20px var(--color_theme_gray_11));
 }
 .profile__a:hover {
-  box-shadow: 2px 2px 4px var(--color_theme_purple_13);
+  filter: drop-shadow(0 0 20px var(--color_theme_purple_12));
+  color: var(--color_theme_purple_12);
   text-decoration: none;
 }
 .profile__a:active{
-  box-shadow: 2px 2px 4px var(--color_theme_purple_11);
+  filter: drop-shadow(0 0 20px var(--color_theme_purple_13));
 }
 
 .profile__container {
   display: flex;
-  max-width: 8%;
-  min-width: 80px;
+  max-width: 14%;
+  min-width: 120px;
   justify-content: space-around;
   margin-right: auto;
 }
@@ -405,7 +419,7 @@ input:focus, input:active {
 
 .profile__p {
   align-self: center;
-  color: var(--color_theme_base--gravel);
+  color: inherit;
   padding-top: 5%;
 }
 
@@ -421,8 +435,8 @@ input:focus, input:active {
 }
 
 .section {
-  border-left: 3px solid var(--color_theme_base--darkBlue);
-  border-radius: var(--theme_border-radius);
+  border-left: 3px solid transparent;
+  border-radius: 0;
   max-width: 100%;
   margin-top: 1%;
   margin-bottom: 3%;
@@ -470,9 +484,8 @@ input:focus, input:active {
 }
 
 .threadPreview__title {
-  background-color: var(--color_theme_bg);
+  background: var(--color_theme_bg);
   color: var(--color_theme_base--darkBlue);
-  box-shadow: 1px 1px 1px 1px var(--color_theme_gray_12);;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
